@@ -69,62 +69,160 @@ export const mockDatasets: Dataset[] = [
   }
 ];
 
+export interface Algorithm {
+  id: string;
+  name: string;
+  version: string;
+  description: string;
+  category: string;
+  lastCommitMessage: string;
+  lastCommitDate: string;
+}
+
 export const mockAlgorithms: Algorithm[] = [
   {
     id: 'alg1',
-    name: 'GENIE3',
+    name: 'ARBORETO',
     version: '1.0',
-    description: 'Random forest-based gene regulatory network inference',
-    category: 'Ensemble'
+    description: 'Tree-based network inference using random forests',
+    category: 'Ensemble',
+    lastCommitMessage: 'Yiqi dockerfiles pull',
+    lastCommitDate: '2 years ago'
   },
   {
     id: 'alg2',
-    name: 'PIDC',
-    version: '2.1',
-    description: 'Partial Information Decomposition and Context',
-    category: 'Information Theory'
+    name: 'BTR',
+    version: '1.0',
+    description: 'Boolean network inference with BTR',
+    category: 'Boolean',
+    lastCommitMessage: 'Added BoolTraineR.',
+    lastCommitDate: '7 years ago'
   },
   {
     id: 'alg3',
-    name: 'GRNBoost2',
-    version: '0.7.1',
-    description: 'Gradient boosting for network inference',
-    category: 'Ensemble'
+    name: 'GRISLI',
+    version: '1.0',
+    description: 'Gene regulatory inference using single-cell time series',
+    category: 'Time Series',
+    lastCommitMessage: 'Add README markdown files for algorithms integration',
+    lastCommitDate: '3 years ago'
   },
   {
     id: 'alg4',
-    name: 'PPCOR',
+    name: 'GRNVBEM',
     version: '1.0',
-    description: 'Partial correlation based network inference',
-    category: 'Correlation'
+    description: 'Variational Bayesian EM for network inference',
+    category: 'Bayesian',
+    lastCommitMessage: 'Add README markdown files for algorithms integration',
+    lastCommitDate: '3 years ago'
   },
   {
     id: 'alg5',
-    name: 'SINCERITIES',
-    version: '1.5',
-    description: 'Temporally informed network inference',
-    category: 'Time Series'
+    name: 'JUMP3',
+    version: '1.0',
+    description: 'Time-series network inference',
+    category: 'Time Series',
+    lastCommitMessage: 'tried to run the time command',
+    lastCommitDate: '7 years ago'
   },
   {
     id: 'alg6',
     name: 'LEAP',
     version: '1.2',
-    description: 'Lag-based Expression Association for Pseudotime-series',
-    category: 'Time Series'
+    description: 'Lag-based expression association for pseudotime',
+    category: 'Time Series',
+    lastCommitMessage: 'Add README markdown files for algorithms integration',
+    lastCommitDate: '3 years ago'
   },
   {
     id: 'alg7',
-    name: 'SCENIC',
-    version: '1.1.3',
-    description: 'Single-cell regulatory network inference',
-    category: 'Single Cell'
+    name: 'PIDC',
+    version: '2.1',
+    description: 'Partial Information Decomposition and Context',
+    category: 'Information Theory',
+    lastCommitMessage: 'Yiqi dockerfiles pull',
+    lastCommitDate: '2 years ago'
   },
   {
     id: 'alg8',
-    name: 'GRNVBEM',
+    name: 'PNI',
     version: '1.0',
-    description: 'Variational Bayesian EM for network inference',
-    category: 'Bayesian'
+    description: 'Pseudo-time network inference',
+    category: 'Time Series',
+    lastCommitMessage: 'Added time module to each of the dockers.',
+    lastCommitDate: '7 years ago'
+  },
+  {
+    id: 'alg9',
+    name: 'PPCOR',
+    version: '1.0',
+    description: 'Partial correlation based network inference',
+    category: 'Correlation',
+    lastCommitMessage: 'Add README markdown files for algorithms integration',
+    lastCommitDate: '3 years ago'
+  },
+  {
+    id: 'alg10',
+    name: 'SCINGE',
+    version: '1.0',
+    description: 'Single-cell network inference with time series',
+    category: 'Single Cell',
+    lastCommitMessage: 'Set user to avoid permission issues',
+    lastCommitDate: '5 years ago'
+  },
+  {
+    id: 'alg11',
+    name: 'SCNS',
+    version: '1.0',
+    description: 'Single-cell network inference',
+    category: 'Single Cell',
+    lastCommitMessage: 'scns dockerfile fix',
+    lastCommitDate: '2 years ago'
+  },
+  {
+    id: 'alg12',
+    name: 'SCODE',
+    version: '1.0',
+    description: 'Network inference from single-cell expression data',
+    category: 'Single Cell',
+    lastCommitMessage: 'Add README markdown files for algorithms integration',
+    lastCommitDate: '3 years ago'
+  },
+  {
+    id: 'alg13',
+    name: 'SCRIBE',
+    version: '1.0',
+    description: 'Single-cell trajectory network inference',
+    category: 'Single Cell',
+    lastCommitMessage: 'bioclite is depreceated - moved monocle to biocmanager',
+    lastCommitDate: '2 years ago'
+  },
+  {
+    id: 'alg14',
+    name: 'SCSGL',
+    version: '1.0',
+    description: 'Single-cell sparse gene network learning',
+    category: 'Single Cell',
+    lastCommitMessage: 'Merge pull request #106 from Murali-group/dockerfileupdates',
+    lastCommitDate: '2 years ago'
+  },
+  {
+    id: 'alg15',
+    name: 'SINCERITIES',
+    version: '1.5',
+    description: 'Temporally informed network inference',
+    category: 'Time Series',
+    lastCommitMessage: 'scribe - added new mirror to sources',
+    lastCommitDate: '2 years ago'
+  },
+  {
+    id: 'alg16',
+    name: 'SINGE',
+    version: '1.0',
+    description: 'Single-cell network inference',
+    category: 'Single Cell',
+    lastCommitMessage: 'fixed singe support - patch fix by allowing all certificates',
+    lastCommitDate: '2 years ago'
   }
 ];
 

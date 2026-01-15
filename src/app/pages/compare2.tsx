@@ -7,9 +7,6 @@ import { Checkbox } from '../components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Download, FileDown, X, Activity } from 'lucide-react';
 import { mockAlgorithms, mockPerformanceMetrics, getPRCurveData, getROCCurveData } from '.././components/mockData';
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
-import autoTable from "jspdf-autotable";
 import {
   LineChart,
   Line,
@@ -23,324 +20,43 @@ import {
   Bar,
 } from 'recharts';
 
-const downloadRocGraph = async () => {
-  const chartContainer = document.querySelector('.recharts-wrapper');
-  if (chartContainer) {
-    const canvas = await html2canvas(chartContainer);
-    const dataURL = canvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.href = dataURL;
-    link.download = 'roc-curve.png';
-    link.click();
-  }
-};
-
-const downloadPrcGraph = async () => {
-  const chartContainer = document.querySelector('.recharts-wrapper');
-  if (chartContainer) {
-    const canvas = await html2canvas(chartContainer);
-    const dataURL = canvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.href = dataURL;
-    link.download = 'precision-recall-curve.png';
-    link.click();
-  }
-};
-
-const exportCSV = (metrics) => {
-  const header = [
-    "Algorithm",
-    "Precision",
-    "Recall",
-    "F1 Score",
-    "AUROC",
-    "AUPRC",
-    "Early Precision",
-    "Runtime (s)",
-    "Memory (MB)"
-  ];
-
-  const rows = metrics.map((m) => [
-    m.algorithmName,
-    m.precision.toFixed(3),
-    m.recall.toFixed(3),
-    m.f1Score.toFixed(3),
-    m.auroc.toFixed(3),
-    m.auprc.toFixed(3),
-    m.earlyPrecision.toFixed(3),
-    m.runtime.toFixed(1),
-    m.memoryUsage.toLocaleString(),
-  ]);
-
-  const csvContent =
-    "data:text/csv;charset=utf-8," +
-    [header, ...rows].map((e) => e.join(",")).join("\n");
-
-  const link = document.createElement("a");
-  link.href = encodeURI(csvContent);
-  link.download = "performance_metrics.csv";
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-};
-
-const exportPDF = (metrics) => {
-  const doc = new jsPDF();
-
-  const tableColumn = [
-    "Algorithm",
-    "Precision",
-    "Recall",
-    "F1",
-    "AUROC",
-    "AUPRC",
-    "Early Prec",
-    "Runtime",
-    "Memory MB",
-  ];
-
-  const tableRows = metrics.map((m) => [
-    m.algorithmName,
-    m.precision.toFixed(3),
-    m.recall.toFixed(3),
-    m.f1Score.toFixed(3),
-    m.auroc.toFixed(3),
-    m.auprc.toFixed(3),
-    m.earlyPrecision.toFixed(3),
-    m.runtime.toFixed(1),
-    m.memoryUsage.toLocaleString(),
-  ]);
-
-  autoTable(doc, {
-    head: [tableColumn],
-    body: tableRows,
-    styles: { fontSize: 8 },
-    theme: "grid",
-  });
-
-  doc.save("performance_metrics.pdf");
-};
-
 const algorithms = [
-
-  { name: 'GENIE3',       color: '#A970FF', selected: true },
-  { name: 'PPCOR',        color: '#60a5fa', selected: true },
-  { name: 'SINCERITIES',  color: '#f59e0b', selected: true },
-  { name: 'PIDC',         color: '#ef4444', selected: false },
-  { name: 'GRNBoost2',    color: '#10b981', selected: false },
-  { name: 'SCENIC',       color: '#8b5cf6', selected: false },
-
-  { name: 'ARBORETO',    color: '#e11d48', selected: true },
-  { name: 'BTR',         color: '#f87171', selected: false },
-  { name: 'GRISLI',      color: '#fb923c', selected: false },
-  { name: 'GRNVBEM',     color: '#facc15', selected: false },
-  { name: 'JUMP3',       color: '#a3e635', selected: false },
-  { name: 'LEAP',        color: '#4ade80', selected: false },
-  { name: 'PNI',         color: '#2dd4bf', selected: false },
-  { name: 'SCINGE',      color: '#22d3ee', selected: false },
-  { name: 'SCNS',        color: '#38bdf8', selected: false },
-  { name: 'SCODE',       color: '#818cf8', selected: false },
-  { name: 'SCRIBE',      color: '#a78bfa', selected: false },
-  { name: 'SCSGL',       color: '#c084fc', selected: false },
-  { name: 'SINGE',       color: '#e879f9', selected: false },
+  { name: 'GENIE3', color: '#A970FF', selected: true },
+  { name: 'PPCOR', color: '#60a5fa', selected: true },
+  { name: 'SINCERITIES', color: '#f59e0b', selected: true },
+  { name: 'PIDC', color: '#ef4444', selected: false },
+  { name: 'GRNBoost2', color: '#10b981', selected: false },
+  { name: 'SCENIC', color: '#8b5cf6', selected: false },
 ];
-
 
 const prData = Array.from({ length: 20 }, (_, i) => ({
   recall: i / 20,
   GENIE3: 0.95 - i * 0.04,
-  GRNBoost2: 0.90 - i * 0.037,
-  SCENIC: 0.88 - i * 0.035,
-  SINCERITIES: 0.82 - i * 0.036,
-  PIDC: 0.78 - i * 0.032,
   PPCOR: 0.85 - i * 0.038,
-  ARBORETO: 0.80 - i * 0.033,
-  BTR: 0.76 - i * 0.031,
-  GRISLI: 0.79 - i * 0.034,
-  GRNVBEM: 0.77 - i * 0.032,
-  JUMP3: 0.75 - i * 0.03,
-  LEAP: 0.81 - i * 0.035,
-  PNI: 0.74 - i * 0.03,
-  SCINGE: 0.78 - i * 0.032,
-  SCNS: 0.73 - i * 0.029,
-  SCODE: 0.76 - i * 0.031,
-  SCRIBE: 0.72 - i * 0.028,
-  SCSGL: 0.71 - i * 0.027,
-  SINGE: 0.70 - i * 0.026,
+  SINCERITIES: 0.82 - i * 0.036,
 }));
 
 const rocData = Array.from({ length: 20 }, (_, i) => ({
   fpr: i / 20,
   GENIE3: 0.5 + i * 0.025,
-  GRNBoost2: 0.48 + i * 0.024,
-  SCENIC: 0.46 + i * 0.023,
-  SINCERITIES: 0.44 + i * 0.022,
-  PIDC: 0.42 + i * 0.021,
-  PPCOR: 0.40 + i * 0.020,
-  ARBORETO: 0.38 + i * 0.019,
-  BTR: 0.36 + i * 0.018,
-  GRISLI: 0.35 + i * 0.017,
-  GRNVBEM: 0.34 + i * 0.016,
-  JUMP3: 0.33 + i * 0.015,
-  LEAP: 0.32 + i * 0.014,
-  PNI: 0.31 + i * 0.013,
-  SCINGE: 0.30 + i * 0.012,
-  SCNS: 0.29 + i * 0.011,
-  SCODE: 0.28 + i * 0.010,
-  SCRIBE: 0.27 + i * 0.009,
-  SCSGL: 0.26 + i * 0.008,
-  SINGE: 0.25 + i * 0.007,
+  PPCOR: 0.4 + i * 0.028,
+  SINCERITIES: 0.35 + i * 0.03,
 }));
 
-
 const enrichmentData = [
-  {
-    category: 'GO:0000',
-    GENIE3: 850,
-    GRNBoost2: 720,
-    SCENIC: 680,
-    SINCERITIES: 650,
-    PIDC: 620,
-    PPCOR: 590,
-    ARBORETO: 560,
-    BTR: 540,
-    GRISLI: 530,
-    GRNVBEM: 520,
-    JUMP3: 500,
-    LEAP: 510,
-    PNI: 495,
-    SCINGE: 480,
-    SCNS: 470,
-    SCODE: 460,
-    SCRIBE: 450,
-    SCSGL: 440,
-    SINGE: 430,
-  },
-  {
-    category: 'OCT4',
-    GENIE3: 725,
-    GRNBoost2: 680,
-    SCENIC: 650,
-    SINCERITIES: 620,
-    PIDC: 600,
-    PPCOR: 580,
-    ARBORETO: 560,
-    BTR: 540,
-    GRISLI: 520,
-    GRNVBEM: 510,
-    JUMP3: 500,
-    LEAP: 490,
-    PNI: 480,
-    SCINGE: 470,
-    SCNS: 460,
-    SCODE: 450,
-    SCRIBE: 440,
-    SCSGL: 430,
-    SINGE: 420,
-  },
-  {
-    category: 'NANOG',
-    GENIE3: 650,
-    GRNBoost2: 590,
-    SCENIC: 570,
-    SINCERITIES: 550,
-    PIDC: 530,
-    PPCOR: 510,
-    ARBORETO: 500,
-    BTR: 490,
-    GRISLI: 480,
-    GRNVBEM: 470,
-    JUMP3: 460,
-    LEAP: 450,
-    PNI: 440,
-    SCINGE: 430,
-    SCNS: 420,
-    SCODE: 410,
-    SCRIBE: 400,
-    SCSGL: 390,
-    SINGE: 380,
-  },
-  {
-    category: 'E2F7',
-    GENIE3: 580,
-    GRNBoost2: 520,
-    SCENIC: 500,
-    SINCERITIES: 480,
-    PIDC: 460,
-    PPCOR: 440,
-    ARBORETO: 430,
-    BTR: 420,
-    GRISLI: 410,
-    GRNVBEM: 400,
-    JUMP3: 390,
-    LEAP: 380,
-    PNI: 370,
-    SCINGE: 360,
-    SCNS: 350,
-    SCODE: 340,
-    SCRIBE: 330,
-    SCSGL: 320,
-    SINGE: 310,
-  },
-  {
-    category: 'MYC',
-    GENIE3: 450,
-    GRNBoost2: 480,
-    SCENIC: 470,
-    SINCERITIES: 460,
-    PIDC: 450,
-    PPCOR: 440,
-    ARBORETO: 430,
-    BTR: 420,
-    GRISLI: 410,
-    GRNVBEM: 400,
-    JUMP3: 390,
-    LEAP: 380,
-    PNI: 370,
-    SCINGE: 360,
-    SCNS: 350,
-    SCODE: 340,
-    SCRIBE: 330,
-    SCSGL: 320,
-    SINGE: 310,
-  },
+  { category: 'GO:0000', GENIE3: 850, GRNBoost2: 720 },
+  { category: 'OCT4', GENIE3: 725, GRNBoost2: 680 },
+  { category: 'NANOG', GENIE3: 650, GRNBoost2: 590 },
+  { category: 'E2F7', GENIE3: 580, GRNBoost2: 520 },
+  { category: 'MYC', GENIE3: 450, GRNBoost2: 480 },
 ];
-
-
 
 const similarityData = [
   { pair: 'GENIE3 — GRNBoost2', similarity: 0.82, color: '#A970FF' },
   { pair: 'GENIE3 — SCENIC', similarity: 0.76, color: '#60a5fa' },
   { pair: 'PPCOR — PIDC', similarity: 0.71, color: '#f59e0b' },
   { pair: 'SINCERITIES — SCENIC', similarity: 0.68, color: '#ef4444' },
-  { pair: 'GENIE3 — ARBORETO', similarity: 0.79, color: '#8b5cf6' },
-  { pair: 'GENIE3 — BTR', similarity: 0.65, color: '#10b981' },
-  { pair: 'GENIE3 — GRISLI', similarity: 0.72, color: '#f97316' },
-  { pair: 'GENIE3 — GRNVBEM', similarity: 0.74, color: '#3b82f6' },
-  { pair: 'GENIE3 — JUMP3', similarity: 0.67, color: '#ec4899' },
-  { pair: 'GENIE3 — LEAP', similarity: 0.70, color: '#eab308' },
-  { pair: 'GENIE3 — PNI', similarity: 0.69, color: '#22d3ee' },
-  { pair: 'GENIE3 — SCINGE', similarity: 0.71, color: '#f43f5e' },
-  { pair: 'GENIE3 — SCNS', similarity: 0.68, color: '#6366f1' },
-  { pair: 'GENIE3 — SCODE', similarity: 0.66, color: '#facc15' },
-  { pair: 'GENIE3 — SCRIBE', similarity: 0.73, color: '#14b8a6' },
-  { pair: 'GENIE3 — SCSGL', similarity: 0.64, color: '#f87171' },
-  { pair: 'GENIE3 — SINGE', similarity: 0.69, color: '#8b5cf6' },
-
-  { pair: 'ARBORETO — GRISLI', similarity: 0.62, color: '#60a5fa' },
-  { pair: 'ARBORETO — GRNVBEM', similarity: 0.65, color: '#a78bfa' },
-  { pair: 'BTR — JUMP3', similarity: 0.61, color: '#f97316' },
-  { pair: 'LEAP — SCINGE', similarity: 0.67, color: '#f59e0b' },
-  { pair: 'PNI — SCNS', similarity: 0.63, color: '#22d3ee' },
-  { pair: 'SCODE — SCRIBE', similarity: 0.66, color: '#f43f5e' },
-  { pair: 'SCSGL — SINGE', similarity: 0.64, color: '#14b8a6' },
-  { pair: 'PIDC — PPCOR', similarity: 0.70, color: '#f59e0b' },
-  { pair: 'SCENIC — SINCERITIES', similarity: 0.68, color: '#ef4444' },
-  { pair: 'GRNBoost2 — SINCERITIES', similarity: 0.66, color: '#a970ff' },
-  { pair: 'GRNBoost2 — SCODE', similarity: 0.65, color: '#f97316' },
-  { pair: 'SCNS — SCRIBE', similarity: 0.63, color: '#3b82f6' },
 ];
-
 
 const metricsData = [
   {
@@ -397,126 +113,7 @@ const metricsData = [
     recall: 0.559,
     earlyPrecision: 0.723,
   },
-
-  {
-    algorithm: 'ARBORETO',
-    auroc: 0.768,
-    auprc: 0.603,
-    f1: 0.644,
-    precision: 0.702,
-    recall: 0.598,
-    earlyPrecision: 0.782,
-  },
-  {
-    algorithm: 'BTR',
-    auroc: 0.652,
-    auprc: 0.557,
-    f1: 0.583,
-    precision: 0.611,
-    recall: 0.552,
-    earlyPrecision: 0.721,
-  },
-  {
-    algorithm: 'GRISLI',
-    auroc: 0.712,
-    auprc: 0.612,
-    f1: 0.639,
-    precision: 0.664,
-    recall: 0.601,
-    earlyPrecision: 0.765,
-  },
-  {
-    algorithm: 'GRNVBEM',
-    auroc: 0.735,
-    auprc: 0.634,
-    f1: 0.658,
-    precision: 0.683,
-    recall: 0.628,
-    earlyPrecision: 0.792,
-  },
-  {
-    algorithm: 'JUMP3',
-    auroc: 0.683,
-    auprc: 0.505,
-    f1: 0.558,
-    precision: 0.587,
-    recall: 0.531,
-    earlyPrecision: 0.673,
-  },
-  {
-    algorithm: 'LEAP',
-    auroc: 0.743,
-    auprc: 0.622,
-    f1: 0.651,
-    precision: 0.674,
-    recall: 0.618,
-    earlyPrecision: 0.801,
-  },
-  {
-    algorithm: 'PNI',
-    auroc: 0.677,
-    auprc: 0.532,
-    f1: 0.569,
-    precision: 0.599,
-    recall: 0.545,
-    earlyPrecision: 0.702,
-  },
-  {
-    algorithm: 'SCINGE',
-    auroc: 0.754,
-    auprc: 0.671,
-    f1: 0.702,
-    precision: 0.731,
-    recall: 0.669,
-    earlyPrecision: 0.844,
-  },
-  {
-    algorithm: 'SCNS',
-    auroc: 0.708,
-    auprc: 0.588,
-    f1: 0.622,
-    precision: 0.655,
-    recall: 0.594,
-    earlyPrecision: 0.755,
-  },
-  {
-    algorithm: 'SCODE',
-    auroc: 0.721,
-    auprc: 0.561,
-    f1: 0.601,
-    precision: 0.628,
-    recall: 0.575,
-    earlyPrecision: 0.733,
-  },
-  {
-    algorithm: 'SCRIBE',
-    auroc: 0.691,
-    auprc: 0.577,
-    f1: 0.613,
-    precision: 0.642,
-    recall: 0.586,
-    earlyPrecision: 0.748,
-  },
-  {
-    algorithm: 'SCSGL',
-    auroc: 0.764,
-    auprc: 0.643,
-    f1: 0.674,
-    precision: 0.698,
-    recall: 0.646,
-    earlyPrecision: 0.812,
-  },
-  {
-    algorithm: 'SINGE',
-    auroc: 0.728,
-    auprc: 0.602,
-    f1: 0.646,
-    precision: 0.668,
-    recall: 0.612,
-    earlyPrecision: 0.795,
-  },
 ];
-
 
 const motifEnrichmentData = [
   { motif: 'SOX2', enrichment: 8.4 },
@@ -587,36 +184,14 @@ export function Compare() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-foreground">Select Algorithms to Compare</h3>
-            {/* <div className="flex gap-2">
+            <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={selectAll}>
                 Select All
               </Button>
               <Button variant="outline" size="sm" onClick={deselectAll}>
                 Deselect All
               </Button>
-            </div> */}
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2"
-                onClick={() => exportCSV(selectedMetrics)}
-              >
-                <FileDown className="w-4 h-4" />
-                Export CSV
-              </Button>
-
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2"
-                onClick={() => exportPDF(selectedMetrics)}
-              >
-                <Download className="w-4 h-4" />
-                Export PDF
-              </Button>
             </div>
-
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -729,11 +304,11 @@ export function Compare() {
           <div className="p-4 border-b border-border flex items-center justify-between">
             <h3 className="text-foreground">Performance Metrics</h3>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="gap-2" onClick={() => exportCSV(selectedMetrics)}>
+              <Button variant="outline" size="sm" className="gap-2">
                 <FileDown className="w-4 h-4" />
                 Export CSV
               </Button>
-              <Button variant="outline" size="sm" className="gap-2" onClick={() => exportPDF(selectedMetrics)}>
+              <Button variant="outline" size="sm" className="gap-2">
                 <Download className="w-4 h-4" />
                 Export PDF
               </Button>
@@ -789,7 +364,7 @@ export function Compare() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-foreground">Precision-Recall Curve</h3>
-                <Button variant="outline" size="sm" className="gap-2" onClick={downloadPrcGraph}>
+                <Button variant="outline" size="sm" className="gap-2">
                   <Download className="w-4 h-4" />
                   Export
                 </Button>
@@ -838,7 +413,7 @@ export function Compare() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-foreground">ROC Curve</h3>
-                <Button variant="outline" size="sm" className="gap-2" onClick={downloadRocGraph}>
+                <Button variant="outline" size="sm" className="gap-2">
                   <Download className="w-4 h-4" />
                   Export
                 </Button>
@@ -1039,7 +614,7 @@ export function Compare() {
           </div>
 
           {/* Similarity */}
-          <div className="p-6 rounded-lg border bg-card h-[400px] overflow-y-auto scrollbar-thin">
+          <div className="p-6 rounded-lg border bg-card">
             <div className="mb-6">
               <h2 className="font-semibold mb-1">Algorithm Similarity</h2>
               <p className="text-sm text-muted-foreground">
