@@ -226,6 +226,7 @@ export const mockAlgorithms: Algorithm[] = [
   }
 ];
 
+
 export const mockPerformanceMetrics: PerformanceMetrics[] = [
   {
     algorithmId: 'alg1',
