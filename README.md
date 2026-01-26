@@ -9,7 +9,6 @@
   * Changes are Dynamically Loaded from a postgreSQL database
   * Provision made for cloud deployment to Azure.
 
-
   ## Running the code
 
   Run `npm i` to install the dependencies.
