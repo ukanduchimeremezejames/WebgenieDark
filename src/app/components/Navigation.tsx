@@ -24,7 +24,7 @@ const navLinks = [
     label: 'Datasets',
     path: '/datasets',
     items: [
-      { label: 'All Datasets', path: '/datasets/all' },
+      { label: 'All Datasets', path: '/datasets' },
       { label: 'Dataset Search', path: '/datasets/search' },
       { label: 'Dataset Metadata', path: '/datasets/metadata' },
       { label: 'Upload Dataset', path: '/upload' },
@@ -96,7 +96,7 @@ export function Navigation() {
       return;
     } else if (path.startsWith('/datasets') && location.pathname === '/datasets') {
       const id = path.replace('/datasets', '') || '/';
-      const target = id === '/' ? 'all' : id.substring(1);
+      const target = id === '/' ? 'datasets' : id.substring(1);
 
       const el = document.getElementById(target);
       if (el) {

@@ -218,7 +218,7 @@ export function Datasets() {
   };
 
   return (
-    <div id="all" className="min-h-screen py-20 pb-0">
+    <div id="datasets" className="min-h-screen py-20 pb-0">
       <div className="container px-4 mx-auto">
 
         {/* Header */}
@@ -338,7 +338,7 @@ export function Datasets() {
       <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/10 flex items-center justify-center">
         <PlayCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
       </div>
-      <h4 className="text-gray-900 dark:text-gray-100 font-medium">Total Runs</h4>
+      <h4 className="text-gray-900 dark:text-gray-100 font-medium" id="search">Total Runs</h4>
     </div>
     <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">All algorithm executions stored in the system</p>
     <AnimatedCounter title="" value={totalRuns} className="mt-2" />
@@ -357,9 +357,9 @@ export function Datasets() {
         </div> */}
 
         {/* Filters & Search */}
-        <div id="search" className="flex flex-col lg:flex-row gap-4 mb-6">
+        <div className="flex flex-col lg:flex-row gap-4 mb-6">
   {/* Search Input */}
-  <div className="relative flex-1">
+  <div className="relative flex-1" id="search">
     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground dark:text-gray-400" />
     <input
       type="text"

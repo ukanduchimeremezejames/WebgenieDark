@@ -17,7 +17,7 @@ interface DataTableProps {
 export function DataTable({ columns, data, onRowClick }: DataTableProps) {
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  
+
   const handleSort = (key: string) => {
     if (sortKey === key) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -26,68 +26,104 @@ export function DataTable({ columns, data, onRowClick }: DataTableProps) {
       setSortDirection('asc');
     }
   };
-  
+
   const sortedData = [...data].sort((a, b) => {
     if (!sortKey) return 0;
-    
+
     const aVal = a[sortKey];
     const bVal = b[sortKey];
-    
+
     if (typeof aVal === 'number' && typeof bVal === 'number') {
       return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
     }
-    
-    return sortDirection === 'asc' 
+
+    return sortDirection === 'asc'
       ? String(aVal).localeCompare(String(bVal))
       : String(bVal).localeCompare(String(aVal));
   });
-  
+
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div className="rounded-lg border border-border bg-card overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
+        <table className="w-full text-sm">
+          <thead className="border-b border-border bg-muted/40">
             <tr>
-              {columns.map((column) => (
-                <th
-                  key={column.key}
-                  className="px-6 py-3 text-left text-xs uppercase tracking-wider text-gray-500"
-                >
-                  {column.sortable ? (
-                    <button
-                      onClick={() => handleSort(column.key)}
-                      className="flex items-center gap-2 hover:text-gray-700"
-                    >
-                      {column.label}
-                      {sortKey === column.key ? (
-                        sortDirection === 'asc' ? 
-                          <ArrowUp className="w-4 h-4" /> : 
-                          <ArrowDown className="w-4 h-4" />
-                      ) : (
-                        <ArrowUpDown className="w-4 h-4 opacity-40" />
-                      )}
-                    </button>
-                  ) : (
-                    column.label
-                  )}
-                </th>
-              ))}
+              {columns.map((column) => {
+                const isActive = sortKey === column.key;
+
+                return (
+                  <th
+                    key={column.key}
+                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground"
+                  >
+                    {column.sortable ? (
+                      <button
+                        type="button"
+                        onClick={() => handleSort(column.key)}
+                        className="flex items-center gap-2 hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring rounded-sm"
+                        aria-sort={
+                          isActive
+                            ? sortDirection === 'asc'
+                              ? 'ascending'
+                              : 'descending'
+                            : 'none'
+                        }
+                      >
+                        {column.label}
+
+                        {isActive ? (
+                          sortDirection === 'asc' ? (
+                            <ArrowUp className="w-4 h-4" />
+                          ) : (
+                            <ArrowDown className="w-4 h-4" />
+                          )
+                        ) : (
+                          <ArrowUpDown className="w-4 h-4 opacity-40" />
+                        )}
+                      </button>
+                    ) : (
+                      column.label
+                    )}
+                  </th>
+                );
+              })}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+
+          <tbody className="divide-y divide-border">
             {sortedData.map((row, idx) => (
-              <tr 
+              <tr
                 key={idx}
                 onClick={() => onRowClick?.(row)}
-                className={onRowClick ? 'hover:bg-gray-50 cursor-pointer' : ''}
+                className={
+                  onRowClick
+                    ? 'cursor-pointer hover:bg-accent transition-colors'
+                    : undefined
+                }
               >
                 {columns.map((column) => (
-                  <td key={column.key} className="px-6 py-4 text-sm text-gray-900">
-                    {column.render ? column.render(row[column.key], row) : row[column.key]}
+                  <td
+                    key={column.key}
+                    className="px-6 py-4 text-sm text-foreground"
+                  >
+                    {column.render
+                      ? column.render(row[column.key], row)
+                      : row[column.key]}
                   </td>
                 ))}
               </tr>
             ))}
+
+            {sortedData.length === 0 && (
+              <tr>
+                <td
+                  colSpan={columns.length}
+                  className="px-6 py-8 text-center text-sm text-muted-foreground"
+                >
+                  No results found
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

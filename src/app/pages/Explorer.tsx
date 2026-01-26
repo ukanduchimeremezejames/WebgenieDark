@@ -482,7 +482,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
 
             <div className="border border-border rounded-lg overflow-hidden bg-white">
               <CytoscapeComponent
-               id="details"
+               
                 elements={cytoscapeElements}
                 style={{ width: '100%', height: '600px' }}
                 stylesheet={cytoscapeStylesheet}
@@ -559,7 +559,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
           </div>
 
           {/* Right Sidebar - Gene Details */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1" id="details">
             <div className="p-4 rounded-lg border bg-card sticky top-24">
               <h3 className="font-semibold mb-4">Gene Details</h3>
               <div className="text-sm text-muted-foreground text-center py-8">

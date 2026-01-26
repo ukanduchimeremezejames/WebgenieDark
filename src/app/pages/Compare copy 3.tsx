@@ -10,6 +10,7 @@ import { mockAlgorithms, mockPerformanceMetrics, getPRCurveData, getROCCurveData
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import autoTable from "jspdf-autotable";
+import { DataTable } from './DataTable';
 import {
   LineChart,
   Line,
@@ -22,6 +23,93 @@ import {
   BarChart,
   Bar,
 } from 'recharts';
+
+const toggleMetric = (metric: string) => {
+    if (selectedMetrics.includes(metric)) {
+      setSelectedMetrics(selectedMetrics.filter(m => m !== metric));
+    } else {
+      setSelectedMetrics([...selectedMetrics, metric]);
+    }
+  };
+
+const performanceData = [
+  { 
+    algorithm: 'GENIE3',
+    auprc: 0.847,
+    auroc: 0.923,
+    f1: 0.782,
+    precision: 0.821,
+    recall: 0.746,
+    earlyPrec: 0.891,
+    runtime: 252,
+    memory: 1.8
+  },
+  { 
+    algorithm: 'GRNBoost2',
+    auprc: 0.803,
+    auroc: 0.891,
+    f1: 0.756,
+    precision: 0.798,
+    recall: 0.718,
+    earlyPrec: 0.867,
+    runtime: 324,
+    memory: 2.1
+  },
+  { 
+    algorithm: 'SCENIC',
+    auprc: 0.789,
+    auroc: 0.878,
+    f1: 0.741,
+    precision: 0.776,
+    recall: 0.709,
+    earlyPrec: 0.852,
+    runtime: 486,
+    memory: 3.4
+  },
+  { 
+    algorithm: 'SINCERITIES',
+    auprc: 0.734,
+    auroc: 0.856,
+    f1: 0.698,
+    precision: 0.741,
+    recall: 0.659,
+    earlyPrec: 0.801,
+    runtime: 522,
+    memory: 2.7
+  },
+  { 
+    algorithm: 'PIDC',
+    auprc: 0.691,
+    auroc: 0.812,
+    f1: 0.654,
+    precision: 0.701,
+    recall: 0.612,
+    earlyPrec: 0.778,
+    runtime: 186,
+    memory: 1.2
+  },
+  { 
+    algorithm: 'PPCOR',
+    auprc: 0.612,
+    auroc: 0.789,
+    f1: 0.601,
+    precision: 0.648,
+    recall: 0.559,
+    earlyPrec: 0.723,
+    runtime: 108,
+    memory: 0.9
+  }
+];
+
+const metricOptions = [
+    { key: 'precision', label: 'Precision' },
+    { key: 'recall', label: 'Recall' },
+    { key: 'f1', label: 'F1 Score' },
+    { key: 'auprc', label: 'AUPRC' },
+    { key: 'auroc', label: 'AUROC' },
+    { key: 'runtime', label: 'Runtime' },
+    { key: 'memory', label: 'Memory' }
+  ];
 
 const downloadRocGraph = async () => {
   const chartContainer = document.querySelector('.roc-chart-container .recharts-wrapper');
@@ -547,6 +635,8 @@ const motifEnrichmentData = [
 ];
 
 export function Compare() {
+  // const [selectedMetrics, setSelectedMetrics] = useState<string[]>(['auprc', 'auroc', 'f1', 'precision', 'recall']);
+  const [normalizeMetrics, setNormalizeMetrics] = useState(false);
   const [selectedAlgorithms, setSelectedAlgorithms] = useState<string[]>(['alg1', 'alg3', 'alg6', 'alg12', 'alg13']);
 
   const toggleAlgorithm = (algId: string) => {
@@ -590,6 +680,82 @@ export function Compare() {
     });
     return point;
   });
+
+    const columns = [
+    { 
+      key: 'algorithm', 
+      label: 'Algorithm',
+      sortable: true,
+      render: (val: string) => {
+        const algo = algorithms.find(a => a.name === val);
+        return (
+          <div className="flex items-center gap-2">
+            <div 
+              className="w-3 h-3 rounded-full" 
+              style={{ backgroundColor: algo?.color }}
+            />
+            <span>{val}</span>
+          </div>
+        );
+      }
+    },
+    ...(selectedMetrics.includes('auprc') ? [{ 
+      key: 'auprc', 
+      label: 'AUPRC',
+      sortable: true,
+      render: (val: number) => <span>{val.toFixed(3)}</span>
+    }] : []),
+    ...(selectedMetrics.includes('auroc') ? [{ 
+      key: 'auroc', 
+      label: 'AUROC',
+      sortable: true,
+      render: (val: number) => <span>{val.toFixed(3)}</span>
+    }] : []),
+    ...(selectedMetrics.includes('f1') ? [{ 
+      key: 'f1', 
+      label: 'F1 Score',
+      sortable: true,
+      render: (val: number) => <span>{val.toFixed(3)}</span>
+    }] : []),
+    ...(selectedMetrics.includes('precision') ? [{ 
+      key: 'precision', 
+      label: 'Precision',
+      sortable: true,
+      render: (val: number) => <span>{val.toFixed(3)}</span>
+    }] : []),
+    ...(selectedMetrics.includes('recall') ? [{ 
+      key: 'recall', 
+      label: 'Recall',
+      sortable: true,
+      render: (val: number) => <span>{val.toFixed(3)}</span>
+    }] : []),
+    { 
+      key: 'earlyPrec', 
+      label: 'Early Precision',
+      sortable: true,
+      render: (val: number) => <span>{val.toFixed(3)}</span>
+    },
+    ...(selectedMetrics.includes('runtime') ? [{ 
+      key: 'runtime', 
+      label: 'Runtime (s)',
+      sortable: true,
+      render: (val: number) => (
+        <Badge variant={val < 200 ? 'success' : val < 400 ? 'warning' : 'default'}>
+          {val}s
+        </Badge>
+      )
+    }] : []),
+    ...(selectedMetrics.includes('memory') ? [{ 
+      key: 'memory', 
+      label: 'Memory (GB)',
+      sortable: true,
+      render: (val: number) => (
+        <Badge variant={val < 2 ? 'success' : val < 4 ? 'warning' : 'default'}>
+          {val}GB
+        </Badge>
+      )
+    }] : [])
+  ];
 
   return (
     <div id="compare" className="min-h-screen py-20 pb-0">
@@ -741,6 +907,63 @@ export function Compare() {
             </table>
           </div>
         </div> */}
+
+        {/* Performance Metrics Table */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-gray-900 mb-1">Performance Metrics</h3>
+            <p className="text-gray-500 text-sm">Comparative performance across all metrics</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="secondary" icon={<FileText className="w-4 h-4" />} onClick={exportCSV}>
+              CSV
+            </Button>
+            <Button variant="secondary" icon={<Download className="w-4 h-4" />} onClick={exportPDF}>
+              PDF
+            </Button>
+          </div>
+        </div>
+        
+        {/* Metric Selection and Normalize Controls */}
+        <div className="bg-white rounded-lg p-4 border border-gray-200 mb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <label className="block text-sm text-gray-700 mb-2">Select Metrics to Display</label>
+              <div className="flex flex-wrap gap-2">
+                {metricOptions.map((metric) => (
+                  <button
+                    key={metric.key}
+                    onClick={() => toggleMetric(metric.key)}
+                    className={`px-3 py-1.5 text-sm rounded-md border transition-all ${
+                      selectedMetrics.includes(metric.key)
+                        ? 'bg-purple-100 border-purple-300 text-purple-700'
+                        : 'bg-white border-gray-300 text-gray-600 hover:border-gray-400'
+                    }`}
+                  >
+                    {metric.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            <div className="ml-6 pl-6 border-l border-gray-200">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input 
+                  type="checkbox"
+                  checked={normalizeMetrics}
+                  onChange={(e) => setNormalizeMetrics(e.target.checked)}
+                  className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                />
+                <span className="text-sm text-gray-700">Normalize Metrics</span>
+              </label>
+              <p className="text-xs text-gray-500 mt-1 ml-6">Scale 0-1 for comparison</p>
+            </div>
+          </div>
+        </div>
+        
+        <DataTable columns={columns} data={performanceData} />
+      </div>
 
         
       {/* Performance Metrics Table */}
