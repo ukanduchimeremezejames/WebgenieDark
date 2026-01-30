@@ -204,71 +204,170 @@ export function DatasetPage() {
 
 // ---------------- Backend Integrated Logic ----------------
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = "https://huggingface.co/Ukandu/webgenie_api";
 
 const [isRunning, setIsRunning] = useState(false);
 const [taskId, setTaskId] = useState<string | null>(null);
 const [progress, setProgress] = useState<number>(0);
 const [runResult, setRunResult] = useState<any | null>(null);
 const [showResult, setShowResult] = useState(false);
+const [algorithm, setAlgorithm] = useState("GENIE3");
+
 
 
 // POLLING INTERVAL
 const POLL_INTERVAL = 1500;
 
 // ---------------- Start Benchmark + Receive Celery Task ID ----------------
+// async function handleRunBenchmark() {
+//   setIsRunning(true);
+//   setProgress(0);
+//   setRunResult(null);
+//   setTaskId(null);
+
+//   try {
+//     const res = await fetch(`${API_BASE}/benchmark/run`, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ dataset_id: datasetId }),
+//     });
+
+//     const data = await res.json();
+//     setTaskId(data.task_id);
+
+//     pollTaskStatus(data.task_id);
+//   } catch (err) {
+//     alert("Failed to start benchmark.");
+//     setIsRunning(false);
+//   }
+// }
+
+// async function handleRunBenchmark() {
+//   setIsRunning(true);
+//   setProgress(10);
+
+//   try {
+//     // const res = await fetch(`${API_BASE}/runs`, {
+//     //   method: "POST",
+//     //   headers: { "Content-Type": "application/json" },
+//     //   body: JSON.stringify({
+//     //     dataset_id: datasetId,
+//     //     algorithms: ["GENIE3"],
+//     //     // algorithms: [algorithm]
+//     //     params: {}
+//     //   }),
+//     // });
+
+//     async function pollTaskStatus(runId: string) {
+//   const interval = setInterval(async () => {
+//     const res = await fetch(`${API_BASE}/runs/${runId}`);
+//     const data = await res.json();
+
+//     setProgress(data.progress);
+
+//     if (data.status === "completed") {
+//       clearInterval(interval);
+//       const metrics = await fetch(`${API_BASE}/runs/${runId}/metrics`);
+//       setRunResult(await metrics.json());
+//       setShowResult(true);
+//       setIsRunning(false);
+//     }
+//   }, 1500);
+// }
+
+//     const data = await res.json();
+//     setTaskId(data.run_id);
+//     pollTaskStatus(data.run_id);
+//     } catch (err: any) {
+//     console.error("Run error:", err.message);
+//     alert(`Failed to start run:\n${err.message}`);
+//     setIsRunning(false);
+//   }
+
+// }
+
 async function handleRunBenchmark() {
   setIsRunning(true);
-  setProgress(0);
+  setProgress(5);
   setRunResult(null);
   setTaskId(null);
 
   try {
-    const res = await fetch(`${API_BASE}/benchmark/run`, {
+    const response = await fetch(`${API_BASE}/runs`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ dataset_id: datasetId }),
+      body: JSON.stringify({
+        dataset_id: datasetId,
+        algorithms: ["GENIE3"],
+        params: {}
+      }),
     });
 
-    const data = await res.json();
-    setTaskId(data.task_id);
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text);
+    }
 
-    pollTaskStatus(data.task_id);
-  } catch (err) {
-    alert("Failed to start benchmark.");
+    const data = await response.json();
+
+    setTaskId(data.run_id);
+    pollTaskStatus(data.run_id);
+
+  } catch (err: any) {
+    console.error("Run start error:", err);
+    alert(`Failed to start run:\n${err.message || err}`);
     setIsRunning(false);
   }
 }
 
-// ---------------- POLL CELERY TASK STATUS ----------------
-async function pollTaskStatus(taskId: string) {
+
+async function pollTaskStatus(runId: string) {
   const interval = setInterval(async () => {
-    try {
-      const res = await fetch(`${API_BASE}/benchmark/status/${taskId}`);
-      const data = await res.json();
+    const res = await fetch(`${API_BASE}/runs/${runId}`);
+    const data = await res.json();
 
-      setProgress(data.progress ?? 0);
+    setProgress(data.progress);
 
-      // DONE
-      if (data.state === "SUCCESS") {
-        clearInterval(interval);
-        setRunResult(data.result);
-        setShowResult(true);
-        setIsRunning(false);
-      }
-
-      // ERROR
-      if (data.state === "FAILURE") {
-        clearInterval(interval);
-        alert("Benchmark failed.");
-        setIsRunning(false);
-      }
-    } catch (err) {
+    if (data.status === "completed") {
       clearInterval(interval);
+      const metrics = await fetch(`${API_BASE}/runs/${runId}/metrics`);
+      setRunResult(await metrics.json());
+      setShowResult(true);
       setIsRunning(false);
     }
-  }, POLL_INTERVAL);
+  }, 1500);
 }
+
+
+// ---------------- POLL CELERY TASK STATUS ----------------
+// async function pollTaskStatus(taskId: string) {
+//   const interval = setInterval(async () => {
+//     try {
+//       const res = await fetch(`${API_BASE}/benchmark/status/${taskId}`);
+//       const data = await res.json();
+
+//       setProgress(data.progress ?? 0);
+
+//       // DONE
+//       if (data.state === "SUCCESS") {
+//         clearInterval(interval);
+//         setRunResult(data.result);
+//         setShowResult(true);
+//         setIsRunning(false);
+//       }
+
+//       // ERROR
+//       if (data.state === "FAILURE") {
+//         clearInterval(interval);
+//         alert("Benchmark failed.");
+//         setIsRunning(false);
+//       }
+//     } catch (err) {
+//       clearInterval(interval);
+//       setIsRunning(false);
+//     }
+//   }, POLL_INTERVAL);
+// }
 
 
 // ---------------- Download Ground Truth ----------------
