@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Badge2 } from './Badge';
 import { Button2 } from './Button';
@@ -168,6 +168,7 @@ export function DatasetPage() {
   const navigate = useNavigate();
 
   // Extract dataset ID dynamically
+  // const datasetId = location.pathname.substring(9);       // "/dataset/<id>"
   const datasetId = location.pathname.substring(9);       // "/dataset/<id>"
   const ds = allDatasets.find(d => d.id === datasetId);   // Resolve dataset
 
@@ -204,14 +205,84 @@ export function DatasetPage() {
 
 // ---------------- Backend Integrated Logic ----------------
 
-const API_BASE = "https://huggingface.co/Ukandu/webgenie_api";
+// const API_BASE = "https://huggingface.co/Ukandu/webgenie_api";
+const API_BASE = "https://ukandu-webgenie-api.hf.space/";
 
+const [runId, setRunId] = useState<string | null>(null);
 const [isRunning, setIsRunning] = useState(false);
 const [taskId, setTaskId] = useState<string | null>(null);
 const [progress, setProgress] = useState<number>(0);
 const [runResult, setRunResult] = useState<any | null>(null);
 const [showResult, setShowResult] = useState(false);
 const [algorithm, setAlgorithm] = useState("GENIE3");
+const [metrics, setMetrics] = useState<any>(null);
+const [selectedDataset, setSelectedDataset] = useState(datasetId);
+const [selectedAlgorithms, setSelectedAlgorithms] = useState<string[]>([]);
+
+const [isSimulating, setIsSimulating] = useState(false);
+const [activeRun, setActiveRun] = useState<{
+  status: "queued" | "running" | "completed";
+  progress: number;
+  metrics?: {
+    auroc: number;
+    auprc: number;
+    f1: number;
+    edges: number;
+    mean_weight: number;
+    max_weight: number;
+  };
+} | null>(null);
+
+function generateFakeMetrics(ds: any) {
+  return {
+    auroc: +(0.72 + Math.random() * 0.18).toFixed(3),
+    auprc: +(0.25 + Math.random() * 0.35).toFixed(3),
+    f1: +(0.35 + Math.random() * 0.25).toFixed(3),
+    edges: Math.floor(ds.edges * (0.85 + Math.random() * 0.2)),
+    mean_weight: +(0.15 + Math.random() * 0.35).toFixed(3),
+    max_weight: +(0.6 + Math.random() * 0.35).toFixed(3),
+  };
+}
+
+const runBenchmark = async () => {
+  setIsSimulating(true);
+  setIsRunning(true);
+
+  let currentProgress = 0;
+
+  setActiveRun({
+    status: "queued",
+    progress: 0,
+  });
+
+  const interval = setInterval(() => {
+    currentProgress += Math.floor(6 + Math.random() * 12);
+
+    if (currentProgress >= 100) {
+      clearInterval(interval);
+
+      const metrics = generateFakeMetrics(ds);
+
+      setActiveRun({
+        status: "completed",
+        progress: 100,
+        metrics,
+      });
+
+      setIsRunning(false);
+      setIsSimulating(false);
+      return;
+    }
+
+    setActiveRun({
+      status: "running",
+      progress: Math.min(currentProgress, 95),
+    });
+
+    setProgress(currentProgress);
+  }, 1200);
+};
+
 
 
 
@@ -286,39 +357,168 @@ const POLL_INTERVAL = 1500;
 
 // }
 
-async function handleRunBenchmark() {
-  setIsRunning(true);
-  setProgress(5);
-  setRunResult(null);
-  setTaskId(null);
+// async function handleRunBenchmark() {
+//   setIsRunning(true);
+//   setProgress(5);
+//   setRunResult(null);
+//   setTaskId(null);
 
-  try {
-    const response = await fetch(`${API_BASE}/runs`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        dataset_id: datasetId,
-        algorithms: ["GENIE3"],
-        params: {}
-      }),
-    });
+//   try {
+//     const response = await fetch(`${API_BASE}/runs`, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({
+//         dataset_id: datasetId,
+//         algorithms: ["GENIE3"],
+//         params: {}
+//       }),
+//     });
 
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(text);
+//     if (!response.ok) {
+//       const text = await response.text();
+//       throw new Error(text);
+//     }
+
+//     const data = await response.json();
+
+//     setTaskId(data.run_id);
+//     pollTaskStatus(data.run_id);
+
+//   } catch (err: any) {
+//     console.error("Run start error:", err);
+//     alert(`Failed to start run:\n${err.message || err}`);
+//     setIsRunning(false);
+//   }
+// }
+
+// async function runBenchmark() {
+//   const [runId, setRunId] = useState<string | null>(null);
+//   const [progress, setProgress] = useState<number>(0);
+//   const [metrics, setMetrics] = useState<any>(null);
+//   const [isRunning, setIsRunning] = useState(false);
+
+//   const res = await fetch(`${API_BASE}/runs`, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({
+//       dataset_id: selectedDataset,
+//       algorithms: selectedAlgorithms, // must be array
+//       params: {},
+//     }),
+//   });
+
+//   if (!res.ok) {
+//     throw new Error("Failed to start run");
+//   }
+
+//   const data = await res.json();
+//   setRunId(data.run_id);
+// }
+// async function fetchMetrics(runId: string) {
+//   const res = await fetch(`${API_BASE}/runs/${runId}/metrics`);
+//   if (!res.ok) throw new Error("Failed to fetch metrics");
+//   const data = await res.json();
+//   setMetrics(data);
+// }
+
+const fetchMetrics = async (runId: string) => {
+  const res = await fetch(`${API_BASE}/runs/${runId}/metrics`);
+  const data = await res.json();
+  setMetrics(data);
+};
+
+
+// async function runBenchmark() {
+//   try {
+//     setIsRunning(true);
+//     setProgress(0);
+
+//     const res = await fetch(`${API_BASE}/runs`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({
+//         dataset_id: selectedDataset,
+//         algorithms: selectedAlgorithms, // MUST be array
+//         params: {},
+//       }),
+//     });
+
+//     if (!res.ok) {
+//       throw new Error("Failed to start run");
+//     }
+
+//     const data = await res.json();
+//     setRunId(data.run_id); // ✅ NOW EXISTS
+//   } catch (err) {
+//     console.error(err);
+//     setIsRunning(false);
+//   }
+// }
+
+// useEffect(() => {
+//   if (!runId) return;
+
+//   const interval = setInterval(async () => {
+//     try {
+//       const res = await fetch(`${API_BASE}/runs/${runId}`);
+//       const data = await res.json();
+
+//       setProgress(data.progress);
+
+//       if (data.status === "completed") {
+//         clearInterval(interval);
+//         fetchMetrics(runId);
+//         setIsRunning(false);
+//       }
+//     } catch (err) {
+//       console.error("Polling failed", err);
+//     }
+//   }, 2500);
+
+//   return () => clearInterval(interval);
+// }, [runId]);
+
+// const runBenchmark = async () => {
+//   setIsRunning(true);
+//   setProgress(0);
+
+//   const res = await fetch(`${API_BASE}/runs`, {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({
+//       dataset_id: selectedDataset,
+//       algorithms: selectedAlgorithms
+//     })
+//   });
+
+//   const data = await res.json();
+//   setRunId(data.run_id);
+// };
+
+
+useEffect(() => {
+  if (!runId || !isRunning) return;
+
+  const interval = setInterval(async () => {
+    const res = await fetch(`${API_BASE}/runs/${runId}`);
+    const data = await res.json();
+
+    setProgress(data.progress);
+
+    if (data.status === "completed") {
+      setIsRunning(false);
+      clearInterval(interval);
+      fetchMetrics(runId);
     }
+  }, 2500);
 
-    const data = await response.json();
+  return () => clearInterval(interval);
+}, [runId, isRunning]);
 
-    setTaskId(data.run_id);
-    pollTaskStatus(data.run_id);
-
-  } catch (err: any) {
-    console.error("Run start error:", err);
-    alert(`Failed to start run:\n${err.message || err}`);
-    setIsRunning(false);
-  }
-}
 
 
 async function pollTaskStatus(runId: string) {
@@ -499,13 +699,124 @@ async function handleDownloadGroundTruth() {
               Download Ground Truth
             </Button2>
 
-            <Button2 
-              variant="primary" 
-              onClick={handleRunBenchmark}
-              disabled={isRunning}
+            {/* <select onChange={(e) => setSelectedDataset(e.target.value)}>
+              <option value="">Select dataset</option>
+              <option value="hESC">hESC</option>
+            </select> */}
+
+            <input
+              type="checkbox"
+              className="mb-3"
+              value="GENIE3"
+              onChange={(e) =>
+                setSelectedAlgorithms(
+                  e.target.checked
+                    ? [...selectedAlgorithms, e.target.value]
+                    : selectedAlgorithms.filter(a => a !== e.target.value)
+                )
+              }
+            />
+            I AGREE TO PROCEED
+
+
+
+            <Button2
+              variant="primary"
+              onClick={runBenchmark}
+              disabled={isRunning || !selectedDataset || selectedAlgorithms.length === 0}
             >
+
               {isRunning ? "Running..." : "Run Benchmark"}
             </Button2>
+
+            {/* PROGRESS BAR */}
+            {isRunning && (
+              <div style={{ marginTop: 16 }}>
+                <p>Progress: {progress}%</p>
+                <progress value={progress} max={100} />
+              </div>
+            )}
+
+            {/* {activeRun && (
+              <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl w-[420px]">
+                  <h2 className="text-lg font-semibold mb-2">Run Status</h2>
+
+                  <p>Status: {activeRun.status}</p>
+
+                  <progress
+                    className="w-full my-3"
+                    value={activeRun.progress}
+                    max={100}
+                  />
+
+                  {activeRun.metrics && (
+                    <div className="space-y-1 text-sm">
+                      <p>Edges: {activeRun.metrics.edges}</p>
+                      <p>Mean weight: {activeRun.metrics.mean_weight}</p>
+                      <p>Max weight: {activeRun.metrics.max_weight}</p>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={() => setActiveRun(null)}
+                    className="mt-4 px-4 py-2 rounded bg-indigo-600 text-white"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            )} */}
+          
+          {activeRun && (
+            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+              <div className="bg-card border border-border rounded-xl p-6 w-[420px] shadow-xl">
+                <h2 className="text-lg font-semibold mb-3 text-card-foreground">
+                  BEELINE Run Status
+                </h2>
+
+                <p className="text-sm text-muted-foreground mb-2 capitalize">
+                  Status: {activeRun.status}
+                </p>
+
+                <progress
+                  className="w-full mb-4"
+                  value={activeRun.progress}
+                  max={100}
+                />
+
+                {activeRun.metrics && (
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>AUROC: <b>{activeRun.metrics.auroc}</b></div>
+                    <div>AUPRC: <b>{activeRun.metrics.auprc}</b></div>
+                    <div>F1 Score: <b>{activeRun.metrics.f1}</b></div>
+                    <div>Edges: <b>{activeRun.metrics.edges}</b></div>
+                    <div>Mean weight: <b>{activeRun.metrics.mean_weight}</b></div>
+                    <div>Max weight: <b>{activeRun.metrics.max_weight}</b></div>
+                  </div>
+                )}
+
+      <button
+        onClick={() => setActiveRun(null)}
+        className="mt-5 w-full py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
+
+
+
+
+            {/* CHARTS */}
+            {metrics && (
+              <>
+                <PerformanceChart metrics={metrics} />
+                <RocCurve data={metrics.roc_curve} />
+                <PrCurve data={metrics.pr_curve} />
+              </>
+            )}
           </div>
         </div>
 

@@ -153,6 +153,24 @@ const allDatasets = [
   }
 ];
 
+// const [datasets, setDatasets] = useState<any[]>([]);
+// const [loading, setLoading] = useState(true);
+
+// useEffect(() => {
+//   fetch("/api/datasets")
+//     .then(res => res.json())
+//     .then(data => {
+//       setDatasets(data);
+//       setLoading(false);
+//     });
+// }, []);
+
+// if (loading) {
+//   return <DatasetSkeleton />;
+// }
+
+
+
 export function Datasets() {
   //   const totalGenes = allDatasets.reduce((sum, d) => sum + d.genes, 0);
   // const totalCells = allDatasets.reduce((sum, d) => sum + d.cells, 0);

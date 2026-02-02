@@ -142,46 +142,10 @@ export function Dashboard() {
       </div>
 
         {/* Stats Cards */}
-        <div className="grid md:grid-cols-4 gap-4 mb-8 mt-10">
-          <div className="p-6 rounded-lg border bg-card">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-sm text-muted-foreground">Total Runs</div>
-              <TrendingUp className="w-4 h-4 text-primary" />
-            </div>
-            <div className="text-2xl font-bold">1,847</div>
-            <div className="text-xs text-secondary mt-1">+12% from last month</div>
-          </div>
-
-          <div className="p-6 rounded-lg border bg-card">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-sm text-muted-foreground">Datasets</div>
-              <Database className="w-4 h-4 text-primary" />
-            </div>
-            <div className="text-2xl font-bold">24</div>
-            <div className="text-xs text-muted-foreground mt-1">Across 5 organisms</div>
-          </div>
-
-          <div className="p-6 rounded-lg border bg-card">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-sm text-muted-foreground">Algorithms</div>
-              <GitCompare className="w-4 h-4 text-primary" />
-            </div>
-            <div className="text-2xl font-bold">12</div>
-            <div className="text-xs text-muted-foreground mt-1">Benchmarked methods</div>
-          </div>
-
-          <div className="p-6 rounded-lg border bg-card">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-sm text-muted-foreground">Avg. AUROC</div>
-              <Activity className="w-4 h-4 text-secondary" />
-            </div>
-            <div className="text-2xl font-bold">0.742</div>
-            <div className="text-xs text-secondary mt-1">+0.03 improvement</div>
-          </div>
-        </div>
+        
 
         {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-10">
         {/* AUPRC Distribution Chart */}
         <Card className="lg:col-span-2 p-6">
           <div className="space-y-4">
