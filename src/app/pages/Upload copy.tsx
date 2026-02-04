@@ -1,12 +1,4 @@
-import { useState } from "react";import { Upload as UploadIcon, FileText, CheckCircle, Clock, AlertCircle, Download, Activity } from 'lucide-react';
-import { mockDatasets } from "../components/mockData";
-
-const dynamicSteps = [
-  { label: "Upload", key: "upload", icon: UploadIcon },
-  { label: "Validation", key: "validation", icon: CheckCircle },
-  { label: "Analysis", key: "analysis", icon: Clock },
-  { label: "Comparison", key: "comparison", icon: FileText },
-];
+import { Upload as UploadIcon, FileText, CheckCircle, Clock, AlertCircle, Download, Activity } from 'lucide-react';
 
 const pipelineSteps = [
   { label: 'Upload', icon: UploadIcon, status: 'active' },
@@ -20,7 +12,7 @@ const recentJobs = [
     id: 'JOB-001',
     name: 'GENIE3_predictions',
     dataset: 'BEELINE_Synthetic_100',
-    algorithm: 'GENIE3',
+    algorithm: 'SINCERITIES',
     status: 'completed',
     timestamp: '2h ago',
   },
@@ -42,96 +34,9 @@ const recentJobs = [
   },
 ];
 
-
-
 export function Upload() {
-
-  const handleFileUpload = (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  setUploadedFile(file);
-  setDatasetList((prev) => [...prev, file.name]);
-
-  // simulate saving to /datasets folder (frontend only)
-  console.log("Saving file to /datasets/" + file.name);
-
-  // Move pipeline forward
-  setPipelineStep("validation");
-};
-
-// Contains built-in datasets + user uploads
-const [availableDatasets, setAvailableDatasets] = useState(mockDatasets);
-
-// Tracks uploaded dataset's ID
-const [uploadedDataset, setUploadedDataset] = useState<string | null>(null);
-
-function handleUploadSuccess(fileName: string) {
-  const ds = {
-    id: fileName,
-    name: fileName,
-    organism: "User",
-    type: "Custom Dataset",
-    genes: 0,
-    cells: 0,
-    edges: 0,
-    source: "uploaded",
-    lastUpdated: new Date().toISOString(),
-    sparklineData: [],
-  };
-
-  // Add to list
-  setAvailableDatasets(prev => [...prev, ds]);
-
-  // Auto-select it
-  setUploadedDataset(fileName);
-
-  setJobConfig(prev => ({
-    ...prev,
-    dataset: fileName,
-  }));
-}
-
-const downloadTemplate = () => {
-  const csvContent = `gene,target,weight
-GATA1,TAL1,0.92
-RUNX1,MYB,0.87
-...`;
-
-  const blob = new Blob([csvContent], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "dataset_template.csv";
-  a.click();
-
-  URL.revokeObjectURL(url);
-};
-
-
-  const [pipelineStep, setPipelineStep] = useState("upload");
-
-  const [uploadedFile, setUploadedFile] = useState(null);
-  const [datasetList, setDatasetList] = useState([]);
-  const [jobConfig, setJobConfig] = useState({
-    dataset: "",
-    algorithm: "",
-    algorithmVersion: "",
-    runName: "",
-    evalOptions: {
-      prroc: true,
-      earlyPrecision: true,
-      motif: false,
-    }
-  });
-
-  const [runsHistory, setRunsHistory] = useState([]);
-
   return (
     <div id='upload' className="min-h-screen py-20 pb-0">
-
-      
       <div className="container px-4 mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -145,32 +50,6 @@ RUNX1,MYB,0.87
         <div className="mb-8 p-6 rounded-lg border bg-card">
           <h2 className="font-semibold mb-6">Pipeline Workflow</h2>
           <div className="flex items-center justify-between">
-            {dynamicSteps.map((step, index) => {
-              const active = step.key === pipelineStep;
-
-              return (
-                <div key={step.label} className="flex items-center flex-1">
-                  <div className="flex flex-col items-center">
-                    <div
-                      className={`w-12 h-12 rounded-lg flex items-center justify-center mb-2 ${
-                        active
-                          ? 'bg-primary text-white'
-                          : 'bg-muted text-muted-foreground'
-                      }`}
-                    >
-                      <step.icon className="w-6 h-6" />
-                    </div>
-                    <div className="text-sm font-medium">{step.label}</div>
-                  </div>
-                  {index < dynamicSteps.length - 1 && (
-                    <div className="flex-1 h-px bg-border mx-4 mt-[-20px]"></div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* <div className="flex items-center justify-between">
             {pipelineSteps.map((step, index) => (
               <div key={step.label} className="flex items-center flex-1">
                 <div className="flex flex-col items-center">
@@ -190,7 +69,7 @@ RUNX1,MYB,0.87
                 )}
               </div>
             ))}
-          </div> */}
+          </div>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-6">
@@ -227,39 +106,10 @@ RUNX1,MYB,0.87
                 <UploadIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-sm mb-2">Drag and drop your file here</p>
                 <p className="text-xs text-muted-foreground mb-4">or click to browse</p>
-                {/* <button className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity">
+                <button className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity">
                   Choose File
-                </button> */}
-                <input
-                  type="file"
-                  className="hidden"
-                  id="upload-input"
-                  onChange={handleFileUpload}
-                />
-
-                <label
-                  htmlFor="upload-input"
-                  className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
-                >
-                  Choose File
-                </label>
-
-                {uploadedFile && (
-  <div className="mt-4 p-3 bg-accent/20 border rounded">
-    <p className="text-sm font-medium">Uploaded File:</p>
-    <p className="text-sm text-primary">{uploadedFile.name}</p>
-
-    <button
-      onClick={() => setPipelineStep("analysis")}
-      className="mt-3 px-4 py-2 bg-secondary text-white rounded-lg"
-    >
-      Validate & Continue →
-    </button>
-  </div>
-)}
-
-
-                                <p className="text-xs text-muted-foreground mt-4">
+                </button>
+                <p className="text-xs text-muted-foreground mt-4">
                   Supported formats: CSV, TSV, TXT (max 15MB)
                 </p>
               </div>
@@ -271,37 +121,20 @@ RUNX1,MYB,0.87
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Dataset</label>
-                  <select className="w-full px-3 py-2 bg-input-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-                  value={jobConfig.dataset}
-                  onChange={(e) =>
-                    setJobConfig({ ...jobConfig, dataset: e.target.value })}
-                  >
-                     {datasetList.map((ds) => (
-                        <option key={ds}>{ds}</option>
-                      ))}
+                  <select className="w-full px-3 py-2 bg-input-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring">
+                    <option>BEELINE_Synthetic_100</option>
+                    <option>mESC_hematopoietic</option>
+                    <option>hESC_definitive_endoderm</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Algorithm</label>
-                  <select className="w-full px-3 py-2 bg-input-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-                  value={jobConfig.algorithm}
-                  onChange={(e) =>
-                    setJobConfig({ ...jobConfig, algorithm: e.target.value })
-                  }
-                  >
+                  <select className="w-full px-3 py-2 bg-input-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring">
+                    <option>SINCERITIES</option>
                     <option>GENIE3</option>
                     <option>GRNBoost2</option>
-                    <option>Pearson</option>
-                    <option>Spearman</option>
-                    <option>ARACNE</option>
-                    <option>SINGE</option>
-                    <option>GRNVBEM</option>
-                    <option>GRISLI</option>
-                    <option>SCODE</option>
-                    <option>SCNS</option>
-                    <option>LEAP</option>
-                    <option>Arboreto</option>
+                    <option>SCENIC</option>
                   </select>
                 </div>
 
@@ -311,10 +144,6 @@ RUNX1,MYB,0.87
                     type="text"
                     placeholder="e.g., 1.2.0"
                     className="w-full px-3 py-2 bg-input-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-                    value={jobConfig.algorithmVersion}
-                    onChange={(e) =>
-                      setJobConfig({ ...jobConfig, algorithmVersion: e.target.value })
-                    }
                   />
                 </div>
 
@@ -326,33 +155,8 @@ RUNX1,MYB,0.87
                     type="text"
                     placeholder="Optional custom name"
                     className="w-full px-3 py-2 bg-input-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-                    value={jobConfig.runName}
-                    onChange={(e) =>
-                      setJobConfig({ ...jobConfig, runName: e.target.value })
-                    }
                   />
                 </div>
-                <button
-                  onClick={() => {
-                    const runId = "RUN-" + (runsHistory.length + 1).toString().padStart(3, "0");
-
-                    const newRun = {
-                      id: runId,
-                      name: jobConfig.runName || "Untitled_Run",
-                      dataset: jobConfig.dataset,
-                      algorithm: jobConfig.algorithm,
-                      status: "completed",
-                      timestamp: "now",
-                    };
-
-                    setRunsHistory([newRun, ...runsHistory]);
-                    setPipelineStep("comparison");
-                  }}
-                  className="mt-4 px-4 py-2 bg-primary text-white rounded-lg"
-                >
-                  Run Job →
-                </button>
-
 
                 <div>
                   <label className="block text-sm font-medium mb-3">Evaluation Options</label>
@@ -381,14 +185,7 @@ RUNX1,MYB,0.87
             <div className="p-6 rounded-lg border bg-card">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-semibold">Expected File Format</h2>
-                <button className="flex items-center gap-2 text-sm text-primary hover:underline" onClick={downloadTemplate}>
-                  {/* <button
-                    onClick={downloadTemplate}
-                    className="text-indigo-600 underline text-sm"
-                  >
-                    Download Template
-                  </button> */}
-
+                <button className="flex items-center gap-2 text-sm text-primary hover:underline">
                   <Download className="w-4 h-4" />
                   Download Template
                 </button>
@@ -421,42 +218,6 @@ RUNX1,MYB,0.87
             <div id='recent' className="p-6 rounded-lg border bg-card">
               <h2 className="font-semibold mb-4">Recent Jobs</h2>
               <div className="space-y-3">
-
-                {runsHistory.map(job => (
-                  <div key={job.id} className="p-3 rounded-lg border bg-accent/30">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-2 h-2 rounded-full ${
-                            job.status === 'completed'
-                              ? 'bg-secondary'
-                              : job.status === 'failed'
-                              ? 'bg-destructive'
-                              : 'bg-primary'
-                          }`}
-                        />
-                        <span className="font-medium text-sm">{job.id}</span>
-                      </div>
-                      <span className="text-xs text-muted-foreground">{job.timestamp}</span>
-                    </div>
-                    <div className="text-sm text-muted-foreground mb-1">{job.name}</div>
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="px-2 py-0.5 rounded bg-primary/10 text-primary">
-                        {job.dataset} Submitted For Validation
-                      </span>
-                      <span
-                        className={`px-2 py-0.5 rounded font-medium ${
-                          job.status === 'completed'
-                            ? 'bg-secondary/10 text-secondary'
-                            : 'bg-destructive/10 text-destructive'
-                        }`}
-                      >
-                        {job.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-
                 {recentJobs.map((job) => (
                   <div key={job.id} className="p-3 rounded-lg border bg-accent/30">
                     <div className="flex items-center justify-between mb-2">
@@ -495,7 +256,7 @@ RUNX1,MYB,0.87
             </div>
 
             {/* Result Traceability */}
-            {/* <div id="report" className="p-6 rounded-lg border bg-card">
+            <div id="report" className="p-6 rounded-lg border bg-card">
               <h2 className="font-semibold mb-4">Result Traceability</h2>
               <p className="text-sm text-muted-foreground mb-4">
                 Every result includes full provenance tracking:
@@ -522,15 +283,15 @@ RUNX1,MYB,0.87
                     <div className="text-muted-foreground">nIrees=1000, mtry=sqrt</div>
                   </div>
                 </div>
-              </div> 
+              </div>
 
-              {/* <div className="mt-4 pt-4 border-t">
+              <div className="mt-4 pt-4 border-t">
                 <h3 className="font-semibold text-sm mb-2">Run Details</h3>
                 <button className="text-sm text-primary hover:underline">
                   View full run detail
                 </button>
-              </div> 
-            </div>*/}
+              </div>
+            </div>
           </div>
         </div>
       </div>

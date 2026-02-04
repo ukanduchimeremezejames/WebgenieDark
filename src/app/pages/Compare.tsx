@@ -615,7 +615,7 @@ export function Compare() {
                 Deselect All
               </Button>
             </div> */}
-            <div className="flex gap-2">
+            {/* <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -634,6 +634,31 @@ export function Compare() {
               >
                 <Download className="w-4 h-4" />
                 Export PDF
+              </Button>
+            </div> */}
+
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  // Select ALL algorithm names
+                  const all = algorithms.map(a => a.name);
+                  setSelectedAlgorithms(['alg1', 'alg2', 'alg3', 'alg4', 'alg5', 'alg6', 'alg7', 'alg8', 'alg9', 'alg10', 'alg11', 'alg12',]);
+                }}
+              >
+                Select All
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  // Clear all selections
+                  setSelectedAlgorithms([]);
+                }}
+              >
+                Deselect All
               </Button>
             </div>
 
