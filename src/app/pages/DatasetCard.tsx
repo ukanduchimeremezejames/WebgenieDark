@@ -134,7 +134,14 @@ export function DatasetCard({
           variant="ghost" 
           size="sm"
           icon={<Download className="w-4 h-4 text-foreground dark:text-foreground-dark" />}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            window.open(
+              'https://huggingface.co/cskokgibbs/datasets',
+              '_blank',
+              'noopener,noreferrer'
+            );
+          }}
         />
       </div>
     </div>

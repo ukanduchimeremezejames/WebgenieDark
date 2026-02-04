@@ -146,7 +146,7 @@ export function Home() {
       title: 'View Documentation',
       description: 'Read API docs and tutorials',
       icon: <BookOpen className="w-5 h-5" />,
-      action: () => window.open('#', '_blank'),
+      action: () => window.open('https://ukandu-webgenie-api.hf.space/docs', '_blank'),
       variant: 'secondary' as const
     },
     {
@@ -493,7 +493,7 @@ export function Home() {
             <div className='ml-30'>
               <h5 className="text-white mb-4">Resources</h5>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
+                <li><a href="https://ukandu-webgenie-api.hf.space/docs" className="hover:text-white transition-colors">Documentation</a></li>
                 <li><a href="https://github.com/Murali-group/Beeline" className="hover:text-white transition-colors">GitHub</a></li>
                 <li><a href="https://github.com/ukanduchimeremezejames/WebgenieDark" className="hover:text-white transition-colors">Contact</a></li>
               </ul>

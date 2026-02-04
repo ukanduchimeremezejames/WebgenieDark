@@ -20,47 +20,9 @@ interface DatasetDetailModalProps {
 export function DatasetDetailModal({ dataset, open, onOpenChange }: DatasetDetailModalProps) {
   if (!dataset) return null;
 
-  // Helper to download file
-  const downloadFile = (content: string, filename: string, type: string) => {
-    const blob = new Blob([content], { type });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
   const handleDownload = (format: 'json' | 'csv') => {
-    if (!dataset) return;
-
-    if (format === 'json') {
-      downloadFile(JSON.stringify(dataset, null, 2), `${dataset.name}.json`, 'application/json');
-    }
-
-    if (format === 'csv') {
-      // Simple CSV with main fields
-      const headers = ['id', 'name', 'organism', 'type', 'genes', 'cells', 'edges', 'source', 'lastUpdated'];
-      const values = [
-        dataset.id,
-        dataset.name,
-        dataset.organism,
-        dataset.type,
-        dataset.genes,
-        dataset.cells,
-        dataset.edges,
-        dataset.source,
-        dataset.lastUpdated,
-      ];
-      const csvContent = [headers.join(','), values.join(',')].join('\n');
-      downloadFile(csvContent, `${dataset.name}.csv`, 'text/csv');
-    }
-  };
-
-  const handleHuggingFaceDownload = () => {
-    window.open('https://huggingface.co/cskokgibbs/datasets', '_blank');
+    console.log(`Downloading ${dataset.name} as ${format}`);
+    // Mock download functionality
   };
 
   return (
@@ -118,7 +80,9 @@ export function DatasetDetailModal({ dataset, open, onOpenChange }: DatasetDetai
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted">Avg. Degree</span>
-                <span className="text-foreground">{(dataset.edges * 2 / dataset.genes).toFixed(2)}</span>
+                <span className="text-foreground">
+                  {(dataset.edges * 2 / dataset.genes).toFixed(2)}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted">Data Points</span>
@@ -169,10 +133,7 @@ export function DatasetDetailModal({ dataset, open, onOpenChange }: DatasetDetai
               <FileText className="w-4 h-4" />
               Export CSV
             </Button>
-            <Button
-              className="flex-1 gap-2 bg-secondary hover:bg-accent/90"
-              onClick={handleHuggingFaceDownload}
-            >
+            <Button className="flex-1 gap-2 bg-secondary hover:bg-accent/90">
               <Download className="w-4 h-4" />
               Download Dataset
             </Button>

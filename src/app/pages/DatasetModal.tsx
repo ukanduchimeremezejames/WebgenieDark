@@ -17,6 +17,13 @@ interface DatasetDetailModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const handleDownloadHug = () => {
+
+    // open link in a new tab
+    window.open("https://huggingface.co/cskokgibbs/datasets", "_blank");
+  };
+
+
 export function DatasetDetailModal({
   dataset,
   open,
@@ -164,9 +171,11 @@ export function DatasetDetailModal({
               Export CSV
             </Button>
 
-            <Button className="flex-1 gap-2 bg-accent hover:bg-accent/90 text-accent-foreground">
+            <Button className="flex-1 gap-2 bg-accent hover:bg-accent/90 text-accent-foreground"
+
+            >
               <Download className="w-4 h-4" />
-              Download Dataset
+              <a href='https://huggingface.co/cskokgibbs/datasets'>Download Dataset</a>
             </Button>
           </div>
         </div>

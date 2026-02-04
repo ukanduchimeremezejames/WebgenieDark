@@ -225,6 +225,82 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
   const [selectedGene, setSelectedGene] = useState('');
   const [showHelpPanel, setShowHelpPanel] = useState(true);
 
+  const handleShare = async () => {
+  const shareUrl = window.location.href;
+  const shareData = {
+    title: 'WebGenie Network Explorer',
+    text: 'Explore this gene regulatory network on WebGenie',
+    url: shareUrl,
+  };
+
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+    } catch (err) {
+      console.warn('Share canceled or failed', err);
+    }
+  } else {
+    // Fallback
+    const encodedUrl = encodeURIComponent(shareUrl);
+    const encodedText = encodeURIComponent(shareData.text);
+
+    const fallbackWindow = window.open(
+      '',
+      'share',
+      'width=480,height=360'
+    );
+
+    if (fallbackWindow) {
+      fallbackWindow.document.write(`
+        <html>
+          <head>
+            <title>Share</title>
+            <style>
+              body { font-family: sans-serif; padding: 20px; }
+              button, a {
+                display: block;
+                width: 100%;
+                margin: 10px 0;
+                padding: 10px;
+                text-align: center;
+                border-radius: 6px;
+                border: 1px solid #ccc;
+                text-decoration: none;
+                color: black;
+              }
+            </style>
+          </head>
+          <body>
+            <h3>Share this Network</h3>
+            <a href="https://wa.me/?text=${encodedText}%20${encodedUrl}" target="_blank">WhatsApp</a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}" target="_blank">Facebook</a>
+            <a href="https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}" target="_blank">X / Twitter</a>
+            <button onclick="navigator.clipboard.writeText('${shareUrl}')">
+              Copy Link
+            </button>
+          </body>
+        </html>
+      `);
+    }
+  }
+};
+
+const getBestFitAlgorithms = (node: any) => {
+  if (!node) return [];
+
+  const score = node.score ?? 0;
+
+  if (score > 0.8) {
+    return ['GENIE3', 'GRNBoost2'];
+  }
+  if (score > 0.5) {
+    return ['PIDC', 'SCENIC'];
+  }
+  return ['Correlation', 'Mutual Information'];
+};
+
+
+
   return (
     <div id="explorer" className="min-h-screen py-20 pb-0">
       <div className="container px-4 mx-auto">
@@ -260,13 +336,14 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
         Help
       </Button>
       <Button 
-        variant="secondary" 
-        size="sm"
-        // icon={<Share2 className="w-4 h-4" />}
-      >
-        <Share2 className="w-3 h-3 mr-1" />
-        Share
-      </Button>
+  variant="secondary" 
+  size="sm"
+  onClick={handleShare}
+>
+  <Share2 className="w-3 h-3 mr-1" />
+  Share
+</Button>
+
       <Button 
         variant="outline" 
         size="sm"
@@ -325,7 +402,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
 {/* Header */}
         {/* <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2">Network Explorer</h1>
-          <p className="text-muted-foreground">
+          <p className="text-gray-700">
             Interactive exploration of gene regulatory network predictions
           </p>
         </div> */}
@@ -336,7 +413,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
             <Network className="w-5 h-5 text-primary mt-0.5" />
             <div>
               <h3 className="font-semibold text-sm mb-1">How to Explore This Network</h3>
-              <ul className="text-sm text-muted-foreground space-y-1">
+              <ul className="text-sm text-gray-700 space-y-1">
                 <li>• <strong>Click nodes</strong> to see gene annotations and regulatory relationships</li>
                 <li>• <strong>Use the search bar</strong> to find specific genes like SOX2, OCT4, or NANOG</li>
                 <li>• <strong>Adjust score threshold</strong> to focus on high-confidence edges</li>
@@ -358,7 +435,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
             <div>
               <label className="text-sm text-foreground mb-2 block">Search Nodes</label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-700" />
                 <Input
                   placeholder="Gene name..."
                   value={searchTerm}
@@ -441,11 +518,11 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
             {/* Stats */}
             <div className="pt-4 border-t border-border space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Nodes</span>
+                <span className="text-gray-700">Nodes</span>
                 <span className="text-foreground">{filteredNodes.length}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Edges</span>
+                <span className="text-gray-700">Edges</span>
                 <span className="text-foreground">{filteredEdges.length}</span>
               </div>
             </div>
@@ -504,7 +581,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h3 className="text-foreground">Node Details</h3>
-                  <p className="text-sm text-muted-foreground">Selected gene information</p>
+                  <p className="text-sm text-gray-700">Selected gene information</p>
                 </div>
                 <Button
                   variant="ghost"
@@ -517,27 +594,37 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-secondary rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Gene ID</p>
+                  <p className="text-xs text-gray-700 mb-1">Gene ID</p>
                   <p className="text-foreground">{selectedNode.id}</p>
                 </div>
                 <div className="p-4 bg-secondary rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Gene Name</p>
+                  <p className="text-xs text-gray-700 mb-1">Gene Name</p>
                   <p className="text-foreground">{selectedNode.label}</p>
                 </div>
                 <div className="p-4 bg-secondary rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Importance Score</p>
+                  <p className="text-xs text-gray-700 mb-1">Importance Score</p>
                   <p className="text-foreground">{selectedNode.score?.toFixed(3)}</p>
                 </div>
                 <div className="p-4 bg-secondary rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Degree</p>
+                  <p className="text-xs text-gray-700 mb-1">Degree</p>
                   <p className="text-foreground">
                     {filteredEdges.filter(e => e.source === selectedNode.id || e.target === selectedNode.id).length}
                   </p>
                 </div>
-              </div>
-
-              <div className="mt-4 p-4 bg-secondary rounded-lg">
-                <p className="text-xs text-muted-foreground mb-2">Neighbors</p>
+                <div className="p-4 bg-secondary rounded-lg col-span-1">
+                  <p className="text-xs text-gray-700 mb-2">
+                    Best-fit Algorithms
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {getBestFitAlgorithms(selectedNode).map((algo) => (
+                      <Badge key={algo} variant="outline">
+                        {algo}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                    <div className=" p-4 bg-secondary rounded-lg">
+                <p className="text-xs text-gray-700 mb-2">Neighbors</p>
                 <div className="flex flex-wrap gap-2">
                   {filteredEdges
                     .filter(e => e.source === selectedNode.id || e.target === selectedNode.id)
@@ -553,6 +640,9 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
                     })}
                 </div>
               </div>
+              </div>
+              
+              
             </Card>
           )}
         </div>
@@ -562,7 +652,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
           <div className="lg:col-span-1" id="details">
             <div className="p-4 rounded-lg border bg-card sticky top-24">
               <h3 className="font-semibold mb-4">Gene Details</h3>
-              <div className="text-sm text-muted-foreground text-center py-8">
+              <div className="text-sm text-gray-700 text-center py-8">
                 Click a gene node to view details
               </div>
 
@@ -573,7 +663,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h3 className="text-foreground">Node Details</h3>
-                  <p className="text-sm text-muted-foreground">Selected gene information</p>
+                  <p className="text-sm text-gray-700">Selected gene information</p>
                 </div>
                 <Button
                   variant="ghost"
@@ -586,27 +676,40 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-secondary rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Gene ID</p>
+                  <p className="text-xs text-gray-700 mb-1">Gene ID</p>
                   <p className="text-foreground">{selectedNode.id}</p>
                 </div>
                 <div className="p-4 bg-secondary rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Gene Name</p>
+                  <p className="text-xs text-gray-700 mb-1">Gene Name</p>
                   <p className="text-foreground">{selectedNode.label}</p>
                 </div>
                 <div className="p-4 bg-secondary rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Importance Score</p>
+                  <p className="text-xs text-gray-700 mb-1">Importance Score</p>
                   <p className="text-foreground">{selectedNode.score?.toFixed(3)}</p>
                 </div>
                 <div className="p-4 bg-secondary rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Degree</p>
+                  <p className="text-xs text-gray-700 mb-1">Degree</p>
                   <p className="text-foreground">
                     {filteredEdges.filter(e => e.source === selectedNode.id || e.target === selectedNode.id).length}
                   </p>
                 </div>
               </div>
+              <div className="p-4 bg-secondary rounded-lg col-span-2">
+  <p className="text-xs text-gray-700 mb-2">
+    Best-fit Algorithms
+  </p>
+  <div className="flex flex-wrap gap-2">
+    {getBestFitAlgorithms(selectedNode).map((algo) => (
+      <Badge key={algo} variant="outline">
+        {algo}
+      </Badge>
+    ))}
+  </div>
+</div>
 
-              <div className="mt-4 p-4 bg-secondary rounded-lg">
-                <p className="text-xs text-muted-foreground mb-2">Neighbors</p>
+
+              <div className=" p-4 bg-secondary rounded-lg">
+                <p className="text-xs text-gray-700 mb-2">Neighbors</p>
                 <div className="flex flex-wrap gap-2">
                   {filteredEdges
                     .filter(e => e.source === selectedNode.id || e.target === selectedNode.id)
@@ -728,8 +831,8 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
       <footer className="border-t bg-background mt-12">
         <div className="container mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
-            <p className='text-sm text-muted-foreground'>© 2026 WebGenie Platform. Licensed under MIT. All rights reserved.</p>
-                  <p className="flex items-center gap-2 text-sm text-muted-foreground">
+            <p className='text-sm text-gray-700'>© 2026 WebGenie Platform. Licensed under MIT. All rights reserved.</p>
+                  <p className="flex items-center gap-2 text-sm text-gray-700">
                     <span>Built upon the </span>
                     <span className="text-primary">BEELINE</span>
                     <span> GRN Benchmarking Platform </span>

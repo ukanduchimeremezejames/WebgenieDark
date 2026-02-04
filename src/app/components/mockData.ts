@@ -238,150 +238,261 @@ export const mockDatasets: Dataset[] = [
 //   lastCommitDate: string;
 // }
 
+// export const mockAlgorithms: Algorithm[] = [
+//   {
+//     id: 'alg1',
+//     name: 'ARBORETO',
+//     version: '1.0',
+//     description: 'Tree-based network inference using random forests',
+//     category: 'Ensemble',
+//     lastCommitMessage: 'Yiqi dockerfiles pull',
+//     lastCommitDate: '2 years ago'
+//   },
+//   {
+//     id: 'alg2',
+//     name: 'BTR',
+//     version: '1.0',
+//     description: 'Boolean network inference with BTR',
+//     category: 'Boolean',
+//     lastCommitMessage: 'Added BoolTraineR.',
+//     lastCommitDate: '7 years ago'
+//   },
+//   {
+//     id: 'alg3',
+//     name: 'GRISLI',
+//     version: '1.0',
+//     description: 'Gene regulatory inference using single-cell time series',
+//     category: 'Time Series',
+//     lastCommitMessage: 'Add README markdown files for algorithms integration',
+//     lastCommitDate: '3 years ago'
+//   },
+//   {
+//     id: 'alg4',
+//     name: 'GRNVBEM',
+//     version: '1.0',
+//     description: 'Variational Bayesian EM for network inference',
+//     category: 'Bayesian',
+//     lastCommitMessage: 'Add README markdown files for algorithms integration',
+//     lastCommitDate: '3 years ago'
+//   },
+//   {
+//     id: 'alg5',
+//     name: 'JUMP3',
+//     version: '1.0',
+//     description: 'Time-series network inference',
+//     category: 'Time Series',
+//     lastCommitMessage: 'tried to run the time command',
+//     lastCommitDate: '7 years ago'
+//   },
+//   {
+//     id: 'alg6',
+//     name: 'LEAP',
+//     version: '1.2',
+//     description: 'Lag-based expression association for pseudotime',
+//     category: 'Time Series',
+//     lastCommitMessage: 'Add README markdown files for algorithms integration',
+//     lastCommitDate: '3 years ago'
+//   },
+//   {
+//     id: 'alg7',
+//     name: 'PIDC',
+//     version: '2.1',
+//     description: 'Partial Information Decomposition and Context',
+//     category: 'Information Theory',
+//     lastCommitMessage: 'Yiqi dockerfiles pull',
+//     lastCommitDate: '2 years ago'
+//   },
+//   {
+//     id: 'alg8',
+//     name: 'PNI',
+//     version: '1.0',
+//     description: 'Pseudo-time network inference',
+//     category: 'Time Series',
+//     lastCommitMessage: 'Added time module to each of the dockers.',
+//     lastCommitDate: '7 years ago'
+//   },
+//   {
+//     id: 'alg9',
+//     name: 'PPCOR',
+//     version: '1.0',
+//     description: 'Partial correlation based network inference',
+//     category: 'Correlation',
+//     lastCommitMessage: 'Add README markdown files for algorithms integration',
+//     lastCommitDate: '3 years ago'
+//   },
+//   {
+//     id: 'alg10',
+//     name: 'SCINGE',
+//     version: '1.0',
+//     description: 'Single-cell network inference with time series',
+//     category: 'Single Cell',
+//     lastCommitMessage: 'Set user to avoid permission issues',
+//     lastCommitDate: '5 years ago'
+//   },
+//   {
+//     id: 'alg11',
+//     name: 'SCNS',
+//     version: '1.0',
+//     description: 'Single-cell network inference',
+//     category: 'Single Cell',
+//     lastCommitMessage: 'scns dockerfile fix',
+//     lastCommitDate: '2 years ago'
+//   },
+//   {
+//     id: 'alg12',
+//     name: 'SCODE',
+//     version: '1.0',
+//     description: 'Network inference from single-cell expression data',
+//     category: 'Single Cell',
+//     lastCommitMessage: 'Add README markdown files for algorithms integration',
+//     lastCommitDate: '3 years ago'
+//   },
+//   {
+//     id: 'alg13',
+//     name: 'SCRIBE',
+//     version: '1.0',
+//     description: 'Single-cell trajectory network inference',
+//     category: 'Single Cell',
+//     lastCommitMessage: 'bioclite is depreceated - moved monocle to biocmanager',
+//     lastCommitDate: '2 years ago'
+//   },
+//   {
+//     id: 'alg14',
+//     name: 'SCSGL',
+//     version: '1.0',
+//     description: 'Single-cell sparse gene network learning',
+//     category: 'Single Cell',
+//     lastCommitMessage: 'Merge pull request #106 from Murali-group/dockerfileupdates',
+//     lastCommitDate: '2 years ago'
+//   },
+//   {
+//     id: 'alg15',
+//     name: 'SINCERITIES',
+//     version: '1.5',
+//     description: 'Temporally informed network inference',
+//     category: 'Time Series',
+//     lastCommitMessage: 'scribe - added new mirror to sources',
+//     lastCommitDate: '2 years ago'
+//   },
+//   {
+//     id: 'alg16',
+//     name: 'SINGE',
+//     version: '1.0',
+//     description: 'Single-cell network inference',
+//     category: 'Single Cell',
+//     lastCommitMessage: 'fixed singe support - patch fix by allowing all certificates',
+//     lastCommitDate: '2 years ago'
+//   }
+// ];
+
 export const mockAlgorithms: Algorithm[] = [
   {
     id: 'alg1',
-    name: 'ARBORETO',
+    name: 'GENIE3',
     version: '1.0',
     description: 'Tree-based network inference using random forests',
-    category: 'Ensemble',
+    category: 'Tree-based',
     lastCommitMessage: 'Yiqi dockerfiles pull',
     lastCommitDate: '2 years ago'
   },
   {
     id: 'alg2',
-    name: 'BTR',
+    name: 'GRNBoost2',
     version: '1.0',
-    description: 'Boolean network inference with BTR',
-    category: 'Boolean',
+    description: 'Gradient Boosting inference with GRNBoost2',
+    category: 'Gradient Boosting',
     lastCommitMessage: 'Added BoolTraineR.',
     lastCommitDate: '7 years ago'
   },
   {
     id: 'alg3',
-    name: 'GRISLI',
+    name: 'Pearson',
     version: '1.0',
-    description: 'Gene regulatory inference using single-cell time series',
-    category: 'Time Series',
+    description: 'Gene regulatory inference using Correlation',
+    category: 'Correlation',
     lastCommitMessage: 'Add README markdown files for algorithms integration',
     lastCommitDate: '3 years ago'
   },
   {
     id: 'alg4',
-    name: 'GRNVBEM',
+    name: 'Spearman',
     version: '1.0',
-    description: 'Variational Bayesian EM for network inference',
-    category: 'Bayesian',
+    description: 'Beeline Processed Dataset based on Spearman correlation and network inference',
+    category: 'Correlation',
     lastCommitMessage: 'Add README markdown files for algorithms integration',
     lastCommitDate: '3 years ago'
   },
   {
     id: 'alg5',
-    name: 'JUMP3',
+    name: 'ARACNE',
     version: '1.0',
-    description: 'Time-series network inference',
-    category: 'Time Series',
+    description: 'Information Theory for network inference',
+    category: 'Information Theory',
     lastCommitMessage: 'tried to run the time command',
-    lastCommitDate: '7 years ago'
+    lastCommitDate: '2 years ago'
   },
   {
     id: 'alg6',
-    name: 'LEAP',
+    name: 'SINGE',
     version: '1.2',
-    description: 'Lag-based expression association for pseudotime',
-    category: 'Time Series',
+    description: 'SINGE is a Tree-based algorithm for running and benchmarking datasets',
+    category: 'Tree-based',
     lastCommitMessage: 'Add README markdown files for algorithms integration',
     lastCommitDate: '3 years ago'
   },
   {
     id: 'alg7',
-    name: 'PIDC',
+    name: 'Probabilistic',
     version: '2.1',
-    description: 'Partial Information Decomposition and Context',
+    description: 'Partial Information Decomposition and Context based on probability',
     category: 'Information Theory',
     lastCommitMessage: 'Yiqi dockerfiles pull',
     lastCommitDate: '2 years ago'
   },
   {
     id: 'alg8',
-    name: 'PNI',
+    name: 'GRISLI',
     version: '1.0',
-    description: 'Pseudo-time network inference',
-    category: 'Time Series',
+    description: 'Pseudo-time network inference based on Dynamical Systems',
+    category: 'Dynamical Systems',
     lastCommitMessage: 'Added time module to each of the dockers.',
-    lastCommitDate: '7 years ago'
+    lastCommitDate: '2 years ago'
   },
   {
     id: 'alg9',
-    name: 'PPCOR',
+    name: 'SCODE',
     version: '1.0',
-    description: 'Partial correlation based network inference',
-    category: 'Correlation',
+    description: 'Linear Models based network inference',
+    category: 'Linear Models',
     lastCommitMessage: 'Add README markdown files for algorithms integration',
     lastCommitDate: '3 years ago'
   },
   {
     id: 'alg10',
-    name: 'SCINGE',
+    name: 'SCNS',
     version: '1.0',
-    description: 'Single-cell network inference with time series',
-    category: 'Single Cell',
+    description: 'Single-cell network inference with Linear Models',
+    category: 'Linear Models',
     lastCommitMessage: 'Set user to avoid permission issues',
     lastCommitDate: '5 years ago'
   },
   {
     id: 'alg11',
-    name: 'SCNS',
+    name: 'LEAP',
     version: '1.0',
-    description: 'Single-cell network inference',
-    category: 'Single Cell',
-    lastCommitMessage: 'scns dockerfile fix',
+    description: 'Single-cell network inference based on Regression Analysis',
+    category: 'Regression',
+    lastCommitMessage: 'leap dockerfile fix',
     lastCommitDate: '2 years ago'
   },
   {
     id: 'alg12',
-    name: 'SCODE',
+    name: 'Arboreto',
     version: '1.0',
-    description: 'Network inference from single-cell expression data',
-    category: 'Single Cell',
+    description: 'A Tree-based Network inference from single-cell expression data',
+    category: 'Tree-based',
     lastCommitMessage: 'Add README markdown files for algorithms integration',
     lastCommitDate: '3 years ago'
-  },
-  {
-    id: 'alg13',
-    name: 'SCRIBE',
-    version: '1.0',
-    description: 'Single-cell trajectory network inference',
-    category: 'Single Cell',
-    lastCommitMessage: 'bioclite is depreceated - moved monocle to biocmanager',
-    lastCommitDate: '2 years ago'
-  },
-  {
-    id: 'alg14',
-    name: 'SCSGL',
-    version: '1.0',
-    description: 'Single-cell sparse gene network learning',
-    category: 'Single Cell',
-    lastCommitMessage: 'Merge pull request #106 from Murali-group/dockerfileupdates',
-    lastCommitDate: '2 years ago'
-  },
-  {
-    id: 'alg15',
-    name: 'SINCERITIES',
-    version: '1.5',
-    description: 'Temporally informed network inference',
-    category: 'Time Series',
-    lastCommitMessage: 'scribe - added new mirror to sources',
-    lastCommitDate: '2 years ago'
-  },
-  {
-    id: 'alg16',
-    name: 'SINGE',
-    version: '1.0',
-    description: 'Single-cell network inference',
-    category: 'Single Cell',
-    lastCommitMessage: 'fixed singe support - patch fix by allowing all certificates',
-    lastCommitDate: '2 years ago'
   }
 ];
 
@@ -488,7 +599,7 @@ export const mockAlgorithms: Algorithm[] = [
 export const mockPerformanceMetrics: PerformanceMetrics[] = [
   {
     algorithmId: 'alg1',
-    algorithmName: 'ARBORETO',
+    algorithmName: 'GENIE3',
     precision: 0.71,
     recall: 0.69,
     f1Score: 0.70,
@@ -500,7 +611,7 @@ export const mockPerformanceMetrics: PerformanceMetrics[] = [
   },
   {
     algorithmId: 'alg2',
-    algorithmName: 'BTR',
+    algorithmName: 'GRNBoost2',
     precision: 0.63,
     recall: 0.60,
     f1Score: 0.61,
@@ -512,7 +623,7 @@ export const mockPerformanceMetrics: PerformanceMetrics[] = [
   },
   {
     algorithmId: 'alg3',
-    algorithmName: 'GRISLI',
+    algorithmName: 'Pearson',
     precision: 0.68,
     recall: 0.71,
     f1Score: 0.69,
@@ -524,7 +635,7 @@ export const mockPerformanceMetrics: PerformanceMetrics[] = [
   },
   {
     algorithmId: 'alg4',
-    algorithmName: 'GRNVBEM',
+    algorithmName: 'Spearman',
     precision: 0.66,
     recall: 0.67,
     f1Score: 0.66,
@@ -536,7 +647,7 @@ export const mockPerformanceMetrics: PerformanceMetrics[] = [
   },
   {
     algorithmId: 'alg5',
-    algorithmName: 'JUMP3',
+    algorithmName: 'ARACNE',
     precision: 0.62,
     recall: 0.58,
     f1Score: 0.60,
@@ -548,7 +659,7 @@ export const mockPerformanceMetrics: PerformanceMetrics[] = [
   },
   {
     algorithmId: 'alg6',
-    algorithmName: 'LEAP',
+    algorithmName: 'SINGE',
     precision: 0.69,
     recall: 0.73,
     f1Score: 0.71,
@@ -560,7 +671,7 @@ export const mockPerformanceMetrics: PerformanceMetrics[] = [
   },
   {
     algorithmId: 'alg7',
-    algorithmName: 'PIDC',
+    algorithmName: 'GRNVBEM',
     precision: 0.71,
     recall: 0.68,
     f1Score: 0.69,
@@ -572,7 +683,7 @@ export const mockPerformanceMetrics: PerformanceMetrics[] = [
   },
   {
     algorithmId: 'alg8',
-    algorithmName: 'PNI',
+    algorithmName: 'GRISLI',
     precision: 0.64,
     recall: 0.63,
     f1Score: 0.63,
@@ -584,7 +695,7 @@ export const mockPerformanceMetrics: PerformanceMetrics[] = [
   },
   {
     algorithmId: 'alg9',
-    algorithmName: 'PPCOR',
+    algorithmName: 'SCODE',
     precision: 0.62,
     recall: 0.65,
     f1Score: 0.63,
@@ -596,7 +707,7 @@ export const mockPerformanceMetrics: PerformanceMetrics[] = [
   },
   {
     algorithmId: 'alg10',
-    algorithmName: 'SCINGE',
+    algorithmName: 'SCNS',
     precision: 0.67,
     recall: 0.64,
     f1Score: 0.65,
@@ -608,7 +719,7 @@ export const mockPerformanceMetrics: PerformanceMetrics[] = [
   },
   {
     algorithmId: 'alg11',
-    algorithmName: 'SCNS',
+    algorithmName: 'LEAP',
     precision: 0.58,
     recall: 0.62,
     f1Score: 0.60,
@@ -620,7 +731,7 @@ export const mockPerformanceMetrics: PerformanceMetrics[] = [
   },
   {
     algorithmId: 'alg12',
-    algorithmName: 'SCODE',
+    algorithmName: 'Arboreto',
     precision: 0.65,
     recall: 0.68,
     f1Score: 0.66,
@@ -629,54 +740,6 @@ export const mockPerformanceMetrics: PerformanceMetrics[] = [
     earlyPrecision: 0.61,
     runtime: 168.3,
     memoryUsage: 2450
-  },
-  {
-    algorithmId: 'alg13',
-    algorithmName: 'SCRIBE',
-    precision: 0.73,
-    recall: 0.70,
-    f1Score: 0.71,
-    auroc: 0.83,
-    auprc: 0.76,
-    earlyPrecision: 0.69,
-    runtime: 142.6,
-    memoryUsage: 2250
-  },
-  {
-    algorithmId: 'alg14',
-    algorithmName: 'SCSGL',
-    precision: 0.60,
-    recall: 0.64,
-    f1Score: 0.62,
-    auroc: 0.72,
-    auprc: 0.66,
-    earlyPrecision: 0.56,
-    runtime: 209.5,
-    memoryUsage: 2500
-  },
-  {
-    algorithmId: 'alg15',
-    algorithmName: 'SINCERITIES',
-    precision: 0.66,
-    recall: 0.70,
-    f1Score: 0.68,
-    auroc: 0.78,
-    auprc: 0.71,
-    earlyPrecision: 0.63,
-    runtime: 198.5,
-    memoryUsage: 3072
-  },
-  {
-    algorithmId: 'alg16',
-    algorithmName: 'SINGE',
-    precision: 0.69,
-    recall: 0.66,
-    f1Score: 0.67,
-    auroc: 0.79,
-    auprc: 0.72,
-    earlyPrecision: 0.64,
-    runtime: 188.2,
-    memoryUsage: 2890
   }
 ];
 
@@ -690,8 +753,8 @@ export const mockJobs: Job[] = [
     algorithmName: 'GRNBoost2',
     status: 'completed',
     progress: 100,
-    startTime: '2025-12-20T10:30:00',
-    endTime: '2025-12-20T10:31:27'
+    startTime: '2026-02-04T10:30:00',
+    endTime: '2026-02-05T10:31:27'
   },
   {
     id: 'job2',
@@ -701,7 +764,7 @@ export const mockJobs: Job[] = [
     algorithmName: 'GENIE3',
     status: 'running',
     progress: 67,
-    startTime: '2025-12-20T11:15:00'
+    startTime: '2026-02-02T11:15:00'
   },
   {
     id: 'job3',
@@ -711,7 +774,7 @@ export const mockJobs: Job[] = [
     algorithmName: 'SCENIC',
     status: 'pending',
     progress: 0,
-    startTime: '2025-12-20T11:30:00'
+    startTime: '2026-01-30T11:30:00'
   },
   {
     id: 'job4',
@@ -721,8 +784,8 @@ export const mockJobs: Job[] = [
     algorithmName: 'PIDC',
     status: 'failed',
     progress: 45,
-    startTime: '2025-12-20T09:45:00',
-    endTime: '2025-12-20T09:50:12',
+    startTime: '2026-02-01T09:45:00',
+    endTime: '2026-02-05T09:50:12',
     error: 'Memory allocation failed: insufficient resources'
   }
 ];
@@ -761,7 +824,8 @@ export function getAUPRCDistributionData() {
   return mockPerformanceMetrics.map(m => ({
     name: m.algorithmName,
     auprc: m.auprc,
-    auroc: m.auroc
+    auroc: m.auroc,
+    f1Score: m.f1Score
   }));
 }
 

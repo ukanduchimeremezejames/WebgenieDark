@@ -1032,7 +1032,73 @@ export function Compare() {
         {/* Additional Charts */}
         <div id="enrichment" className="grid lg:grid-cols-2 gap-6 py-5">
           {/* Enrichment */}
-          <div className="p-6 rounded-lg border bg-card">
+<div className="p-6 rounded-lg border bg-card h-[400px] overflow-y-auto scrollbar-thin">
+  <div className="mb-6">
+    <h2 className="font-semibold mb-1">Top Motif Enrichment</h2>
+    <p className="text-sm text-muted-foreground">
+      Transcription factor binding site enrichment
+    </p>
+  </div>
+
+  {Array.isArray(motifEnrichmentData) && motifEnrichmentData.length > 0 ? (
+    <div className="space-y-4">
+      {(() => {
+        // ✅ compute once, safely
+        const maxEnrichment = Math.max(
+          ...motifEnrichmentData.map(d => d.enrichment ?? 0),
+          1
+        );
+
+        return motifEnrichmentData
+          .slice()
+          .sort((a, b) => b.enrichment - a.enrichment)
+          .map((item, idx) => {
+            const value = item.enrichment ?? 0;
+            const width = (value / maxEnrichment) * 100;
+
+            return (
+              <div key={item.motif}>
+                <div className="flex items-center justify-between mb-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground font-mono">
+                      #{idx + 1}
+                    </span>
+                    <span className="font-medium">{item.motif}</span>
+                  </div>
+                  <span className="font-mono">{value.toFixed(2)}</span>
+                </div>
+
+                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-700 ease-out"
+                    style={{
+                      width: `${width}%`,
+                      backgroundColor: 'var(--color-secondary)',
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          });
+      })()}
+
+      <div className="mt-6 p-3 rounded-lg bg-accent/50 border">
+        <p className="text-sm text-muted-foreground">
+          <strong>Note:</strong> Higher enrichment scores indicate stronger
+          overrepresentation of transcription factor motifs in inferred
+          regulatory networks.
+        </p>
+      </div>
+    </div>
+  ) : (
+    <p className="text-sm text-muted-foreground text-center">
+      No motif enrichment data available.
+    </p>
+  )}
+</div>
+
+          {/* Enrichment */}
+          {/* <div className="p-6 rounded-lg border bg-card">
             <div className="mb-6">
               <h2 className="font-semibold mb-1">Top Motif Enrichment</h2>
               <p className="text-sm text-muted-foreground">
@@ -1056,7 +1122,7 @@ export function Compare() {
             </BarChart>
           </ResponsiveContainer>
             </div>
-          </div>
+          </div> */}
 
           {/* Similarity */}
           <div className="p-6 rounded-lg border bg-card h-[400px] overflow-y-auto scrollbar-thin">

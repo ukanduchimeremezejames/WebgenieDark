@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 // import { ActivityPreview } from './ActivityPreview';
 import { Search, SlidersHorizontal, Database, Download, Globe, Layers, Boxes, Dna, Microscope, GitFork, PlayCircle } from 'lucide-react';
@@ -210,7 +210,19 @@ export function Datasets() {
   const totalGenes = allDatasets.reduce((sum, d) => sum + d.genes, 0);
   const totalCells = allDatasets.reduce((sum, d) => sum + d.cells, 0);
   const totalEdges = allDatasets.reduce((sum, d) => sum + d.edges, 0);
-  const totalRuns = 0; // Placeholder for future runs
+  // const totalRuns = 0; // Placeholder for future runs
+  const [totalRuns, setTotalRuns] = useState(0);
+
+  useEffect(() => {
+  const storedRuns = localStorage.getItem("totalRuns");
+  const currentRuns = storedRuns ? parseInt(storedRuns, 10) : 0;
+
+  const updatedRuns = currentRuns + 1;
+
+  localStorage.setItem("totalRuns", updatedRuns.toString());
+  setTotalRuns(updatedRuns);
+}, []);
+
 
   const stats = [
     { label: 'Total Datasets', value: allDatasets.length },

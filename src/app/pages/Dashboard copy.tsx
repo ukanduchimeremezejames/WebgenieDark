@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { TrendingUp, Database, GitCompare, Cpu, Play, Activity } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Line, LineChart, Legend } from 'recharts';
 import { KPICard } from '../components/KPICard';
@@ -15,23 +15,7 @@ import { mockDatasets, mockAlgorithms, mockJobs, getAUPRCDistributionData } from
 import { Dataset } from '../types';
 
 
-interface RecentResult {
-  id: number;
-  dataset: string;
-  algorithm: string;
-  auroc: string;
-  auprc: string;
-  status: 'completed' | 'failed';
-  date: string;
-}
 
-interface AlgorithmMetrics {
-  algorithm: string;
-  auroc: number;
-  auprc: number;
-  f1: number;
-  runtime: number;
-}
 
 
 const performanceData = [
@@ -90,7 +74,7 @@ export function Dashboard() {
   const [sizeRange, setSizeRange] = useState([0, 3000]);
   const [selectedOrganism, setSelectedOrganism] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
-  const [recentResults, setRecentResults] = useState<RecentResult[]>([]);
+
   const totalGenes = mockDatasets.reduce((sum, ds) => sum + ds.genes, 0);
   const totalCells = mockDatasets.reduce((sum, ds) => sum + ds.cells, 0);
   const totalEdges = mockDatasets.reduce((sum, ds) => sum + ds.edges, 0);
@@ -99,64 +83,6 @@ export function Dashboard() {
     setSelectedDataset(dataset);
     setModalOpen(true);
   };
-
-  // Function to generate random results
-  const generateRecentResults = () => {
-    const results: RecentResult[] = [];
-    for (let i = 0; i < 6; i++) {
-      const dataset = mockDatasets[Math.floor(Math.random() * mockDatasets.length)].name;
-      const algorithm = mockAlgorithms[Math.floor(Math.random() * mockAlgorithms.length)].name;
-      const auroc = (Math.random() * 0.2 + 0.6).toFixed(3); // AUROC between 0.6-0.8
-      const auprc = (Math.random() * 0.2 + 0.55).toFixed(3); // AUPRC between 0.55-0.75
-      const minutesAgo = Math.floor(Math.random() * 59) + 1;
-      results.push({
-        id: i,
-        dataset,
-        algorithm,
-        auroc,
-        auprc,
-        status: 'completed',
-        date: `${minutesAgo}m ago`,
-      });
-    }
-    setRecentResults(results);
-  };
-
-  // Initialize and refresh every 5 minutes
-  useEffect(() => {
-    generateRecentResults(); // initial
-    const interval = setInterval(generateRecentResults, 5 * 60 * 1000); // every 5 minutes
-    return () => clearInterval(interval);
-  }, []);
-
-
-  
-  const [algorithmComparison, setAlgorithmComparison] = useState<AlgorithmMetrics[]>([]);
-
-  // Function to generate random metrics
-  const generateAlgorithmComparison = () => {
-    const results: AlgorithmMetrics[] = mockAlgorithms.map((algo) => {
-      const auroc = Math.random() * 0.2 + 0.6;  // AUROC between 0.6 - 0.8
-      const auprc = Math.random() * 0.2 + 0.55; // AUPRC between 0.55 - 0.75
-      const f1 = Math.min(auroc, auprc) - Math.random() * 0.05; // F1 slightly lower than metrics
-      const runtime = Math.floor(Math.random() * 100 + 20); // Runtime 20-120s
-      return {
-        algorithm: algo.name,
-        auroc,
-        auprc,
-        f1,
-        runtime,
-      };
-    });
-    setAlgorithmComparison(results);
-  };
-
-  // Initialize and refresh every 5 minutes
-  useEffect(() => {
-    generateAlgorithmComparison(); // initial
-    const interval = setInterval(generateAlgorithmComparison, 5 * 60 * 1000); // every 5 minutes
-    return () => clearInterval(interval);
-  }, []);
 
   // const handleDownload = (dataset: Dataset) => {
 
@@ -180,7 +106,6 @@ export function Dashboard() {
     const matchesSize = ds.genes >= sizeRange[0] && ds.genes <= sizeRange[1];
     return matchesOrganism && matchesType && matchesSize;
   });
-  
 
   return (
     <div id="overview" className="min-h-screen py-20 pb-0">
@@ -385,69 +310,9 @@ export function Dashboard() {
       </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
-           {/* Algorithm Comparison Table */}
-      <div id="comparison" className="lg:col-span-2 mt-6 rounded-lg border bg-card p-6">
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold">Algorithm Comparison</h2>
-          <p className="text-sm text-muted-foreground">
-            Detailed performance metrics across all benchmarked algorithms
-          </p>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
-                  Algorithm
-                </th>
-                <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">
-                  AUROC
-                </th>
-                <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">
-                  AUPRC
-                </th>
-                <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">
-                  F1 Score
-                </th>
-                <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">
-                  Runtime (s)
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {algorithmComparison.map((algo, index) => (
-                <tr key={algo.algorithm} className="border-b last:border-0">
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={`w-2 h-2 rounded-full ${
-                          index === 0 ? 'bg-primary' : 'bg-secondary'
-                        }`}
-                      />
-                      <span className="font-medium">{algo.algorithm}</span>
-                    </div>
-                  </td>
-                  <td className="text-right py-3 px-4 font-mono text-sm">
-                    {algo.auroc.toFixed(3)}
-                  </td>
-                  <td className="text-right py-3 px-4 font-mono text-sm">
-                    {algo.auprc.toFixed(3)}
-                  </td>
-                  <td className="text-right py-3 px-4 font-mono text-sm">
-                    {algo.f1.toFixed(3)}
-                  </td>
-                  <td className="text-right py-3 px-4 font-mono text-sm text-muted-foreground">
-                    {algo.runtime}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
           {/* Performance Chart */}
            {/* Algorithm Comparison Table */}
-        {/* <div id="comparison" className="lg:col-span-2 mt-6 rounded-lg border bg-card p-6">
+        <div id="comparison" className="lg:col-span-2 mt-6 rounded-lg border bg-card p-6">
           <div className="mb-6">
             <h2 className="text-lg font-semibold">Algorithm Comparison</h2>
             <p className="text-sm text-muted-foreground">
@@ -505,67 +370,11 @@ export function Dashboard() {
               </tbody>
             </table>
           </div>
-        </div> */}
+        </div>
+
+          
 
           {/* Recent Results */}
-      {/* <div id="recent" className="rounded-lg border bg-card p-6 mt-5">
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold">Recent Results</h2>
-          <p className="text-sm text-muted-foreground">Latest benchmark runs</p>
-        </div>
-        <div className="space-y-4">
-          {recentResults.map((result) => (
-            <div key={result.id} className="p-3 rounded-lg border bg-accent/50">
-              <div className="flex items-center justify-between mb-1">
-                <div className="text-sm font-medium">{result.dataset}</div>
-                <div className="text-xs text-muted-foreground">{result.date}</div>
-              </div>
-              <div className="text-xs text-muted-foreground mb-2">{result.algorithm}</div>
-              <div className="flex gap-4 text-xs">
-                <div>
-                  <span className="text-muted-foreground">AUROC:</span>{' '}
-                  <span className="font-medium">{result.auroc}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">AUPRC:</span>{' '}
-                  <span className="font-medium">{result.auprc}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div> */}
-
-      {/* Recent Results */}
-      <div id="recent" className="rounded-lg border bg-card p-6 mt-5">
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold">Recent Results</h2>
-          <p className="text-sm text-muted-foreground">Latest benchmark runs</p>
-        </div>
-        <div className="space-y-4">
-          {recentResults.map((result) => (
-            <div key={result.id} className="p-3 rounded-lg border bg-accent/50">
-              <div className="flex items-center justify-between mb-1">
-                <div className="text-sm font-medium">{result.dataset}</div>
-                <div className="text-xs text-muted-foreground">{result.date}</div>
-              </div>
-              <div className="text-xs text-muted-foreground mb-2">{result.algorithm}</div>
-              <div className="flex gap-4 text-xs">
-                <div>
-                  <span className="text-muted-foreground">AUROC:</span>{' '}
-                  <span className="font-medium">{result.auroc}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">AUPRC:</span>{' '}
-                  <span className="font-medium">{result.auprc}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-          {/* Recent Results
           <div id="recent" className="rounded-lg border bg-card p-6 mt-5">
             <div className="mb-6">
               <h2 className="text-lg font-semibold">Recent Results</h2>
@@ -594,7 +403,7 @@ export function Dashboard() {
                 </div>
               ))}
             </div>
-          </div> */}
+          </div>
         </div>
 
         {/* Algorithm Comparison Table */}

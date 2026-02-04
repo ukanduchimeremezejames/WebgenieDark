@@ -9,7 +9,18 @@ import {
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Download, FileJson, FileText } from 'lucide-react';
-import { Dataset } from '../types';
+
+interface Dataset {
+  id: string;
+  name: string;
+  type: string;
+  organism: string;
+  genes: number;
+  cells: number;
+  edges: number;
+  lastUpdated: string;
+  groundTruth: { source: string; target: string; type: string }[];
+}
 
 interface DatasetDetailModalProps {
   dataset: Dataset | null;
@@ -18,7 +29,24 @@ interface DatasetDetailModalProps {
 }
 
 export function DatasetDetailModal({ dataset, open, onOpenChange }: DatasetDetailModalProps) {
-  if (!dataset) return null;
+  // If no dataset is provided, we can use a static default
+  const defaultDataset: Dataset = {
+    id: 'ds1',
+    name: 'Example Dataset',
+    type: 'scRNA-seq',
+    organism: 'Human',
+    genes: 1985,
+    cells: 642,
+    edges: 3567,
+    lastUpdated: '2024-09-22',
+    groundTruth: [
+      { source: 'GENE1', target: 'GENE2', type: 'Activation' },
+      { source: 'GENE2', target: 'GENE3', type: 'Repression' },
+      { source: 'GENE3', target: 'GENE4', type: 'Unknown' },
+    ],
+  };
+
+  const finalDataset = dataset || defaultDataset;
 
   // Helper to download file
   const downloadFile = (content: string, filename: string, type: string) => {
@@ -34,28 +62,16 @@ export function DatasetDetailModal({ dataset, open, onOpenChange }: DatasetDetai
   };
 
   const handleDownload = (format: 'json' | 'csv') => {
-    if (!dataset) return;
-
     if (format === 'json') {
-      downloadFile(JSON.stringify(dataset, null, 2), `${dataset.name}.json`, 'application/json');
+      downloadFile(JSON.stringify(finalDataset, null, 2), `${finalDataset.name}.json`, 'application/json');
     }
 
     if (format === 'csv') {
-      // Simple CSV with main fields
-      const headers = ['id', 'name', 'organism', 'type', 'genes', 'cells', 'edges', 'source', 'lastUpdated'];
-      const values = [
-        dataset.id,
-        dataset.name,
-        dataset.organism,
-        dataset.type,
-        dataset.genes,
-        dataset.cells,
-        dataset.edges,
-        dataset.source,
-        dataset.lastUpdated,
-      ];
-      const csvContent = [headers.join(','), values.join(',')].join('\n');
-      downloadFile(csvContent, `${dataset.name}.csv`, 'text/csv');
+      // CSV with all fields including groundTruth
+      const headers = ['Source', 'Target', 'Type'];
+      const rows = finalDataset.groundTruth.map(gt => [gt.source, gt.target, gt.type]);
+      const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      downloadFile(csvContent, `${finalDataset.name}.csv`, 'text/csv');
     }
   };
 
@@ -68,10 +84,12 @@ export function DatasetDetailModal({ dataset, open, onOpenChange }: DatasetDetai
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {dataset.name}
-            <Badge variant="secondary">{dataset.organism}</Badge>
+            {finalDataset.name}
+            <Badge variant="secondary">{finalDataset.organism}</Badge>
           </DialogTitle>
-          <DialogDescription>{dataset.description}</DialogDescription>
+          <DialogDescription>
+            This is a preview of the dataset including metadata, summary statistics, and ground truth edges.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 mt-4">
@@ -81,27 +99,27 @@ export function DatasetDetailModal({ dataset, open, onOpenChange }: DatasetDetai
             <div className="grid grid-cols-2 gap-4 p-4 bg-secondary rounded-lg">
               <div>
                 <p className="text-xs text-muted mb-1">Dataset Type</p>
-                <p className="text-foreground">{dataset.type}</p>
+                <p className="text-foreground">{finalDataset.type}</p>
               </div>
               <div>
                 <p className="text-xs text-muted mb-1">Organism</p>
-                <p className="text-foreground">{dataset.organism}</p>
+                <p className="text-foreground">{finalDataset.organism}</p>
               </div>
               <div>
                 <p className="text-xs text-muted mb-1">Number of Genes</p>
-                <p className="text-foreground">{dataset.genes.toLocaleString()}</p>
+                <p className="text-foreground">{finalDataset.genes.toLocaleString()}</p>
               </div>
               <div>
                 <p className="text-xs text-muted mb-1">Number of Cells</p>
-                <p className="text-foreground">{dataset.cells > 0 ? dataset.cells.toLocaleString() : 'N/A'}</p>
+                <p className="text-foreground">{finalDataset.cells.toLocaleString()}</p>
               </div>
               <div>
                 <p className="text-xs text-muted mb-1">Ground Truth Edges</p>
-                <p className="text-foreground">{dataset.edges.toLocaleString()}</p>
+                <p className="text-foreground">{finalDataset.edges.toLocaleString()}</p>
               </div>
               <div>
                 <p className="text-xs text-muted mb-1">Last Updated</p>
-                <p className="text-foreground">{new Date(dataset.lastUpdated).toLocaleDateString()}</p>
+                <p className="text-foreground">{new Date(finalDataset.lastUpdated).toLocaleDateString()}</p>
               </div>
             </div>
           </div>
@@ -112,19 +130,15 @@ export function DatasetDetailModal({ dataset, open, onOpenChange }: DatasetDetai
             <div className="p-4 bg-secondary rounded-lg space-y-2">
               <div className="flex justify-between">
                 <span className="text-sm text-muted">Network Density</span>
-                <span className="text-foreground">
-                  {((dataset.edges / (dataset.genes * dataset.genes)) * 100).toFixed(2)}%
-                </span>
+                <span className="text-foreground">{((finalDataset.edges / (finalDataset.genes * finalDataset.genes)) * 100).toFixed(2)}%</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted">Avg. Degree</span>
-                <span className="text-foreground">{(dataset.edges * 2 / dataset.genes).toFixed(2)}</span>
+                <span className="text-foreground">{(finalDataset.edges * 2 / finalDataset.genes).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted">Data Points</span>
-                <span className="text-foreground">
-                  {dataset.cells > 0 ? (dataset.genes * dataset.cells).toLocaleString() : dataset.genes.toLocaleString()}
-                </span>
+                <span className="text-foreground">{(finalDataset.genes * finalDataset.cells).toLocaleString()}</span>
               </div>
             </div>
           </div>
@@ -138,15 +152,15 @@ export function DatasetDetailModal({ dataset, open, onOpenChange }: DatasetDetai
                 <span className="text-muted">Target</span>
                 <span className="text-muted">Type</span>
               </div>
-              {['GENE1 → GENE2 (Activation)', 'GENE2 → GENE3 (Repression)', 'GENE3 → GENE4 (Unknown)'].map((edge, i) => (
+              {finalDataset.groundTruth.map((gt, i) => (
                 <div key={i} className="grid grid-cols-3 gap-2 text-xs py-1">
-                  <span className="text-foreground">{edge.split(' ')[0]}</span>
-                  <span className="text-foreground">{edge.split(' ')[2]}</span>
-                  <span className="text-foreground">{edge.split(' ')[3]}</span>
+                  <span className="text-foreground">{gt.source}</span>
+                  <span className="text-foreground">{gt.target}</span>
+                  <span className="text-foreground">({gt.type})</span>
                 </div>
               ))}
               <p className="text-xs text-muted mt-2">
-                ... and {dataset.edges - 3} more edges
+                ... and {finalDataset.edges - finalDataset.groundTruth.length} more edges
               </p>
             </div>
           </div>

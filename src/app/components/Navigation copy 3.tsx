@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Moon, Activity, User, Sun, Search, ChevronDown, Bell, Menu, X } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { useTheme } from 'next-themes';
 import {
   DropdownMenu,
@@ -8,7 +8,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { searchIndex } from './../../data/searchIndex';
+import { searchIndex } from "./../../data/searchIndex";
+
+// const [searchQuery, setSearchQuery] = useState("");
 
 const navLinks = [
   {
@@ -39,6 +41,7 @@ const navLinks = [
       { label: 'Algorithm Selection', path: '/compare/select' },
       { label: 'Metric Explorer', path: '/compare/metrics' },
       { label: 'PR/ROC Overlay', path: '/compare/roc' },
+      // { label: 'Performance Comparison', path: '/compare/performance' },
       { label: 'Top Motif Enrichment', path: '/compare/enrichment' },
     ],
   },
@@ -66,65 +69,97 @@ const navLinks = [
   },
 ];
 
+// const handleSearch = () => {
+//   if (!searchQuery.trim()) return;
+
+//   const query = searchQuery.toLowerCase();
+
+  // Exact match first
+  // const exactMatch = searchIndex.find(
+  //   item => item.label.toLowerCase() === query
+  // );
+
+//   const navigate = useNavigate();
+//   const [mobileOpen, setMobileOpen] = useState(false);
+
+
+//   if (exactMatch) {
+//     navigate(exactMatch.path);
+//     setSearchQuery("");
+//     setMobileOpen(false);
+//     return;
+//   }
+
+//   // Partial match
+//   const partialMatch = searchIndex.find(
+//     item => item.label.toLowerCase().includes(query)
+//   );
+
+//   if (partialMatch) {
+//     navigate(partialMatch.path);
+//     setSearchQuery("");
+//     setMobileOpen(false);
+//     return;
+//   }
+
+//   // Fallback search page
+//   navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+//   setSearchQuery("");
+// };
+
 export function Navigation() {
+
+  export function Navigation() {
   const location = useLocation();
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
-
-  const [showNotifications, setShowNotifications] = useState(false);
-  const notifRef = useRef<HTMLDivElement>(null);
-
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const userRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-  const handleClickOutside = (event: MouseEvent) => {
-    if (userRef.current && !userRef.current.contains(event.target as Node)) {
-      setShowUserMenu(false);
-    }
-  };
-  document.addEventListener('mousedown', handleClickOutside);
-  return () => document.removeEventListener('mousedown', handleClickOutside);
-}, []);
-
-  useEffect(() => {
-  const handleClickOutside = (event: MouseEvent) => {
-    if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
-      setShowNotifications(false);
-    }
-  };
-  document.addEventListener('mousedown', handleClickOutside);
-  return () => document.removeEventListener('mousedown', handleClickOutside);
-}, []);
-
-{/* <div className="relative" ref={notifRef}>
-  <button
-    className="relative p-2 rounded-full hover:bg-accent transition-colors"
-    onClick={() => setShowNotifications(!showNotifications)}
-  >
-    <Bell className="w-5 h-5" />
-    <span className="absolute top-1 right-1 w-2 h-2 bg-secondary rounded-full"></span>
-  </button>
-
-  {showNotifications && (
-    <div className="absolute right-0 mt-2 w-64 bg-card border border-border rounded-md shadow-lg z-50 p-2">
-      <div className="text-sm font-medium mb-2 border-b border-border pb-1">Project Info</div>
-      <ul className="space-y-1 text-xs">
-        <li>🚀 Version: 1.0.0</li>
-        <li>📅 Last update: Feb 3, 2026</li>
-        <li>⚡ Status: Active development</li>
-        <li>📝 Tasks pending: 5</li>
-        <li>📂 Dataset count: 42</li>
-      </ul>
-    </div>
-  )}
-</div> */}
-
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [notFoundOpen, setNotFoundOpen] = useState(false);
-  const [lastQuery, setLastQuery] = useState("");
+
+  // ← Move it here!
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Search handler now has access to navigate, setMobileOpen, etc.
+  const handleSearch = () => {
+    if (!searchQuery.trim()) return;
+
+    const query = searchQuery.toLowerCase();
+
+    // Exact match first
+    const exactMatch = searchIndex.find(
+      item => item.label.toLowerCase() === query
+    );
+
+    if (exactMatch) {
+      navigate(exactMatch.path);
+      setSearchQuery("");
+      setMobileOpen(false);
+      return;
+    }
+
+    // Partial match
+    const partialMatch = searchIndex.find(
+      item => item.label.toLowerCase().includes(query)
+    );
+
+    if (partialMatch) {
+      navigate(partialMatch.path);
+      setSearchQuery("");
+      setMobileOpen(false);
+      return;
+    }
+
+    // Fallback search page
+    navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+    setSearchQuery("");
+    setMobileOpen(false);
+  };
+
+  // const location = useLocation();
+  // const navigate = useNavigate();
+  // const { theme, setTheme } = useTheme();
+  // const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  // const [mobileOpen, setMobileOpen] = useState(false);
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -134,75 +169,62 @@ export function Navigation() {
     return location.pathname === path || location.pathname.startsWith(path + '/');
   };
 
+  // -----------------------------------------------------
+  // Handle dashboard section navigation
+  // -----------------------------------------------------
   const handleNavClick = (path: string) => {
-    const currentPath = location.pathname;
-    let targetId = '/';
+    if (path.startsWith('/dashboard') && location.pathname === '/dashboard') {
+      const id = path.replace('/dashboard', '') || '/';
+      const target = id === '/' ? 'overview' : id.substring(1);
 
-    if (path.startsWith('/dashboard') && currentPath === '/dashboard') {
-      targetId = path.replace('/dashboard', '') || '/';
-      const el = document.getElementById(targetId === '/' ? 'overview' : targetId.substring(1));
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const el = document.getElementById(target);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return;
+    } else if (path.startsWith('/datasets') && location.pathname === '/datasets') {
+      const id = path.replace('/datasets', '') || '/';
+      const target = id === '/' ? 'datasets' : id.substring(1);
+
+      const el = document.getElementById(target);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return;
+    } else if (path.startsWith('/compare') && location.pathname === '/compare') {
+      const id = path.replace('/compare', '') || '/';
+      const target = id === '/' ? 'compare' : id.substring(1);
+
+      const el = document.getElementById(target);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return;
+    } else if (path.startsWith('/explorer') && location.pathname === '/explorer') {
+      const id = path.replace('/explorer', '') || '/';
+      const target = id === '/' ? 'explorer' : id.substring(1);
+
+      const el = document.getElementById(target);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return;
+    } else if (path.startsWith('/upload') && location.pathname === '/upload') {
+      const id = path.replace('/upload', '') || '/';
+      const target = id === '/' ? 'upload' : id.substring(1);
+
+      const el = document.getElementById(target);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
       return;
     }
 
-    if (path.startsWith('/datasets') && currentPath === '/datasets') {
-      targetId = path.replace('/datasets', '') || '/';
-      const el = document.getElementById(targetId === '/' ? 'datasets' : targetId.substring(1));
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
-    }
-
-    if (path.startsWith('/compare') && currentPath === '/compare') {
-      targetId = path.replace('/compare', '') || '/';
-      const el = document.getElementById(targetId === '/' ? 'compare' : targetId.substring(1));
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
-    }
-
-    if (path.startsWith('/explorer') && currentPath === '/explorer') {
-      targetId = path.replace('/explorer', '') || '/';
-      const el = document.getElementById(targetId === '/' ? 'explorer' : targetId.substring(1));
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
-    }
-
-    if (path.startsWith('/upload') && currentPath === '/upload') {
-      targetId = path.replace('/upload', '') || '/';
-      const el = document.getElementById(targetId === '/' ? 'upload' : targetId.substring(1));
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
-    }
-
+    // Normal navigation for other paths
     navigate(path);
   };
 
-  const handleSearch = () => {
-    if (!searchQuery.trim()) return;
-    const query = searchQuery.toLowerCase();
-
-    const exactMatch = searchIndex.find(item => item.label.toLowerCase() === query);
-    if (exactMatch) {
-      navigate(exactMatch.path);
-      setSearchQuery('');
-      setMobileOpen(false);
-      return;
-    }
-
-    const partialMatch = searchIndex.find(item => item.label.toLowerCase().includes(query));
-    if (partialMatch) {
-      navigate(partialMatch.path);
-      setSearchQuery('');
-      setMobileOpen(false);
-      return;
-    }
-
-    setLastQuery(searchQuery);
-    setNotFoundOpen(true);
-
-    navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-    setSearchQuery('');
-    setMobileOpen(false);
-  };
+  // -----------------------------------------------------
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
@@ -311,89 +333,10 @@ export function Navigation() {
 
           </div>
 
-          <button onClick={() => setShowNotifications(!showNotifications)} className="relative p-2 rounded-full hover:bg-accent transition-colors">
+          <button className="relative p-2 rounded-full hover:bg-accent transition-colors">
             <Bell className="w-5 h-5" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-secondary rounded-full"></span>
           </button>
-
-          {showNotifications && (
-            <div className="absolute right-0 mt-60 mr-3 w-64 bg-card border border-border rounded-md shadow-lg z-50 p-2">
-              <div className="text-sm font-medium mb-2 border-b border-border pb-1">WebGenie Project Info</div>
-              <ul className="space-y-1 text-xs">
-                <li>🚀 Version: 1.0.0</li>
-                <li>📅 Last update: Feb 3, 2026</li>
-                <li>⚡ Status: Active development</li>
-                <li>📝 Tasks pending: 5</li>
-                <li>📂 Total Dataset: 12</li>
-                {/* <li>📂 Beeline Algorithms: 12</li> */}
-              </ul>
-            </div>
-          )}
-
-          {notFoundOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center mt-50 bg-black/50">
-              <div className="bg-card w-full max-w-md rounded-lg border border-border shadow-xl p-6">
-                
-                <h2 className="text-lg font-semibold mb-2">
-                  Not available
-                </h2>
-
-                <p className="text-sm text-muted-foreground mb-4">
-                  We couldn’t find anything matching{" "}
-                  <span className="font-medium text-foreground">
-                    “{lastQuery}”
-                  </span>
-                </p>
-
-                {/* Available items */}
-                <div className="mb-4">
-                  <div className="text-xs font-semibold text-muted-foreground mb-2">
-                    Available datasets & algorithms
-                  </div>
-
-                  <div className="max-h-40 overflow-y-auto rounded-md border border-border">
-                    {searchIndex.map(item => (
-                      <button
-                        key={item.path}
-                        onClick={() => {
-                          navigate(item.path);
-                          setNotFoundOpen(false);
-                          setSearchQuery("");
-                        }}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors flex justify-between"
-                      >
-                        <span>{item.label}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {item.type}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex justify-end gap-2">
-                  <button
-                    onClick={() => {
-                      setNotFoundOpen(false);
-                      setSearchQuery("");
-                    }}
-                    className="px-3 py-1.5 text-sm rounded-md border border-border hover:bg-accent"
-                  >
-                    Try again
-                  </button>
-
-                  <button
-                    onClick={() => setNotFoundOpen(false)}
-                    className="px-3 py-1.5 text-sm rounded-md bg-primary text-primary-foreground"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
 
           <button
             onClick={toggleTheme}
@@ -407,26 +350,7 @@ export function Navigation() {
           </button>
 
           <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-sm font-medium">
-            <div className="relative" ref={userRef}>
-              <button
-                className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-sm font-medium hover:bg-secondary transition-colors"
-                onClick={() => setShowUserMenu(!showUserMenu)}
-              >
-                <User className="w-4 h-4 text-white" />
-              </button>
-
-              {showUserMenu && (
-                <div className="absolute right-0 mt-8 w-48 bg-card border border-border rounded-md shadow-lg z-50 p-2">
-                  <div className="text-sm font-medium mb-2 border-b border-border pb-1 text-gray-500">User Menu (For Admins)</div>
-                  <ul className="space-y-1 text-xs">
-                    <li className="hover:bg-accent rounded px-2 py-1 cursor-pointer text-gray-500">👤 Profile</li>
-                    <li className="hover:bg-accent rounded px-2 py-1 cursor-pointer text-gray-500">⚙️ Settings</li>
-                    <li className="hover:bg-accent rounded px-2 py-1 cursor-pointer text-gray-500">🛠️ Projects</li>
-                    <li className="hover:bg-accent rounded px-2 py-1 cursor-pointer text-gray-500">🚪 Logout</li>
-                  </ul>
-                </div>
-              )}
-            </div>
+            <User className="w-4 h-4 text-white" />
           </div>
         </div>
       </div>
