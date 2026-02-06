@@ -144,24 +144,24 @@ const exportPDF = (metrics) => {
 const algorithms = [
 
   { name: 'GENIE3',       color: '#A970FF', selected: true },
-  { name: 'PPCOR',        color: '#60a5fa', selected: true },
-  { name: 'SINCERITIES',  color: '#f59e0b', selected: true },
+  { name: 'SCODE',        color: '#60a5fa', selected: true },
+  { name: 'GRNVBEM',  color: '#f59e0b', selected: true },
   { name: 'PIDC',         color: '#ef4444', selected: false },
   { name: 'GRNBoost2',    color: '#10b981', selected: false },
   { name: 'SCENIC',       color: '#8b5cf6', selected: false },
 
   { name: 'ARBORETO',    color: '#e11d48', selected: true },
-  { name: 'BTR',         color: '#f87171', selected: false },
-  { name: 'GRISLI',      color: '#fb923c', selected: false },
+  { name: 'SCNS',         color: '#f87171', selected: false },
+  { name: 'LEAP',      color: '#fb923c', selected: false },
   { name: 'GRNVBEM',     color: '#facc15', selected: false },
-  { name: 'JUMP3',       color: '#a3e635', selected: false },
+  { name: 'ARACNE',       color: '#a3e635', selected: false },
   { name: 'LEAP',        color: '#4ade80', selected: false },
-  { name: 'PNI',         color: '#2dd4bf', selected: false },
+  { name: 'Spearman',         color: '#2dd4bf', selected: false },
   { name: 'SCINGE',      color: '#22d3ee', selected: false },
   { name: 'SCNS',        color: '#38bdf8', selected: false },
   { name: 'SCODE',       color: '#818cf8', selected: false },
-  { name: 'SCRIBE',      color: '#a78bfa', selected: false },
-  { name: 'SCSGL',       color: '#c084fc', selected: false },
+  { name: 'Pearson',      color: '#a78bfa', selected: false },
+  { name: 'GRISLI',       color: '#c084fc', selected: false },
   { name: 'SINGE',       color: '#e879f9', selected: false },
 ];
 
@@ -171,21 +171,21 @@ const prData = Array.from({ length: 20 }, (_, i) => ({
   GENIE3: 0.95 - i * 0.04,
   GRNBoost2: 0.90 - i * 0.037,
   SCENIC: 0.88 - i * 0.035,
-  SINCERITIES: 0.82 - i * 0.036,
+  GRNVBEM: 0.82 - i * 0.036,
   PIDC: 0.78 - i * 0.032,
-  PPCOR: 0.85 - i * 0.038,
+  SCODE: 0.85 - i * 0.038,
   ARBORETO: 0.80 - i * 0.033,
-  BTR: 0.76 - i * 0.031,
-  GRISLI: 0.79 - i * 0.034,
+  SCNS: 0.76 - i * 0.031,
+  LEAP: 0.79 - i * 0.034,
   GRNVBEM: 0.77 - i * 0.032,
-  JUMP3: 0.75 - i * 0.03,
+  ARACNE: 0.75 - i * 0.03,
   LEAP: 0.81 - i * 0.035,
-  PNI: 0.74 - i * 0.03,
+  Spearman: 0.74 - i * 0.03,
   SCINGE: 0.78 - i * 0.032,
   SCNS: 0.73 - i * 0.029,
   SCODE: 0.76 - i * 0.031,
-  SCRIBE: 0.72 - i * 0.028,
-  SCSGL: 0.71 - i * 0.027,
+  Pearson: 0.72 - i * 0.028,
+  GRISLI: 0.71 - i * 0.027,
   SINGE: 0.70 - i * 0.026,
 }));
 
@@ -194,21 +194,21 @@ const rocData = Array.from({ length: 20 }, (_, i) => ({
   GENIE3: 0.5 + i * 0.025,
   GRNBoost2: 0.48 + i * 0.024,
   SCENIC: 0.46 + i * 0.023,
-  SINCERITIES: 0.44 + i * 0.022,
+  GRNVBEM: 0.44 + i * 0.022,
   PIDC: 0.42 + i * 0.021,
-  PPCOR: 0.40 + i * 0.020,
+  SCODE: 0.40 + i * 0.020,
   ARBORETO: 0.38 + i * 0.019,
-  BTR: 0.36 + i * 0.018,
-  GRISLI: 0.35 + i * 0.017,
+  SCNS: 0.36 + i * 0.018,
+  LEAP: 0.35 + i * 0.017,
   GRNVBEM: 0.34 + i * 0.016,
-  JUMP3: 0.33 + i * 0.015,
+  ARACNE: 0.33 + i * 0.015,
   LEAP: 0.32 + i * 0.014,
-  PNI: 0.31 + i * 0.013,
+  Spearman: 0.31 + i * 0.013,
   SCINGE: 0.30 + i * 0.012,
   SCNS: 0.29 + i * 0.011,
   SCODE: 0.28 + i * 0.010,
-  SCRIBE: 0.27 + i * 0.009,
-  SCSGL: 0.26 + i * 0.008,
+  Pearson: 0.27 + i * 0.009,
+  GRISLI: 0.26 + i * 0.008,
   SINGE: 0.25 + i * 0.007,
 }));
 
@@ -219,21 +219,21 @@ const enrichmentData = [
     GENIE3: 850,
     GRNBoost2: 720,
     SCENIC: 680,
-    SINCERITIES: 650,
+    GRNVBEM: 650,
     PIDC: 620,
-    PPCOR: 590,
+    SCODE: 590,
     ARBORETO: 560,
-    BTR: 540,
-    GRISLI: 530,
+    SCNS: 540,
+    LEAP: 530,
     GRNVBEM: 520,
-    JUMP3: 500,
+    ARACNE: 500,
     LEAP: 510,
-    PNI: 495,
+    Spearman: 495,
     SCINGE: 480,
     SCNS: 470,
     SCODE: 460,
-    SCRIBE: 450,
-    SCSGL: 440,
+    Pearson: 450,
+    GRISLI: 440,
     SINGE: 430,
   },
   {
@@ -241,21 +241,21 @@ const enrichmentData = [
     GENIE3: 725,
     GRNBoost2: 680,
     SCENIC: 650,
-    SINCERITIES: 620,
+    GRNVBEM: 620,
     PIDC: 600,
-    PPCOR: 580,
+    SCODE: 580,
     ARBORETO: 560,
-    BTR: 540,
-    GRISLI: 520,
+    SCNS: 540,
+    LEAP: 520,
     GRNVBEM: 510,
-    JUMP3: 500,
+    ARACNE: 500,
     LEAP: 490,
-    PNI: 480,
+    Spearman: 480,
     SCINGE: 470,
     SCNS: 460,
     SCODE: 450,
-    SCRIBE: 440,
-    SCSGL: 430,
+    Pearson: 440,
+    GRISLI: 430,
     SINGE: 420,
   },
   {
@@ -263,21 +263,21 @@ const enrichmentData = [
     GENIE3: 650,
     GRNBoost2: 590,
     SCENIC: 570,
-    SINCERITIES: 550,
+    GRNVBEM: 550,
     PIDC: 530,
-    PPCOR: 510,
+    SCODE: 510,
     ARBORETO: 500,
-    BTR: 490,
-    GRISLI: 480,
+    SCNS: 490,
+    LEAP: 480,
     GRNVBEM: 470,
-    JUMP3: 460,
+    ARACNE: 460,
     LEAP: 450,
-    PNI: 440,
+    Spearman: 440,
     SCINGE: 430,
     SCNS: 420,
     SCODE: 410,
-    SCRIBE: 400,
-    SCSGL: 390,
+    Pearson: 400,
+    GRISLI: 390,
     SINGE: 380,
   },
   {
@@ -285,21 +285,21 @@ const enrichmentData = [
     GENIE3: 580,
     GRNBoost2: 520,
     SCENIC: 500,
-    SINCERITIES: 480,
+    GRNVBEM: 480,
     PIDC: 460,
-    PPCOR: 440,
+    SCODE: 440,
     ARBORETO: 430,
-    BTR: 420,
-    GRISLI: 410,
+    SCNS: 420,
+    LEAP: 410,
     GRNVBEM: 400,
-    JUMP3: 390,
+    ARACNE: 390,
     LEAP: 380,
-    PNI: 370,
+    Spearman: 370,
     SCINGE: 360,
     SCNS: 350,
     SCODE: 340,
-    SCRIBE: 330,
-    SCSGL: 320,
+    Pearson: 330,
+    GRISLI: 320,
     SINGE: 310,
   },
   {
@@ -307,21 +307,21 @@ const enrichmentData = [
     GENIE3: 450,
     GRNBoost2: 480,
     SCENIC: 470,
-    SINCERITIES: 460,
+    GRNVBEM: 460,
     PIDC: 450,
-    PPCOR: 440,
+    SCODE: 440,
     ARBORETO: 430,
-    BTR: 420,
-    GRISLI: 410,
+    SCNS: 420,
+    LEAP: 410,
     GRNVBEM: 400,
-    JUMP3: 390,
+    ARACNE: 390,
     LEAP: 380,
-    PNI: 370,
+    Spearman: 370,
     SCINGE: 360,
     SCNS: 350,
     SCODE: 340,
-    SCRIBE: 330,
-    SCSGL: 320,
+    Pearson: 330,
+    GRISLI: 320,
     SINGE: 310,
   },
 ];
@@ -330,35 +330,35 @@ const enrichmentData = [
 
 const similarityData = [
   { pair: 'GENIE3 — GRNBoost2', similarity: 0.82, color: '#A970FF' },
-  { pair: 'GENIE3 — SCENIC', similarity: 0.76, color: '#60a5fa' },
-  { pair: 'PPCOR — PIDC', similarity: 0.71, color: '#f59e0b' },
-  { pair: 'SINCERITIES — SCENIC', similarity: 0.68, color: '#ef4444' },
+  { pair: 'GENIE3 — SINGE', similarity: 0.76, color: '#60a5fa' },
+  { pair: 'SCODE — PIDC', similarity: 0.71, color: '#f59e0b' },
+  { pair: 'GRNVBEM — SINGE', similarity: 0.68, color: '#ef4444' },
   { pair: 'GENIE3 — ARBORETO', similarity: 0.79, color: '#8b5cf6' },
-  { pair: 'GENIE3 — BTR', similarity: 0.65, color: '#10b981' },
-  { pair: 'GENIE3 — GRISLI', similarity: 0.72, color: '#f97316' },
+  { pair: 'GENIE3 — SCNS', similarity: 0.65, color: '#10b981' },
+  { pair: 'GENIE3 — LEAP', similarity: 0.72, color: '#f97316' },
   { pair: 'GENIE3 — GRNVBEM', similarity: 0.74, color: '#3b82f6' },
-  { pair: 'GENIE3 — JUMP3', similarity: 0.67, color: '#ec4899' },
+  { pair: 'GENIE3 — ARACNE', similarity: 0.67, color: '#ec4899' },
   { pair: 'GENIE3 — LEAP', similarity: 0.70, color: '#eab308' },
-  { pair: 'GENIE3 — PNI', similarity: 0.69, color: '#22d3ee' },
-  { pair: 'GENIE3 — SCINGE', similarity: 0.71, color: '#f43f5e' },
+  { pair: 'GENIE3 — Spearman', similarity: 0.69, color: '#22d3ee' },
+  { pair: 'GENIE3 — SINGE', similarity: 0.71, color: '#f43f5e' },
   { pair: 'GENIE3 — SCNS', similarity: 0.68, color: '#6366f1' },
   { pair: 'GENIE3 — SCODE', similarity: 0.66, color: '#facc15' },
-  { pair: 'GENIE3 — SCRIBE', similarity: 0.73, color: '#14b8a6' },
-  { pair: 'GENIE3 — SCSGL', similarity: 0.64, color: '#f87171' },
+  { pair: 'GENIE3 — Pearson', similarity: 0.73, color: '#14b8a6' },
+  { pair: 'GENIE3 — GRISLI', similarity: 0.64, color: '#f87171' },
   { pair: 'GENIE3 — SINGE', similarity: 0.69, color: '#8b5cf6' },
 
-  { pair: 'ARBORETO — GRISLI', similarity: 0.62, color: '#60a5fa' },
+  { pair: 'ARBORETO — LEAP', similarity: 0.62, color: '#60a5fa' },
   { pair: 'ARBORETO — GRNVBEM', similarity: 0.65, color: '#a78bfa' },
-  { pair: 'BTR — JUMP3', similarity: 0.61, color: '#f97316' },
+  { pair: 'SCNS — ARACNE', similarity: 0.61, color: '#f97316' },
   { pair: 'LEAP — SCINGE', similarity: 0.67, color: '#f59e0b' },
-  { pair: 'PNI — SCNS', similarity: 0.63, color: '#22d3ee' },
-  { pair: 'SCODE — SCRIBE', similarity: 0.66, color: '#f43f5e' },
-  { pair: 'SCSGL — SINGE', similarity: 0.64, color: '#14b8a6' },
-  { pair: 'PIDC — PPCOR', similarity: 0.70, color: '#f59e0b' },
-  { pair: 'SCENIC — SINCERITIES', similarity: 0.68, color: '#ef4444' },
-  { pair: 'GRNBoost2 — SINCERITIES', similarity: 0.66, color: '#a970ff' },
+  { pair: 'Spearman — SCNS', similarity: 0.63, color: '#22d3ee' },
+  { pair: 'SCODE — Pearson', similarity: 0.66, color: '#f43f5e' },
+  { pair: 'GRISLI — SINGE', similarity: 0.64, color: '#14b8a6' },
+  { pair: 'PIDC — SCODE', similarity: 0.70, color: '#f59e0b' },
+  { pair: 'SCENIC — GRNVBEM', similarity: 0.68, color: '#ef4444' },
+  { pair: 'GRNBoost2 — GRNVBEM', similarity: 0.66, color: '#a970ff' },
   { pair: 'GRNBoost2 — SCODE', similarity: 0.65, color: '#f97316' },
-  { pair: 'SCNS — SCRIBE', similarity: 0.63, color: '#3b82f6' },
+  { pair: 'SCNS — Pearson', similarity: 0.63, color: '#3b82f6' },
 ];
 
 
@@ -391,7 +391,7 @@ const metricsData = [
     earlyPrecision: 0.824,
   },
   {
-    algorithm: 'SINCERITIES',
+    algorithm: 'GRNVBEM',
     auroc: 0.734,
     auprc: 0.698,
     f1: 0.721,
@@ -409,7 +409,7 @@ const metricsData = [
     earlyPrecision: 0.778,
   },
   {
-    algorithm: 'PPCOR',
+    algorithm: 'SCODE',
     auroc: 0.612,
     auprc: 0.789,
     f1: 0.553,
@@ -428,7 +428,7 @@ const metricsData = [
     earlyPrecision: 0.782,
   },
   {
-    algorithm: 'BTR',
+    algorithm: 'SCNS',
     auroc: 0.652,
     auprc: 0.557,
     f1: 0.583,
@@ -437,7 +437,7 @@ const metricsData = [
     earlyPrecision: 0.721,
   },
   {
-    algorithm: 'GRISLI',
+    algorithm: 'LEAP',
     auroc: 0.712,
     auprc: 0.612,
     f1: 0.639,
@@ -455,7 +455,7 @@ const metricsData = [
     earlyPrecision: 0.792,
   },
   {
-    algorithm: 'JUMP3',
+    algorithm: 'ARACNE',
     auroc: 0.683,
     auprc: 0.505,
     f1: 0.558,
@@ -473,7 +473,7 @@ const metricsData = [
     earlyPrecision: 0.801,
   },
   {
-    algorithm: 'PNI',
+    algorithm: 'Spearman',
     auroc: 0.677,
     auprc: 0.532,
     f1: 0.569,
@@ -509,7 +509,7 @@ const metricsData = [
     earlyPrecision: 0.733,
   },
   {
-    algorithm: 'SCRIBE',
+    algorithm: 'Pearson',
     auroc: 0.691,
     auprc: 0.577,
     f1: 0.613,
@@ -518,7 +518,7 @@ const metricsData = [
     earlyPrecision: 0.748,
   },
   {
-    algorithm: 'SCSGL',
+    algorithm: 'GRISLI',
     auroc: 0.764,
     auprc: 0.643,
     f1: 0.674,
@@ -1001,10 +1001,10 @@ export function Compare() {
                   />
                   <Legend />
                   <Line type="monotone" dataKey="GENIE3" stroke="#A970FF" strokeWidth={2} />
-                  <Line type="monotone" dataKey="PPCOR" stroke="#60a5fa" strokeWidth={2} />
+                  <Line type="monotone" dataKey="SCODE" stroke="#60a5fa" strokeWidth={2} />
                   <Line
                     type="monotone"
-                    dataKey="SINCERITIES"
+                    dataKey="GRNVBEM"
                     stroke="#f59e0b"
                     strokeWidth={2}
                   />
@@ -1041,10 +1041,10 @@ export function Compare() {
                   />
                   <Legend />
                   <Line type="monotone" dataKey="GENIE3" stroke="#A970FF" strokeWidth={2} />
-                  <Line type="monotone" dataKey="PPCOR" stroke="#60a5fa" strokeWidth={2} />
+                  <Line type="monotone" dataKey="SCODE" stroke="#60a5fa" strokeWidth={2} />
                   <Line
                     type="monotone"
-                    dataKey="SINCERITIES"
+                    dataKey="GRNVBEM"
                     stroke="#f59e0b"
                     strokeWidth={2}
                   />
@@ -1226,11 +1226,11 @@ export function Compare() {
             </div>
             
             <div>
-              <h5 className="text-white mb-4">Subscribe</h5>
+              <h5 className="text-white mb-4">SubPearson</h5>
               <p className="text-sm text-gray-400 mb-2">Get updates about new datasets and algorithms</p>
               <form className="flex gap-2">
                 <input type="email" placeholder="Email" className="flex-1 p-2 rounded-lg border border-gray-700 bg-gray-800 text-white text-sm" />
-                <button type="submit" className="px-4 py-2 bg-purple-600 rounded-lg text-white text-sm hover:bg-purple-700 transition-colors">Subscribe</button>
+                <button type="submit" className="px-4 py-2 bg-purple-600 rounded-lg text-white text-sm hover:bg-purple-700 transition-colors">SubPearson</button>
               </form>
             </div>
           </div>
