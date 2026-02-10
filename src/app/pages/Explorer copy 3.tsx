@@ -2,9 +2,6 @@ import { Network, ZoomIn, ZoomOut, Layers, Grid3x3, Circle, Filter, Eye, EyeOff,
   Download, Share2, Maximize2, Search,Target, HelpCircle, Play, Info, Sparkles, Maximize,  Activity } from 'lucide-react';
 // import { Slider } from '../components/ui/slider';
 import React, { useState, useRef, useEffect } from 'react';
-import { useGRN } from "../hooks/useGRN";
-import { useGraphData } from "../hooks/useGraphData";
-import GRNExplorer from "../components/GRNExplorer";
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -18,44 +15,6 @@ import CytoscapeComponent from 'react-cytoscapejs';
 import cytoscape from 'cytoscape';
 import GraphML from 'cytoscape-graphml';
 import { saveAs } from "file-saver";
-import Graph from "graphology";
-import louvain from "graphology-communities-louvain";
-
-const runLouvain = () => {
-  if (!cyRef.current) return;
-  const cy = cyRef.current;
-
-  // 1. Build graphology
-  const graph = new Graph();
-
-  cy.nodes().forEach(n => graph.addNode(n.id()));
-
-  cy.edges().forEach(e =>
-    graph.addEdge(e.source().id(), e.target().id())
-  );
-
-  // 2. Run Louvain
-  const assignments = louvain(graph);
-
-  // assignments: { nodeId: communityId, ... }
-  console.log("Louvain:", assignments);
-
-  // 3. Apply back to Cytoscape
-  Object.entries(assignments).forEach(([nodeId, community]) => {
-    const color = clusterColor(parseInt(community));
-    cy.getElementById(nodeId).style({
-      "background-color": color,
-    });
-  });
-};
-
-const clusterColor = (cluster) => {
-  const palette = [
-    "#EF4444", "#3B82F6", "#10B981", "#F59E0B",
-    "#8B5CF6", "#EC4899", "#14B8A6", "#F43F5E",
-  ];
-  return palette[cluster % palette.length];
-};
 
 export function Explorer() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -367,14 +326,6 @@ const getBestFitAlgorithms = (node: any) => {
     </div>
 
     <div className="flex items-center gap-3">
-      <Button
-        variant="outline"
-        className="text-sm px-3 py-1"
-        onClick={runLouvain}
-      >
-        Detect Communities
-      </Button>
-
       <Button 
         variant="default" 
         size="sm"
@@ -404,8 +355,6 @@ const getBestFitAlgorithms = (node: any) => {
       </Button>
     </div>
   </div>
-
-  
 
   {/* Help Panel */}
   {showHelpPanel && (
@@ -475,8 +424,6 @@ const getBestFitAlgorithms = (node: any) => {
         </div> */}
 
         <div id="search" className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-
-          
           {/* Left Sidebar - Controls */}
           <Card className="p-6 lg:col-span-1">
           <div className="space-y-6">

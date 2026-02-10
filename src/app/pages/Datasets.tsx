@@ -1,10 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 // import { ActivityPreview } from './ActivityPreview';
 import { Search, SlidersHorizontal, Database, Download, Globe, Layers, Boxes, Dna, Microscope, GitFork, PlayCircle } from 'lucide-react';
 import { DatasetCard } from './DatasetCard';
 import { Button2 } from './Button';
 import AnimatedCounter from './AnimatedCounter';
+import CytoscapeComponent from "react-cytoscapejs";
+import cytoscape from "cytoscape";
+import fcose from "cytoscape-fcose";
 
 const allDatasets = [
   {
