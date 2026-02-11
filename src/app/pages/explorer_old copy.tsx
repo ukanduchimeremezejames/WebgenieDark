@@ -1,7 +1,7 @@
 import { Network, ZoomIn, ZoomOut, Layers, Grid3x3, Circle, Filter, Eye, EyeOff, 
   Download, Share2, Maximize2, Search,Target, HelpCircle, Play, Info, Sparkles, Maximize,  Activity } from 'lucide-react';
 // import { Slider } from '../components/ui/slider';
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useGRN } from "../hooks/useGRN";
 import { useGraphData } from "../hooks/useGraphData";
 import GRNExplorer from "../components/GRNExplorer";
@@ -14,15 +14,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Badge } from '../components/ui/badge';
 // import { Search, Download, Maximize2, Share2, ZoomIn, ZoomOut } from 'lucide-react';
 import { mockNetworkData } from '.././components/mockData';
-// import mockEdges from "../../../src/data/mockEdges.json";
-import { useNetworkAnalytics } from "../hooks/useNetworkAnalytics";
 import CytoscapeComponent from 'react-cytoscapejs';
 import cytoscape from 'cytoscape';
 import GraphML from 'cytoscape-graphml';
 import { saveAs } from "file-saver";
 import Graph from "graphology";
 import louvain from "graphology-communities-louvain";
-import type { Stylesheet } from "cytoscape";
 
 // analytics helpers
 import {
@@ -30,9 +27,7 @@ import {
   computeInfluence,
   computeModules,
   applyNodeStyles,
-  highlightNeighbors,
-  buildCytoscapeElements,
-  cytoscapeStylesheet
+  highlightNeighbors
 } from "../components/analytics";
 
 
@@ -135,7 +130,7 @@ const clusterColor = (cluster) => {
   return palette[cluster % palette.length];
 };
 
-export const Explorer = () => {
+export function Explorer() {
   const [searchTerm, setSearchTerm] = useState('');
   const [edgeFilter, setEdgeFilter] = useState('all');
   const [topK, setTopK] = useState([100]);
@@ -150,87 +145,37 @@ export const Explorer = () => {
     return matchesType && matchesScore;
   }).slice(0, topK[0]);
 
-  // const nodeIds = new Set<string>();
-  // filteredEdges.forEach(edge => {
-  //   nodeIds.add(edge.source);
-  //   nodeIds.add(edge.target);
-  // });
-
-  // const nodeIds = Array.from(
-  // new Set(mockEdges.flatMap(e => [e.source, e.target]))
-  // );
-
-  const nodeIds = new Set(
-  mockEdges.flatMap(e => [e.source, e.target])
-  );
-
-
-const mods = computeModules(nodeIds, mockEdges);
-
+  const nodeIds = new Set<string>();
+  filteredEdges.forEach(edge => {
+    nodeIds.add(edge.source);
+    nodeIds.add(edge.target);
+  });
 
   const filteredNodes = mockNetworkData.nodes.filter(node =>
     nodeIds.has(node.id) &&
     (searchTerm === '' || node.label.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  // const cytoscapeElements = [
-  //   ...filteredNodes.map(node => ({
-  //     data: {
-  //       id: node.id,
-  //       label: node.label,
-  //       score: node.score
-  //     }
-  //   })),
-  //   ...filteredEdges.map((edge, idx) => ({
-  //     data: {
-  //       id: `edge-${idx}`,
-  //       source: edge.source,
-  //       target: edge.target,
-  //       weight: edge.weight,
-  //       type: edge.type
-  //     }
-  //   }))
-  // ];
-  
-const cytoscapeElements = useMemo(() => {
-    return buildCytoscapeElements(filteredEdges);
-  }, [filteredEdges]);
+  const cytoscapeElements = [
+    ...filteredNodes.map(node => ({
+      data: {
+        id: node.id,
+        label: node.label,
+        score: node.score
+      }
+    })),
+    ...filteredEdges.map((edge, idx) => ({
+      data: {
+        id: `edge-${idx}`,
+        source: edge.source,
+        target: edge.target,
+        weight: edge.weight,
+        type: edge.type
+      }
+    }))
+  ];
 
-  const handleCyInit = (cy) => {
-    cyRef.current = cy;
-
-    cy.on("tap", "node", (evt) => {
-      const id = evt.target.id();
-      highlightNeighbors(cy, id, hopDepth);
-      setSelectedNode(evt.target.data());
-    });
-  };
-
-  const handleZoomIn = () => cyRef.current?.zoom(cyRef.current.zoom() + 0.2);
-  const handleZoomOut = () =>
-    cyRef.current?.zoom(Math.max(cyRef.current.zoom() - 0.2, 0.1));
-  const handleFit = () => cyRef.current?.fit();
-
-  const handleExportPNG = () => {
-    if (!cyRef.current) return;
-    const png = cyRef.current.png({ full: true, scale: 2 });
-    const a = document.createElement("a");
-    a.href = png;
-    a.download = "network.png";
-    a.click();
-  };
-
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    alert("Shareable link copied.");
-  };
-
-  // const { degrees, influence, modules } = useNetworkAnalytics(
-  //   cyRef,
-  //   filteredEdges,
-  //   hopDepth
-  // );
-  const cytoscapeStylesheet: Stylesheet[] = [
+  const cytoscapeStylesheet: cytoscape.Stylesheet[] = [
     {
       selector: 'node',
       style: {
@@ -278,34 +223,34 @@ const cytoscapeElements = useMemo(() => {
     }
   ];
 
-  // const handleZoomIn = () => {
-  //   if (cyRef.current) {
-  //     cyRef.current.zoom(cyRef.current.zoom() * 1.2);
-  //   }
-  // };
+  const handleZoomIn = () => {
+    if (cyRef.current) {
+      cyRef.current.zoom(cyRef.current.zoom() * 1.2);
+    }
+  };
 
-  // const handleZoomOut = () => {
-  //   if (cyRef.current) {
-  //     cyRef.current.zoom(cyRef.current.zoom() * 0.8);
-  //   }
-  // };
+  const handleZoomOut = () => {
+    if (cyRef.current) {
+      cyRef.current.zoom(cyRef.current.zoom() * 0.8);
+    }
+  };
 
-  // const handleFit = () => {
-  //   if (cyRef.current) {
-  //     cyRef.current.fit();
-  //   }
-  // };
+  const handleFit = () => {
+    if (cyRef.current) {
+      cyRef.current.fit();
+    }
+  };
 
   // Export PNG (existing)
-// const handleExportPNG = () => {
-//   if (cyRef.current) {
-//     const png = cyRef.current.png({ full: true, scale: 2 });
-//     const link = document.createElement('a');
-//     link.download = 'network.png';
-//     link.href = png;
-//     link.click();
-//   }
-// };
+const handleExportPNG = () => {
+  if (cyRef.current) {
+    const png = cyRef.current.png({ full: true, scale: 2 });
+    const link = document.createElement('a');
+    link.download = 'network.png';
+    link.href = png;
+    link.click();
+  }
+};
 
 // const handleExportJSON = () => {
 //     if (!cy.current) return;
@@ -394,65 +339,65 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
   const [selectedGene, setSelectedGene] = useState('');
   const [showHelpPanel, setShowHelpPanel] = useState(true);
 
-//   const handleShare = async () => {
-//   const shareUrl = window.location.href;
-//   const shareData = {
-//     title: 'WebGenie Network Explorer',
-//     text: 'Explore this gene regulatory network on WebGenie',
-//     url: shareUrl,
-//   };
+  const handleShare = async () => {
+  const shareUrl = window.location.href;
+  const shareData = {
+    title: 'WebGenie Network Explorer',
+    text: 'Explore this gene regulatory network on WebGenie',
+    url: shareUrl,
+  };
 
-//   if (navigator.share) {
-//     try {
-//       await navigator.share(shareData);
-//     } catch (err) {
-//       console.warn('Share canceled or failed', err);
-//     }
-//   } else {
-//     // Fallback
-//     const encodedUrl = encodeURIComponent(shareUrl);
-//     const encodedText = encodeURIComponent(shareData.text);
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+    } catch (err) {
+      console.warn('Share canceled or failed', err);
+    }
+  } else {
+    // Fallback
+    const encodedUrl = encodeURIComponent(shareUrl);
+    const encodedText = encodeURIComponent(shareData.text);
 
-//     const fallbackWindow = window.open(
-//       '',
-//       'share',
-//       'width=480,height=360'
-//     );
+    const fallbackWindow = window.open(
+      '',
+      'share',
+      'width=480,height=360'
+    );
 
-//     if (fallbackWindow) {
-//       fallbackWindow.document.write(`
-//         <html>
-//           <head>
-//             <title>Share</title>
-//             <style>
-//               body { font-family: sans-serif; padding: 20px; }
-//               button, a {
-//                 display: block;
-//                 width: 100%;
-//                 margin: 10px 0;
-//                 padding: 10px;
-//                 text-align: center;
-//                 border-radius: 6px;
-//                 border: 1px solid #ccc;
-//                 text-decoration: none;
-//                 color: black;
-//               }
-//             </style>
-//           </head>
-//           <body>
-//             <h3>Share this Network</h3>
-//             <a href="https://wa.me/?text=${encodedText}%20${encodedUrl}" target="_blank">WhatsApp</a>
-//             <a href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}" target="_blank">Facebook</a>
-//             <a href="https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}" target="_blank">X / Twitter</a>
-//             <button onclick="navigator.clipboard.writeText('${shareUrl}')">
-//               Copy Link
-//             </button>
-//           </body>
-//         </html>
-//       `);
-//     }
-//   }
-// };
+    if (fallbackWindow) {
+      fallbackWindow.document.write(`
+        <html>
+          <head>
+            <title>Share</title>
+            <style>
+              body { font-family: sans-serif; padding: 20px; }
+              button, a {
+                display: block;
+                width: 100%;
+                margin: 10px 0;
+                padding: 10px;
+                text-align: center;
+                border-radius: 6px;
+                border: 1px solid #ccc;
+                text-decoration: none;
+                color: black;
+              }
+            </style>
+          </head>
+          <body>
+            <h3>Share this Network</h3>
+            <a href="https://wa.me/?text=${encodedText}%20${encodedUrl}" target="_blank">WhatsApp</a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}" target="_blank">Facebook</a>
+            <a href="https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}" target="_blank">X / Twitter</a>
+            <button onclick="navigator.clipboard.writeText('${shareUrl}')">
+              Copy Link
+            </button>
+          </body>
+        </html>
+      `);
+    }
+  }
+};
 
 const getBestFitAlgorithms = (node: any) => {
   if (!node) return [];
@@ -471,50 +416,24 @@ const getBestFitAlgorithms = (node: any) => {
 const [hopDepth, setHopDepth] = useState(1);
 const [analyticsEnabled, setAnalyticsEnabled] = useState(true);
 
-// const [degrees, setDegrees] = useState({});
-// const [influence, setInfluence] = useState({});
-// const [modules, setModules] = useState({});
-const [degrees, setDegrees] = useState<Record<string, number>>({});
-const [influence, setInfluence] = useState<Record<string, number>>({});
-const [modules, setModules] = useState<Record<string, number>>({});
-
+const [degrees, setDegrees] = useState({});
+const [influence, setInfluence] = useState({});
+const [modules, setModules] = useState({});
 const [showInfluencePanel, setShowInfluencePanel] = useState(false);
 
-// useEffect(() => {
-//     if (!cyRef.current) return;
-
-//     const deg = computeDegrees(filteredEdges);
-//     const inf = computeInfluence(deg);
-//     const mods = computeModules(cyRef.current, deg);
-
-//     setDegrees(deg);
-//     setInfluence(inf);
-//     setModules(mods);
-
-//     // applyNodeStyles(cyRef.current, deg, inf, mods);
-//     applyNodeStyles(cyRef.current, degrees, influence, modules);
-
-//   }, [filteredEdges, hopDepth]);
-
 useEffect(() => {
-  if (!cyRef.current) return;
+    if (!cyRef.current) return;
 
-  const deg = computeDegrees(filteredEdges);
-  const inf = computeInfluence(deg);
+    const deg = computeDegrees(filteredEdges);
+    const inf = computeInfluence(deg);
+    const mods = computeModules(cyRef.current, deg);
 
-  const nodeIds = Array.from(
-    new Set(filteredEdges.flatMap(e => [e.source, e.target]))
-  );
-  const mods = computeModules(nodeIds, filteredEdges);
+    setDegrees(deg);
+    setInfluence(inf);
+    setModules(mods);
 
-  setDegrees(deg);
-  setInfluence(inf);
-  setModules(mods);
-
-  applyNodeStyles(cyRef.current, deg, inf, mods);
-
-}, [filteredEdges, hopDepth]);
-
+    applyNodeStyles(cyRef.current, deg, inf, mods);
+  }, [filteredEdges, hopDepth]);
 
   const cytoscapeInit = (cyInstance) => {
     if (!cyRef.current) {
@@ -539,27 +458,27 @@ useEffect(() => {
         Interactive exploration of gene regulatory network predictions
       </p>
       <div className="flex items-center gap-3 mt-3">
-        <Badge variant="outline">
+        <Badge variant="outline" size="sm">
           <Network className="w-3 h-3 mr-1" />
           CytoscapeJS Interactive Canvas
         </Badge>
-        <Badge variant="default">
+        <Badge variant="default" size="sm">
           Dataset: hESC v2.1.0
         </Badge>
-        <Badge variant="default">
+        <Badge variant="default" size="sm">
           Algorithm: GENIE3 v1.12.0
         </Badge>
       </div>
     </div>
 
     <div className="flex items-center gap-3">
-      {/* <Button
+      <Button
         variant="outline"
         className="text-sm px-3 py-1"
         onClick={runLouvain}
       >
         Detect Communities
-      </Button> */}
+      </Button>
 
       <Button 
         variant="default" 
@@ -804,7 +723,7 @@ useEffect(() => {
 
                   {/* 1-hop / 2-hop */}
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-800 font-medium">Neighborhood:</span>
+                    <span className="text-sm font-medium">Neighborhood:</span>
                     <button
                       onClick={() => setHopDepth(1)}
                       className={`px-2 py-1 text-sm rounded 
@@ -815,7 +734,7 @@ useEffect(() => {
                     <button
                       onClick={() => setHopDepth(2)}
                       className={`px-2 py-1 text-sm rounded 
-                        ${hopDepth === 2 ? "bg-blue-600 text-white" : "bg-secondary text-white"}`}
+                        ${hopDepth === 2 ? "bg-blue-600 text-white" : "bg-gray-200"}`}
                     >
                       2-hop
                     </button>
@@ -848,7 +767,7 @@ useEffect(() => {
     setModules(m);
 
     // --- Reapply styling with new module assignments ---
-    applyNodeStyles(cyRef.current, degrees, influence, modules);
+    applyNodeStyles(cyRef.current, degrees, influence);
   }}
   className="px-2 py-1 text-sm bg-gray-800 text-white rounded"
 >
@@ -859,7 +778,7 @@ useEffect(() => {
     {/* Influence / Degrees (Right panel toggle) */}
     <button
       onClick={() => setShowInfluencePanel((prev) => !prev)}
-      className="px-2 py-1 text-sm text-gray-800 bg-gray-200 rounded"
+      className="px-2 py-1 text-sm bg-gray-200 rounded"
     >
       Influence Scores
     </button>
@@ -934,49 +853,11 @@ useEffect(() => {
                   }
                 }}
               /> */}
-              {/* <CytoscapeComponent
-                elements={cytoscapeElements}
-                style={{ width: '100%', height: '600px' }}
-                stylesheet={cytoscapeStylesheet}
-                layout={{ name: layout }}
-                cy={cytoscapeInit}
-              />   */}
+
               
-                <CytoscapeComponent
-                  cy={handleCyInit}
-                  elements={cytoscapeElements}
-                  style={{ width: "100%", height: "600px" }}
-                  stylesheet={cytoscapeStylesheet}
-                  layout={{ name: layout }}
-                />
+
             </div>
           </Card>
-
-          {/* Node Inspector */}
-      {selectedNode && (
-        <Card className="p-4">
-          <h3 className="font-medium mb-2">Node Inspector</h3>
-
-          <div className="mb-2">
-            <p>
-              <strong>ID:</strong> {selectedNode.id}
-            </p>
-          </div>
-
-          <div className="space-y-1">
-            <p>
-              <strong>Degree:</strong> {degrees[selectedNode.id]}
-            </p>
-            <p>
-              <strong>Influence:</strong>{" "}
-              {influence[selectedNode.id]?.toFixed(3)}
-            </p>
-            <p>
-              <strong>Module:</strong> {modules[selectedNode.id]}
-            </p>
-          </div>
-        </Card>
-      )}
 
           {/* Node Details Panel */}
           {selectedNode && (
