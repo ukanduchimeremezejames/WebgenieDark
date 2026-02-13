@@ -1036,7 +1036,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
               </div>
             </div>
 
-            <div>
+            {/* <div>
               <label className="text-sm mb-2 block">Select Inference Algorithms</label>
               <div className="space-y-2">
                 {mockInferenceData.algorithms.map(algo => (
@@ -1072,7 +1072,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
                 />
               </div>
 
-            </div>
+            </div> */}
 
           </div>
         </Card>
