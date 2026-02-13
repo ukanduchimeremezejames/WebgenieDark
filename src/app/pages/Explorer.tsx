@@ -581,7 +581,7 @@ const globalDegreeMap = useMemo(() => {
         'height': 'mapData(degree, 1, 10, 30, 80)',
         'text-valign': 'center',
         'text-halign': 'center',
-        'font-size': '10px',
+        'font-size': '7px',
         'color': '#ffffff'
       }
     },
@@ -598,11 +598,14 @@ const globalDegreeMap = useMemo(() => {
     {
   selector: 'edge',
   style: {
-    'width': 'mapData(consensus, 1, 4, 2, 8)',
-    'line-color': '#9CA3AF',
-    'target-arrow-shape': 'triangle'
+    'width': 2,
+    'line-color': 'green',
+    'target-arrow-color': 'green',
+    'target-arrow-shape': 'triangle',
+    'curve-style': 'bezier'
   }
 },
+
     {
       selector: 'edge[type="activation"]',
       style: {
@@ -1117,24 +1120,24 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
                   // });
 
                   cy.on("tap", "node", evt => {
-  const node = evt.target;
-  const nodeId = node.id();
+                    const node = evt.target;
+                    const nodeId = node.id();
 
-  const neighbors = node.neighborhood("node").map(n => n.id());
+                    const neighbors = node.neighborhood("node").map(n => n.id());
 
-  const degree = node.degree();
+                    const degree = node.degree();
 
-  const { bestAlgo, bestMean } =
-    getNodeBestAlgorithm(nodeId);
+                    const { bestAlgo, bestMean } =
+                      getNodeBestAlgorithm(nodeId);
 
-  setSelectedNodeInfo({
-    id: nodeId,
-    degree,
-    neighbors,
-    bestAlgo,
-    bestMean
-  });
-});
+                    setSelectedNodeInfo({
+                      id: nodeId,
+                      degree,
+                      neighbors,
+                      bestAlgo,
+                      bestMean
+                    });
+                  });
 
                 }}
               />
@@ -1319,6 +1322,66 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
                 Click a gene node to view details
               </div>
 
+            {selectedNodeInfo && (
+  <Card className="p-6">
+    <div className="flex items-start justify-between mb-4">
+      <div>
+        {/* <h3 className="text-foreground">Gene Details</h3> */}
+        {/* <p className="text-sm text-muted-foreground">
+          Selected gene information
+        </p> */}
+      </div>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setSelectedNodeInfo(null)}
+      >
+        ×
+      </Button>
+    </div>
+
+    <div className="grid grid-cols-2 gap-4">
+      <div className="p-4 bg-secondary rounded-lg">
+        <p className="text-xs text-muted-foreground mb-1">Gene ID</p>
+        <p className="text-foreground">{selectedNodeInfo.id}</p>
+      </div>
+
+      <div className="p-4 bg-secondary rounded-lg">
+        <p className="text-xs text-muted-foreground mb-1">Degree</p>
+        <p className="text-foreground">{selectedNodeInfo.degree}</p>
+      </div>
+
+      <div className="p-4 bg-secondary rounded-lg">
+        <p className="text-xs text-muted-foreground mb-1">
+          Best Algorithm
+        </p>
+        <p className="text-foreground">{selectedNodeInfo.bestAlgo}</p>
+      </div>
+
+      <div className="p-4 bg-secondary rounded-lg">
+        <p className="text-xs text-muted-foreground mb-1">
+          Mean Score
+        </p>
+        <p className="text-foreground">
+          {selectedNodeInfo.bestMean?.toFixed(3)}
+        </p>
+      </div>
+    </div>
+
+    <div className="mt-4 p-4 bg-secondary rounded-lg">
+      <p className="text-xs text-muted-foreground mb-2">
+        Neighbors
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {selectedNodeInfo.neighbors?.slice(0, 5).map((neighbor, idx) => (
+          <Badge key={idx} variant="secondary">
+            {neighbor}
+          </Badge>
+        ))}
+      </div>
+    </div>
+  </Card>
+)}
               
           {/* Node Details Panel */}
           {selectedNode && (

@@ -165,98 +165,239 @@ export function generateMockInferenceData(dataset: Dataset) {
 }
 
 
-export const mockInferenceData = {
-  genes: [
-    "SOX2","OCT4","NANOG","MYC","KLF4",
-    "ESRRB","TBX3","ZFP42","STAT3","PRDM14",
-    "GATA6","FOXA2","SMAD2","SMAD3","CTNNB1",
-    "LEFTY1","LEFTY2","FGF4","DPPA4","LIN28A",
-    "SALL4","TET1","TET2","DNMT3B","POU5F1"
-  ].map(g => ({ id: g, label: g })),
+// export const mockInferenceData = {
+//   genes: [
+//     "SOX2","OCT4","NANOG","MYC","KLF4",
+//     "ESRRB","TBX3","ZFP42","STAT3","PRDM14",
+//     "GATA6","FOXA2","SMAD2","SMAD3","CTNNB1",
+//     "LEFTY1","LEFTY2","FGF4","DPPA4","LIN28A",
+//     "SALL4","TET1","TET2","DNMT3B","POU5F1"
+//   ].map(g => ({ id: g, label: g })),
 
-  algorithms: ["GENIE3", "GRNBoost2", "PIDC", "SCENIC"],
+//   algorithms: ["GENIE3", "GRNBoost2", "PIDC", "SCENIC"],
 
-  edges: [
-    // Core pluripotency loop
-    { id:"SOX2_OCT4", source:"SOX2", target:"OCT4", type:"activation",
-      scores:{ GENIE3:0.89, GRNBoost2:0.83, PIDC:0.72 } },
+//   edges: [
+//     // Core pluripotency loop
+//     { id:"SOX2_OCT4", source:"SOX2", target:"OCT4", type:"activation",
+//       scores:{ GENIE3:0.89, GRNBoost2:0.83, PIDC:0.72 } },
 
-    { id:"OCT4_NANOG", source:"OCT4", target:"NANOG", type:"activation",
-      scores:{ GENIE3:0.91, SCENIC:0.77 } },
+//     { id:"OCT4_NANOG", source:"OCT4", target:"NANOG", type:"activation",
+//       scores:{ GENIE3:0.91, SCENIC:0.77 } },
 
-    { id:"NANOG_SOX2", source:"NANOG", target:"SOX2", type:"activation",
-      scores:{ GENIE3:0.88, PIDC:0.74 } },
+//     { id:"NANOG_SOX2", source:"NANOG", target:"SOX2", type:"activation",
+//       scores:{ GENIE3:0.88, PIDC:0.74 } },
 
-    // Secondary regulators
-    { id:"MYC_KLF4", source:"MYC", target:"KLF4", type:"repression",
-      scores:{ GRNBoost2:0.68, PIDC:0.60 } },
+//     // Secondary regulators
+//     { id:"MYC_KLF4", source:"MYC", target:"KLF4", type:"repression",
+//       scores:{ GRNBoost2:0.68, PIDC:0.60 } },
 
-    { id:"KLF4_ESRRB", source:"KLF4", target:"ESRRB", type:"activation",
-      scores:{ GENIE3:0.79, SCENIC:0.71 } },
+//     { id:"KLF4_ESRRB", source:"KLF4", target:"ESRRB", type:"activation",
+//       scores:{ GENIE3:0.79, SCENIC:0.71 } },
 
-    { id:"ESRRB_TBX3", source:"ESRRB", target:"TBX3", type:"activation",
-      scores:{ GENIE3:0.75 } },
+//     { id:"ESRRB_TBX3", source:"ESRRB", target:"TBX3", type:"activation",
+//       scores:{ GENIE3:0.75 } },
 
-    { id:"TBX3_STAT3", source:"TBX3", target:"STAT3", type:"activation",
-      scores:{ PIDC:0.66 } },
+//     { id:"TBX3_STAT3", source:"TBX3", target:"STAT3", type:"activation",
+//       scores:{ PIDC:0.66 } },
 
-    { id:"STAT3_PRDM14", source:"STAT3", target:"PRDM14", type:"activation",
-      scores:{ GRNBoost2:0.73 } },
+//     { id:"STAT3_PRDM14", source:"STAT3", target:"PRDM14", type:"activation",
+//       scores:{ GRNBoost2:0.73 } },
 
-    { id:"PRDM14_ZFP42", source:"PRDM14", target:"ZFP42", type:"activation",
-      scores:{ SCENIC:0.70 } },
+//     { id:"PRDM14_ZFP42", source:"PRDM14", target:"ZFP42", type:"activation",
+//       scores:{ SCENIC:0.70 } },
 
-    // Differentiation branch
-    { id:"SMAD2_GATA6", source:"SMAD2", target:"GATA6", type:"activation",
-      scores:{ GENIE3:0.81 } },
+//     // Differentiation branch
+//     { id:"SMAD2_GATA6", source:"SMAD2", target:"GATA6", type:"activation",
+//       scores:{ GENIE3:0.81 } },
 
-    { id:"SMAD3_FOXA2", source:"SMAD3", target:"FOXA2", type:"activation",
-      scores:{ PIDC:0.76 } },
+//     { id:"SMAD3_FOXA2", source:"SMAD3", target:"FOXA2", type:"activation",
+//       scores:{ PIDC:0.76 } },
 
-    { id:"CTNNB1_TCF", source:"CTNNB1", target:"LEFTY1", type:"activation",
-      scores:{ GENIE3:0.78 } },
+//     { id:"CTNNB1_TCF", source:"CTNNB1", target:"LEFTY1", type:"activation",
+//       scores:{ GENIE3:0.78 } },
 
-    { id:"LEFTY1_LEFTY2", source:"LEFTY1", target:"LEFTY2", type:"activation",
-      scores:{ SCENIC:0.69 } },
+//     { id:"LEFTY1_LEFTY2", source:"LEFTY1", target:"LEFTY2", type:"activation",
+//       scores:{ SCENIC:0.69 } },
 
-    { id:"FGF4_NANOG", source:"FGF4", target:"NANOG", type:"activation",
-      scores:{ GENIE3:0.84 } },
+//     { id:"FGF4_NANOG", source:"FGF4", target:"NANOG", type:"activation",
+//       scores:{ GENIE3:0.84 } },
 
-    { id:"DPPA4_OCT4", source:"DPPA4", target:"OCT4", type:"activation",
-      scores:{ PIDC:0.72 } },
+//     { id:"DPPA4_OCT4", source:"DPPA4", target:"OCT4", type:"activation",
+//       scores:{ PIDC:0.72 } },
 
-    { id:"LIN28A_MYC", source:"LIN28A", target:"MYC", type:"activation",
-      scores:{ GENIE3:0.80 } },
+//     { id:"LIN28A_MYC", source:"LIN28A", target:"MYC", type:"activation",
+//       scores:{ GENIE3:0.80 } },
 
-    { id:"SALL4_NANOG", source:"SALL4", target:"NANOG", type:"activation",
-      scores:{ GRNBoost2:0.77 } },
+//     { id:"SALL4_NANOG", source:"SALL4", target:"NANOG", type:"activation",
+//       scores:{ GRNBoost2:0.77 } },
 
-    { id:"TET1_DNMT3B", source:"TET1", target:"DNMT3B", type:"repression",
-      scores:{ PIDC:0.67 } },
+//     { id:"TET1_DNMT3B", source:"TET1", target:"DNMT3B", type:"repression",
+//       scores:{ PIDC:0.67 } },
 
-    { id:"TET2_DNMT3B", source:"TET2", target:"DNMT3B", type:"repression",
-      scores:{ SCENIC:0.64 } },
+//     { id:"TET2_DNMT3B", source:"TET2", target:"DNMT3B", type:"repression",
+//       scores:{ SCENIC:0.64 } },
 
-    { id:"POU5F1_SOX2", source:"POU5F1", target:"SOX2", type:"activation",
-      scores:{ GENIE3:0.88 } },
+//     { id:"POU5F1_SOX2", source:"POU5F1", target:"SOX2", type:"activation",
+//       scores:{ GENIE3:0.88 } },
 
-    // extra edges to exceed 20
-    { id:"OCT4_KLF4", source:"OCT4", target:"KLF4", type:"activation",
-      scores:{ GENIE3:0.74 } },
+//     // extra edges to exceed 20
+//     { id:"OCT4_KLF4", source:"OCT4", target:"KLF4", type:"activation",
+//       scores:{ GENIE3:0.74 } },
 
-    { id:"NANOG_ESRRB", source:"NANOG", target:"ESRRB", type:"activation",
-      scores:{ SCENIC:0.73 } },
+//     { id:"NANOG_ESRRB", source:"NANOG", target:"ESRRB", type:"activation",
+//       scores:{ SCENIC:0.73 } },
 
-    { id:"MYC_STAT3", source:"MYC", target:"STAT3", type:"activation",
-      scores:{ PIDC:0.71 } },
+//     { id:"MYC_STAT3", source:"MYC", target:"STAT3", type:"activation",
+//       scores:{ PIDC:0.71 } },
 
-    { id:"GATA6_FOXA2", source:"GATA6", target:"FOXA2", type:"activation",
-      scores:{ GENIE3:0.69 } },
+//     { id:"GATA6_FOXA2", source:"GATA6", target:"FOXA2", type:"activation",
+//       scores:{ GENIE3:0.69 } },
 
-    { id:"SMAD2_SMAD3", source:"SMAD2", target:"SMAD3", type:"activation",
-      scores:{ GENIE3:0.82 } }
-  ]
-};
+//     { id:"SMAD2_SMAD3", source:"SMAD2", target:"SMAD3", type:"activation",
+//       scores:{ GENIE3:0.82 } }
+//   ]
+// };
+
+// Types
+export interface Node {
+  id: string;
+  label: string;
+  degree?: number;
+  neighbors?: string[];
+  bestAlgo?: string;
+  bestMean?: number;
+}
+
+export interface Edge {
+  source: string;
+  target: string;
+  scores: Record<string, number>;
+}
+
+export interface Dataset {
+  id: string;
+  name: string;
+  organism: string;
+  type: string;
+  genes: number;
+  cells: number;
+  edges: number;
+  source: 'curated' | 'real' | 'synthetic';
+  description: string;
+  lastUpdated: string;
+  sparklineData: number[];
+  nodes: Node[];
+  edgesData: Edge[];
+}
+
+// Helper to generate random numbers in a range
+function randomInt1(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Helper to generate mock edges with algorithm scores
+function generateEdges1(nodes: Node[], algorithms: string[]) {
+  const edges: Edge[] = [];
+  const n = nodes.length;
+
+  for (let i = 0; i < n; i++) {
+    const numConnections = randomInt1(2, 4); // each node connects 2–4 others
+    for (let j = 0; j < numConnections; j++) {
+      const targetIdx = randomInt1(0, n - 1);
+      if (targetIdx !== i) {
+        const scores: Record<string, number> = {};
+        algorithms.forEach(algo => {
+          scores[algo] = parseFloat((Math.random() * 1).toFixed(3));
+        });
+
+        edges.push({
+          source: nodes[i].id,
+          target: nodes[targetIdx].id,
+          scores,
+        });
+      }
+    }
+  }
+
+  return edges;
+}
+
+// Generate realistic dataset
+function generateDataset(id: string, name: string, organism: string, type: string, genes: number) {
+  const algorithms = ['algo1', 'algo2', 'algo3'];
+  const nodes: Node[] = Array.from({ length: genes }, (_, i) => ({
+    id: `gene${i + 1}`,
+    label: `Gene ${i + 1}`,
+  }));
+
+  const edgesData = generateEdges1(nodes, algorithms);
+
+  // Compute degree and neighbors for each node
+  nodes.forEach(node => {
+    const neighbors = edgesData
+      .filter(e => e.source === node.id || e.target === node.id)
+      .map(e => (e.source === node.id ? e.target : e.source));
+    node.degree = neighbors.length;
+
+    // Compute best algorithm & mean score for this node
+    const algoScores: Record<string, number[]> = {};
+    edgesData
+      .filter(e => e.source === node.id || e.target === node.id)
+      .forEach(edge => {
+        Object.entries(edge.scores).forEach(([algo, score]) => {
+          if (!algoScores[algo]) algoScores[algo] = [];
+          algoScores[algo].push(score);
+        });
+      });
+
+    let bestAlgo = '';
+    let bestMean = 0;
+    Object.entries(algoScores).forEach(([algo, scores]) => {
+      const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
+      if (mean > bestMean) {
+        bestMean = mean;
+        bestAlgo = algo;
+      }
+    });
+
+    node.neighbors = neighbors;
+    node.bestAlgo = bestAlgo;
+    node.bestMean = bestMean;
+  });
+
+  return {
+    id,
+    name,
+    organism,
+    type,
+    genes,
+    cells: randomInt1(300, 800),
+    edges: edgesData.length,
+    source: 'curated' as const,
+    description: `${name} mock dataset`,
+    lastUpdated: new Date().toISOString().split('T')[0],
+    sparklineData: Array.from({ length: 10 }, () => randomInt1(20, 100)),
+    nodes,
+    edgesData,
+  } as Dataset;
+}
+
+// Example: generate all mock datasets
+export const mockDatasets: Dataset[] = [
+  generateDataset('hESC', 'hESC', 'Human', 'scRNA-seq', 25),
+  generateDataset('mDC', 'mDC', 'Mouse', 'scRNA-seq', 22),
+  generateDataset('mESC', 'mESC', 'Mouse', 'scRNA-seq', 28),
+  generateDataset('hHep', 'hHep', 'Human', 'scRNA-seq', 24),
+  generateDataset('VSC', 'VSC', 'Mouse', 'scRNA-seq', 26),
+  generateDataset('hHSPC', 'hHSPC', 'Human', 'scRNA-seq', 30),
+  generateDataset('mHSC-E', 'mHSC-E', 'Mouse', 'scRNA-seq', 27),
+  generateDataset('mHSC-L', 'mHSC-L', 'Mouse', 'scRNA-seq', 23),
+  generateDataset('Synthetic-1', 'Synthetic-1', 'Synthetic', 'scRNA-seq', 25),
+  generateDataset('Synthetic-2', 'Synthetic-2', 'Synthetic', 'scRNA-seq', 24),
+  generateDataset('yeast-1', 'Yeast Network 1', 'Yeast', 'Bulk RNA-seq', 22),
+  generateDataset('yeast-2', 'Yeast Network 2', 'Yeast', 'Bulk RNA-seq', 21),
+];
+
 
 // export const mockDatasets: Dataset[] = [
 //   {
@@ -417,32 +558,32 @@ export const mockInferenceData = {
 //   }
 // ];
 
-export interface Node {
-  id: string;
-  label?: string;
-}
+// export interface Node {
+//   id: string;
+//   label?: string;
+// }
 
-export interface Edge {
-  source: string;
-  target: string;
-  scores?: Record<string, number>;
-}
+// export interface Edge {
+//   source: string;
+//   target: string;
+//   scores?: Record<string, number>;
+// }
 
-export interface Dataset {
-  id: string;
-  name: string;
-  organism: string;
-  type: string;
-  genes: number;
-  cells: number;
-  edges: number;
-  source: 'curated' | 'real' | 'synthetic';
-  description: string;
-  lastUpdated: string;
-  sparklineData: number[];
-  nodes: Node[];           // ✅ Added nodes
-  edgesData?: Edge[];      // optional edges
-}
+// export interface Dataset {
+//   id: string;
+//   name: string;
+//   organism: string;
+//   type: string;
+//   genes: number;
+//   cells: number;
+//   edges: number;
+//   source: 'curated' | 'real' | 'synthetic';
+//   description: string;
+//   lastUpdated: string;
+//   sparklineData: number[];
+//   nodes: Node[];           // ✅ Added nodes
+//   edgesData?: Edge[];      // optional edges
+// }
 
 // export const mockDatasets: Dataset[] = [
 //   {
@@ -561,383 +702,577 @@ export interface Dataset {
 //   // …continue the rest of your datasets, adding `nodes: []` minimally
 // ];
 
-export const mockDatasets: Dataset[] = [
-  {
-    id: 'hESC',
-    name: 'hESC',
-    organism: 'Human',
-    type: 'scRNA-seq',
-    genes: 1872,
-    cells: 758,
-    edges: 3289,
-    source: 'curated',
-    description: 'Human embryonic stem cells single-cell RNA-seq dataset',
-    lastUpdated: '2024-11-15',
-    sparklineData: [34, 45, 52, 48, 61, 73, 68, 82, 91, 78],
-    nodes: [
-      { id: 'gene1', label: 'OCT4' },
-      { id: 'gene2', label: 'SOX2' },
-      { id: 'gene3', label: 'NANOG' }
-    ],
-    edgesData: [
-      { source: 'gene1', target: 'gene2', scores: { algo1: 0.8, algo2: 0.6 } },
-      { source: 'gene2', target: 'gene3', scores: { algo1: 0.9, algo2: 0.5 } }
-    ]
-  },
-  {
-    id: 'mDC',
-    name: 'mDC',
-    organism: 'Mouse',
-    type: 'scRNA-seq',
-    genes: 1547,
-    cells: 383,
-    edges: 2456,
-    source: 'real',
-    description: 'Mouse dendritic cells single-cell RNA-seq dataset',
-    lastUpdated: '2024-10-28',
-    sparklineData: [28, 31, 39, 42, 38, 51, 58, 64, 59, 71],
-    nodes: [
-      { id: 'gene1', label: 'Cd11c' },
-      { id: 'gene2', label: 'Flt3' },
-      { id: 'gene3', label: 'Ccr7' }
-    ],
-    edgesData: [
-      { source: 'gene1', target: 'gene2', scores: { algo1: 0.7, algo2: 0.5 } },
-      { source: 'gene2', target: 'gene3', scores: { algo1: 0.6, algo2: 0.8 } }
-    ]
-  },
-  {
-    id: 'mESC',
-    name: 'mESC',
-    organism: 'Mouse',
-    type: 'scRNA-seq',
-    genes: 1654,
-    cells: 421,
-    edges: 2891,
-    source: 'curated',
-    lastUpdated: '2024-11-08',
-    description: 'Mouse embryonic stem cells single-cell RNA-seq dataset',
-    sparklineData: [22, 35, 41, 48, 44, 59, 62, 71, 68, 75],
-    nodes: [
-      { id: 'gene1', label: 'Oct4' },
-      { id: 'gene2', label: 'Sox2' },
-      { id: 'gene3', label: 'Nanog' }
-    ],
-    edgesData: [
-      { source: 'gene1', target: 'gene3', scores: { algo1: 0.85, algo2: 0.65 } },
-      { source: 'gene2', target: 'gene3', scores: { algo1: 0.78, algo2: 0.7 } }
-    ]
-  },
-  {
-    id: 'hHep',
-    name: 'hHep',
-    organism: 'Human',
-    type: 'scRNA-seq',
-    genes: 1985,
-    cells: 642,
-    edges: 3567,
-    source: 'synthetic',
-    lastUpdated: '2024-09-22',
-    description: 'Human hepatocytes single-cell RNA-seq dataset',
-    sparklineData: [31, 38, 42, 49, 55, 62, 58, 69, 77, 82],
-    nodes: [
-      { id: 'gene1', label: 'ALB' },
-      { id: 'gene2', label: 'AFP' },
-      { id: 'gene3', label: 'HNF4A' }
-    ],
-    edgesData: [
-      { source: 'gene1', target: 'gene2', scores: { algo1: 0.9, algo2: 0.7 } },
-      { source: 'gene2', target: 'gene3', scores: { algo1: 0.85, algo2: 0.6 } }
-    ]
-  },
-  {
-    id: 'VSC',
-    name: 'VSC',
-    organism: 'Mouse',
-    type: 'scRNA-seq',
-    genes: 1432,
-    cells: 564,
-    edges: 2234,
-    source: 'curated',
-    lastUpdated: '2024-10-12',
-    description: 'Mouse vascular stem cells dataset',
-    sparklineData: [19, 28, 34, 41, 48, 52, 59, 65, 71, 68],
-    nodes: [
-      { id: 'gene1', label: 'Vegfa' },
-      { id: 'gene2', label: 'Cdh5' },
-      { id: 'gene3', label: 'Kdr' }
-    ],
-    edgesData: [
-      { source: 'gene1', target: 'gene2', scores: { algo1: 0.7, algo2: 0.5 } },
-      { source: 'gene2', target: 'gene3', scores: { algo1: 0.6, algo2: 0.8 } }
-    ]
-  },
-  {
-    id: 'hHSPC',
-    name: 'hHSPC',
-    organism: 'Human',
-    type: 'scRNA-seq',
-    genes: 2145,
-    cells: 823,
-    edges: 4156,
-    source: 'real',
-    lastUpdated: '2024-09-05',
-    description: 'Human hematopoietic stem and progenitor cells',
-    sparklineData: [42, 51, 58, 62, 69, 75, 81, 88, 92, 89],
-    nodes: [
-      { id: 'gene1', label: 'CD34' },
-      { id: 'gene2', label: 'CD38' },
-      { id: 'gene3', label: 'GATA2' }
-    ],
-    edgesData: [
-      { source: 'gene1', target: 'gene2', scores: { algo1: 0.88, algo2: 0.66 } },
-      { source: 'gene2', target: 'gene3', scores: { algo1: 0.9, algo2: 0.7 } }
-    ]
-  },
-  {
-    id: 'mHSC-E',
-    name: 'mHSC-E',
-    organism: 'Mouse',
-    type: 'scRNA-seq',
-    genes: 1789,
-    cells: 645,
-    edges: 3012,
-    source: 'curated',
-    lastUpdated: '2024-11-01',
-    description: 'Mouse early hematopoietic stem cells',
-    sparklineData: [25, 33, 39, 46, 53, 61, 68, 74, 79, 85],
-    nodes: [
-      { id: 'gene1', label: 'Hoxb4' },
-      { id: 'gene2', label: 'Runx1' },
-      { id: 'gene3', label: 'Gata1' }
-    ],
-    edgesData: [
-      { source: 'gene1', target: 'gene2', scores: { algo1: 0.75, algo2: 0.55 } },
-      { source: 'gene2', target: 'gene3', scores: { algo1: 0.8, algo2: 0.6 } }
-    ]
-  },
-  {
-    id: 'mHSC-L',
-    name: 'mHSC-L',
-    organism: 'Mouse',
-    type: 'scRNA-seq',
-    genes: 1823,
-    cells: 712,
-    edges: 3178,
-    source: 'curated',
-    lastUpdated: '2024-10-29',
-    description: 'Mouse late hematopoietic stem cells',
-    sparklineData: [28, 36, 43, 49, 56, 64, 71, 77, 82, 88],
-    nodes: [
-      { id: 'gene1', label: 'Hoxb5' },
-      { id: 'gene2', label: 'Runx1' },
-      { id: 'gene3', label: 'Gata2' }
-    ],
-    edgesData: [
-      { source: 'gene1', target: 'gene2', scores: { algo1: 0.78, algo2: 0.58 } },
-      { source: 'gene2', target: 'gene3', scores: { algo1: 0.82, algo2: 0.62 } }
-    ]
-  },
-  {
-    id: 'Synthetic-1',
-    name: 'Synthetic-1',
-    organism: 'Synthetic',
-    type: 'scRNA-seq',
-    genes: 1500,
-    cells: 500,
-    edges: 2500,
-    source: 'synthetic',
-    lastUpdated: '2024-08-15',
-    description: 'Synthetic dataset 1',
-    sparklineData: [30, 35, 40, 45, 50, 55, 60, 65, 70, 75],
-    nodes: [
-      { id: 'gene1', label: 'Syn1' },
-      { id: 'gene2', label: 'Syn2' },
-      { id: 'gene3', label: 'Syn3' }
-    ],
-    edgesData: [
-      { source: 'gene1', target: 'gene2', scores: { algo1: 0.5, algo2: 0.5 } },
-      { source: 'gene2', target: 'gene3', scores: { algo1: 0.6, algo2: 0.6 } }
-    ]
-  },
-  {
-    id: 'Synthetic-2',
-    name: 'Synthetic-2',
-    organism: 'Synthetic',
-    type: 'scRNA-seq',
-    genes: 2000,
-    cells: 750,
-    edges: 3500,
-    source: 'synthetic',
-    lastUpdated: '2024-08-20',
-    description: 'Synthetic dataset 2',
-    sparklineData: [35, 40, 45, 50, 55, 60, 65, 70, 75, 80],
-    nodes: [
-      { id: 'gene1', label: 'SynA' },
-      { id: 'gene2', label: 'SynB' },
-      { id: 'gene3', label: 'SynC' }
-    ],
-    edgesData: [
-      { source: 'gene1', target: 'gene2', scores: { algo1: 0.6, algo2: 0.6 } },
-      { source: 'gene2', target: 'gene3', scores: { algo1: 0.7, algo2: 0.7 } }
-    ]
-  },
-  {
-    id: 'yeast-1',
-    name: 'Yeast Network 1',
-    organism: 'Yeast',
-    type: 'Bulk RNA-seq',
-    genes: 987,
-    cells: 234,
-    edges: 1456,
-    source: 'real',
-    lastUpdated: '2024-07-10',
-    description: 'Yeast bulk RNA-seq dataset 1',
-    sparklineData: [18, 24, 31, 37, 44, 51, 57, 63, 68, 72],
-    nodes: [
-      { id: 'gene1', label: 'YFG1' },
-      { id: 'gene2', label: 'YFG2' },
-      { id: 'gene3', label: 'YFG3' }
-    ],
-    edgesData: [
-      { source: 'gene1', target: 'gene2', scores: { algo1: 0.55, algo2: 0.65 } },
-      { source: 'gene2', target: 'gene3', scores: { algo1: 0.6, algo2: 0.7 } }
-    ]
-  },
-  {
-    id: 'yeast-2',
-    name: 'Yeast Network 2',
-    organism: 'Yeast',
-    type: 'Bulk RNA-seq',
-    genes: 1123,
-    cells: 298,
-    edges: 1789,
-    source: 'real',
-    lastUpdated: '2024-07-22',
-    description: 'Yeast bulk RNA-seq dataset 2',
-    sparklineData: [21, 27, 34, 40, 47, 54, 60, 66, 71, 75],
-    nodes: [
-      { id: 'gene1', label: 'YFGA' },
-      { id: 'gene2', label: 'YFGB' },
-      { id: 'gene3', label: 'YFGC' }
-    ],
-    edgesData: [
-      { source: 'gene1', target: 'gene2', scores: { algo1: 0.6, algo2: 0.7 } },
-      { source: 'gene2', target: 'gene3', scores: { algo1: 0.65, algo2: 0.75 } }
-    ]
-  }
+// export const mockDatasets: Dataset[] = [
+//   {
+//     id: 'hESC',
+//     name: 'hESC',
+//     organism: 'Human',
+//     type: 'scRNA-seq',
+//     genes: 1872,
+//     cells: 758,
+//     edges: 3289,
+//     source: 'curated',
+//     description: 'Human embryonic stem cells single-cell RNA-seq dataset',
+//     lastUpdated: '2024-11-15',
+//     sparklineData: [34, 45, 52, 48, 61, 73, 68, 82, 91, 78],
+//     nodes: [
+//       { id: 'gene1', label: 'OCT4' },
+//       { id: 'gene2', label: 'SOX2' },
+//       { id: 'gene3', label: 'NANOG' }
+//     ],
+//     edgesData: [
+//       { source: 'gene1', target: 'gene2', scores: { algo1: 0.8, algo2: 0.6 } },
+//       { source: 'gene2', target: 'gene3', scores: { algo1: 0.9, algo2: 0.5 } }
+//     ]
+//   },
+//   {
+//     id: 'mDC',
+//     name: 'mDC',
+//     organism: 'Mouse',
+//     type: 'scRNA-seq',
+//     genes: 1547,
+//     cells: 383,
+//     edges: 2456,
+//     source: 'real',
+//     description: 'Mouse dendritic cells single-cell RNA-seq dataset',
+//     lastUpdated: '2024-10-28',
+//     sparklineData: [28, 31, 39, 42, 38, 51, 58, 64, 59, 71],
+//     nodes: [
+//       { id: 'gene1', label: 'Cd11c' },
+//       { id: 'gene2', label: 'Flt3' },
+//       { id: 'gene3', label: 'Ccr7' }
+//     ],
+//     edgesData: [
+//       { source: 'gene1', target: 'gene2', scores: { algo1: 0.7, algo2: 0.5 } },
+//       { source: 'gene2', target: 'gene3', scores: { algo1: 0.6, algo2: 0.8 } }
+//     ]
+//   },
+//   {
+//     id: 'mESC',
+//     name: 'mESC',
+//     organism: 'Mouse',
+//     type: 'scRNA-seq',
+//     genes: 1654,
+//     cells: 421,
+//     edges: 2891,
+//     source: 'curated',
+//     lastUpdated: '2024-11-08',
+//     description: 'Mouse embryonic stem cells single-cell RNA-seq dataset',
+//     sparklineData: [22, 35, 41, 48, 44, 59, 62, 71, 68, 75],
+//     nodes: [
+//       { id: 'gene1', label: 'Oct4' },
+//       { id: 'gene2', label: 'Sox2' },
+//       { id: 'gene3', label: 'Nanog' }
+//     ],
+//     edgesData: [
+//       { source: 'gene1', target: 'gene3', scores: { algo1: 0.85, algo2: 0.65 } },
+//       { source: 'gene2', target: 'gene3', scores: { algo1: 0.78, algo2: 0.7 } }
+//     ]
+//   },
+//   {
+//     id: 'hHep',
+//     name: 'hHep',
+//     organism: 'Human',
+//     type: 'scRNA-seq',
+//     genes: 1985,
+//     cells: 642,
+//     edges: 3567,
+//     source: 'synthetic',
+//     lastUpdated: '2024-09-22',
+//     description: 'Human hepatocytes single-cell RNA-seq dataset',
+//     sparklineData: [31, 38, 42, 49, 55, 62, 58, 69, 77, 82],
+//     nodes: [
+//       { id: 'gene1', label: 'ALB' },
+//       { id: 'gene2', label: 'AFP' },
+//       { id: 'gene3', label: 'HNF4A' }
+//     ],
+//     edgesData: [
+//       { source: 'gene1', target: 'gene2', scores: { algo1: 0.9, algo2: 0.7 } },
+//       { source: 'gene2', target: 'gene3', scores: { algo1: 0.85, algo2: 0.6 } }
+//     ]
+//   },
+//   {
+//     id: 'VSC',
+//     name: 'VSC',
+//     organism: 'Mouse',
+//     type: 'scRNA-seq',
+//     genes: 1432,
+//     cells: 564,
+//     edges: 2234,
+//     source: 'curated',
+//     lastUpdated: '2024-10-12',
+//     description: 'Mouse vascular stem cells dataset',
+//     sparklineData: [19, 28, 34, 41, 48, 52, 59, 65, 71, 68],
+//     nodes: [
+//       { id: 'gene1', label: 'Vegfa' },
+//       { id: 'gene2', label: 'Cdh5' },
+//       { id: 'gene3', label: 'Kdr' }
+//     ],
+//     edgesData: [
+//       { source: 'gene1', target: 'gene2', scores: { algo1: 0.7, algo2: 0.5 } },
+//       { source: 'gene2', target: 'gene3', scores: { algo1: 0.6, algo2: 0.8 } }
+//     ]
+//   },
+//   {
+//     id: 'hHSPC',
+//     name: 'hHSPC',
+//     organism: 'Human',
+//     type: 'scRNA-seq',
+//     genes: 2145,
+//     cells: 823,
+//     edges: 4156,
+//     source: 'real',
+//     lastUpdated: '2024-09-05',
+//     description: 'Human hematopoietic stem and progenitor cells',
+//     sparklineData: [42, 51, 58, 62, 69, 75, 81, 88, 92, 89],
+//     nodes: [
+//       { id: 'gene1', label: 'CD34' },
+//       { id: 'gene2', label: 'CD38' },
+//       { id: 'gene3', label: 'GATA2' }
+//     ],
+//     edgesData: [
+//       { source: 'gene1', target: 'gene2', scores: { algo1: 0.88, algo2: 0.66 } },
+//       { source: 'gene2', target: 'gene3', scores: { algo1: 0.9, algo2: 0.7 } }
+//     ]
+//   },
+//   {
+//     id: 'mHSC-E',
+//     name: 'mHSC-E',
+//     organism: 'Mouse',
+//     type: 'scRNA-seq',
+//     genes: 1789,
+//     cells: 645,
+//     edges: 3012,
+//     source: 'curated',
+//     lastUpdated: '2024-11-01',
+//     description: 'Mouse early hematopoietic stem cells',
+//     sparklineData: [25, 33, 39, 46, 53, 61, 68, 74, 79, 85],
+//     nodes: [
+//       { id: 'gene1', label: 'Hoxb4' },
+//       { id: 'gene2', label: 'Runx1' },
+//       { id: 'gene3', label: 'Gata1' }
+//     ],
+//     edgesData: [
+//       { source: 'gene1', target: 'gene2', scores: { algo1: 0.75, algo2: 0.55 } },
+//       { source: 'gene2', target: 'gene3', scores: { algo1: 0.8, algo2: 0.6 } }
+//     ]
+//   },
+//   {
+//     id: 'mHSC-L',
+//     name: 'mHSC-L',
+//     organism: 'Mouse',
+//     type: 'scRNA-seq',
+//     genes: 1823,
+//     cells: 712,
+//     edges: 3178,
+//     source: 'curated',
+//     lastUpdated: '2024-10-29',
+//     description: 'Mouse late hematopoietic stem cells',
+//     sparklineData: [28, 36, 43, 49, 56, 64, 71, 77, 82, 88],
+//     nodes: [
+//       { id: 'gene1', label: 'Hoxb5' },
+//       { id: 'gene2', label: 'Runx1' },
+//       { id: 'gene3', label: 'Gata2' }
+//     ],
+//     edgesData: [
+//       { source: 'gene1', target: 'gene2', scores: { algo1: 0.78, algo2: 0.58 } },
+//       { source: 'gene2', target: 'gene3', scores: { algo1: 0.82, algo2: 0.62 } }
+//     ]
+//   },
+//   {
+//     id: 'Synthetic-1',
+//     name: 'Synthetic-1',
+//     organism: 'Synthetic',
+//     type: 'scRNA-seq',
+//     genes: 1500,
+//     cells: 500,
+//     edges: 2500,
+//     source: 'synthetic',
+//     lastUpdated: '2024-08-15',
+//     description: 'Synthetic dataset 1',
+//     sparklineData: [30, 35, 40, 45, 50, 55, 60, 65, 70, 75],
+//     nodes: [
+//       { id: 'gene1', label: 'Syn1' },
+//       { id: 'gene2', label: 'Syn2' },
+//       { id: 'gene3', label: 'Syn3' }
+//     ],
+//     edgesData: [
+//       { source: 'gene1', target: 'gene2', scores: { algo1: 0.5, algo2: 0.5 } },
+//       { source: 'gene2', target: 'gene3', scores: { algo1: 0.6, algo2: 0.6 } }
+//     ]
+//   },
+//   {
+//     id: 'Synthetic-2',
+//     name: 'Synthetic-2',
+//     organism: 'Synthetic',
+//     type: 'scRNA-seq',
+//     genes: 2000,
+//     cells: 750,
+//     edges: 3500,
+//     source: 'synthetic',
+//     lastUpdated: '2024-08-20',
+//     description: 'Synthetic dataset 2',
+//     sparklineData: [35, 40, 45, 50, 55, 60, 65, 70, 75, 80],
+//     nodes: [
+//       { id: 'gene1', label: 'SynA' },
+//       { id: 'gene2', label: 'SynB' },
+//       { id: 'gene3', label: 'SynC' }
+//     ],
+//     edgesData: [
+//       { source: 'gene1', target: 'gene2', scores: { algo1: 0.6, algo2: 0.6 } },
+//       { source: 'gene2', target: 'gene3', scores: { algo1: 0.7, algo2: 0.7 } }
+//     ]
+//   },
+//   {
+//     id: 'yeast-1',
+//     name: 'Yeast Network 1',
+//     organism: 'Yeast',
+//     type: 'Bulk RNA-seq',
+//     genes: 987,
+//     cells: 234,
+//     edges: 1456,
+//     source: 'real',
+//     lastUpdated: '2024-07-10',
+//     description: 'Yeast bulk RNA-seq dataset 1',
+//     sparklineData: [18, 24, 31, 37, 44, 51, 57, 63, 68, 72],
+//     nodes: [
+//       { id: 'gene1', label: 'YFG1' },
+//       { id: 'gene2', label: 'YFG2' },
+//       { id: 'gene3', label: 'YFG3' }
+//     ],
+//     edgesData: [
+//       { source: 'gene1', target: 'gene2', scores: { algo1: 0.55, algo2: 0.65 } },
+//       { source: 'gene2', target: 'gene3', scores: { algo1: 0.6, algo2: 0.7 } }
+//     ]
+//   },
+//   {
+//     id: 'yeast-2',
+//     name: 'Yeast Network 2',
+//     organism: 'Yeast',
+//     type: 'Bulk RNA-seq',
+//     genes: 1123,
+//     cells: 298,
+//     edges: 1789,
+//     source: 'real',
+//     lastUpdated: '2024-07-22',
+//     description: 'Yeast bulk RNA-seq dataset 2',
+//     sparklineData: [21, 27, 34, 40, 47, 54, 60, 66, 71, 75],
+//     nodes: [
+//       { id: 'gene1', label: 'YFGA' },
+//       { id: 'gene2', label: 'YFGB' },
+//       { id: 'gene3', label: 'YFGC' }
+//     ],
+//     edgesData: [
+//       { source: 'gene1', target: 'gene2', scores: { algo1: 0.6, algo2: 0.7 } },
+//       { source: 'gene2', target: 'gene3', scores: { algo1: 0.65, algo2: 0.75 } }
+//     ]
+//   }
+// ];
+
+// mockData.ts
+export const mockAlgorithms = ['GENIE3', 'CLR', 'ARACNE', 'MRNET'];
+
+const geneLabels = [
+  'SOX2','OCT4','NANOG','KLF4','MYC','SOX3','POU5F1','GATA3',
+  'TBX3','ESRRB','DPPA4','ZFP42','UTF1','SALL4','DNMT3B',
+  'PRDM14','LEFTY1','NODAL','FGF4','LIN28A','T','EOMES','CER1','GSC','NANOS3','TFAP2C','SOX17','GATA6','PDGFRA','FOXA2'
 ];
 
-export const mockAlgorithms: Algorithm[] = [
-  {
-    id: 'alg1',
-    name: 'GENIE3',
-    version: '1.0',
-    description: 'Tree-based network inference using random forests',
-    category: 'Tree-based',
-    lastCommitMessage: 'Yiqi dockerfiles pull',
-    lastCommitDate: '2 years ago'
-  },
-  {
-    id: 'alg2',
-    name: 'GRNBoost2',
-    version: '1.0',
-    description: 'Gradient Boosting inference with GRNBoost2',
-    category: 'Gradient Boosting',
-    lastCommitMessage: 'Added BoolTraineR.',
-    lastCommitDate: '7 years ago'
-  },
-  {
-    id: 'alg3',
-    name: 'Pearson',
-    version: '1.0',
-    description: 'Gene regulatory inference using Correlation',
-    category: 'Correlation',
-    lastCommitMessage: 'Add README markdown files for algorithms integration',
-    lastCommitDate: '3 years ago'
-  },
-  {
-    id: 'alg4',
-    name: 'Spearman',
-    version: '1.0',
-    description: 'Beeline Processed Dataset based on Spearman correlation and network inference',
-    category: 'Correlation',
-    lastCommitMessage: 'Add README markdown files for algorithms integration',
-    lastCommitDate: '3 years ago'
-  },
-  {
-    id: 'alg5',
-    name: 'ARACNE',
-    version: '1.0',
-    description: 'Information Theory for network inference',
-    category: 'Information Theory',
-    lastCommitMessage: 'tried to run the time command',
-    lastCommitDate: '2 years ago'
-  },
-  {
-    id: 'alg6',
-    name: 'SINGE',
-    version: '1.2',
-    description: 'SINGE is a Tree-based algorithm for running and benchmarking datasets',
-    category: 'Tree-based',
-    lastCommitMessage: 'Add README markdown files for algorithms integration',
-    lastCommitDate: '3 years ago'
-  },
-  {
-    id: 'alg7',
-    name: 'Probabilistic',
-    version: '2.1',
-    description: 'Partial Information Decomposition and Context based on probability',
-    category: 'Information Theory',
-    lastCommitMessage: 'Yiqi dockerfiles pull',
-    lastCommitDate: '2 years ago'
-  },
-  {
-    id: 'alg8',
-    name: 'GRISLI',
-    version: '1.0',
-    description: 'Pseudo-time network inference based on Dynamical Systems',
-    category: 'Dynamical Systems',
-    lastCommitMessage: 'Added time module to each of the dockers.',
-    lastCommitDate: '2 years ago'
-  },
-  {
-    id: 'alg9',
-    name: 'SCODE',
-    version: '1.0',
-    description: 'Linear Models based network inference',
-    category: 'Linear Models',
-    lastCommitMessage: 'Add README markdown files for algorithms integration',
-    lastCommitDate: '3 years ago'
-  },
-  {
-    id: 'alg10',
-    name: 'SCNS',
-    version: '1.0',
-    description: 'Single-cell network inference with Linear Models',
-    category: 'Linear Models',
-    lastCommitMessage: 'Set user to avoid permission issues',
-    lastCommitDate: '5 years ago'
-  },
-  {
-    id: 'alg11',
-    name: 'LEAP',
-    version: '1.0',
-    description: 'Single-cell network inference based on Regression Analysis',
-    category: 'Regression',
-    lastCommitMessage: 'leap dockerfile fix',
-    lastCommitDate: '2 years ago'
-  },
-  {
-    id: 'alg12',
-    name: 'Arboreto',
-    version: '1.0',
-    description: 'A Tree-based Network inference from single-cell expression data',
-    category: 'Tree-based',
-    lastCommitMessage: 'Add README markdown files for algorithms integration',
-    lastCommitDate: '3 years ago'
+// Create nodes
+export const mockNetworkData = {
+  nodes: geneLabels.map((gene, idx) => ({
+    id: `gene${idx + 1}`,
+    label: gene,
+    score: parseFloat((Math.random() * 1).toFixed(3))
+  })),
+};
+
+// Create edges
+export const mockInferenceData = {
+  algorithms: mockAlgorithms,
+  edges: [] as any[],
+};
+
+// Randomly connect nodes
+function getRandomInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Generate edges
+mockNetworkData.nodes.forEach(sourceNode => {
+  // Each node has 2–5 outgoing edges
+  const numEdges = getRandomInt(2, 5);
+
+  for (let i = 0; i < numEdges; i++) {
+    const targetNode = mockNetworkData.nodes[getRandomInt(0, mockNetworkData.nodes.length - 1)];
+    if (targetNode.id === sourceNode.id) continue; // no self-loop
+    // Avoid duplicate edges
+    if (mockInferenceData.edges.some(e => e.source === sourceNode.id && e.target === targetNode.id)) continue;
+
+    const edgeType = Math.random() < 0.5 ? 'activation' : 'repression';
+
+    // Generate random scores per algorithm
+    const scores: Record<string, number> = {};
+    mockAlgorithms.forEach(algo => {
+      scores[algo] = parseFloat((Math.random()).toFixed(2));
+    });
+
+    mockInferenceData.edges.push({
+      id: `edge-${mockInferenceData.edges.length + 1}`,
+      source: sourceNode.id,
+      target: targetNode.id,
+      type: edgeType,
+      scores,
+    });
   }
+});
+
+// For debugging: print number of nodes and edges
+console.log(`Generated ${mockNetworkData.nodes.length} nodes and ${mockInferenceData.edges.length} edges`);
+
+
+// mockData.ts
+export type EdgeType = 'activation' | 'repression';
+
+export interface Node {
+  id: string;
+  label: string;
+  degree?: number;
+  neighbors?: string[];
+  bestAlgo?: string;
+  bestMean?: number;
+}
+
+export interface Edge {
+  id: string;
+  source: string;
+  target: string;
+  type: EdgeType;
+  scores: Record<string, number>;
+}
+
+export interface Dataset {
+  nodes: Node[];
+  edges: Edge[];
+  algorithms: string[];
+}
+
+// Realistic gene names for demo
+const geneNames = [
+  'SOX2', 'OCT4', 'NANOG', 'SOX3', 'GATA3', 'KLF4', 'MYC', 'POU5F1',
+  'TBX3', 'DPPA4', 'LIN28A', 'ZFP42', 'TFAP2C', 'NR5A2', 'ESRRB', 'TAL1',
+  'RUNX1', 'HNF4A', 'FOXA2', 'PAX6', 'SOX1', 'SOX17', 'CDX2', 'EOMES', 'GATA6',
+  'MEIS1', 'HAND1', 'HOXA1', 'HOXB1', 'HOXC6'
 ];
+
+// Algorithms
+const algorithms = ['GENIE3', 'SCENIC', 'PIDC', 'GRNBoost2'];
+
+// Random int helper
+function randomInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Generate edges with type and algorithm scores
+function generateEdges(nodes: Node[], numEdges: number): Edge[] {
+  const edges: Edge[] = [];
+  const n = nodes.length;
+
+  for (let i = 0; i < numEdges; i++) {
+    const sourceIdx = randomInt(0, n - 1);
+    let targetIdx = randomInt(0, n - 1);
+    while (targetIdx === sourceIdx) targetIdx = randomInt(0, n - 1);
+
+    const type: EdgeType = Math.random() < 0.5 ? 'activation' : 'repression';
+
+    const scores: Record<string, number> = {};
+    algorithms.forEach(algo => {
+      scores[algo] = parseFloat((Math.random()).toFixed(3));
+    });
+
+    edges.push({
+      id: `edge-${i}`,
+      source: nodes[sourceIdx].id,
+      target: nodes[targetIdx].id,
+      type,
+      scores,
+    });
+  }
+
+  return edges;
+}
+
+// Generate realistic nodes and compute degree, neighbors, best algorithm
+function generateNodes(numNodes: number, edges: Edge[]): Node[] {
+  const nodes: Node[] = geneNames.slice(0, numNodes).map((name, i) => ({
+    id: `gene-${i + 1}`,
+    label: name
+  }));
+
+  // compute neighbors and degree
+  nodes.forEach(node => {
+    const neighbors = edges
+      .filter(e => e.source === node.id || e.target === node.id)
+      .map(e => (e.source === node.id ? e.target : e.source));
+
+    node.neighbors = neighbors;
+    node.degree = neighbors.length;
+
+    // compute best algorithm
+    const algoScores: Record<string, number[]> = {};
+    edges
+      .filter(e => e.source === node.id || e.target === node.id)
+      .forEach(edge => {
+        Object.entries(edge.scores).forEach(([algo, score]) => {
+          if (!algoScores[algo]) algoScores[algo] = [];
+          algoScores[algo].push(score);
+        });
+      });
+
+    let bestAlgo = '';
+    let bestMean = 0;
+    Object.entries(algoScores).forEach(([algo, scores]) => {
+      const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
+      if (mean > bestMean) {
+        bestMean = mean;
+        bestAlgo = algo;
+      }
+    });
+
+    node.bestAlgo = bestAlgo;
+    node.bestMean = bestMean;
+  });
+
+  return nodes;
+}
+
+// Generate a full dataset
+// export const mockInferenceData: Dataset = (() => {
+//   const numNodes = 25;
+//   const numEdges = 60; // ~2-3 edges per node average
+
+//   const nodes = generateNodes(numNodes, []);
+//   const edges = generateEdges(nodes, numEdges);
+//   const finalNodes = generateNodes(numNodes, edges);
+
+//   return {
+//     nodes: finalNodes,
+//     edges,
+//     algorithms
+//   };
+// })();
+
+
+// export const mockAlgorithms: Algorithm[] = [
+//   {
+//     id: 'alg1',
+//     name: 'GENIE3',
+//     version: '1.0',
+//     description: 'Tree-based network inference using random forests',
+//     category: 'Tree-based',
+//     lastCommitMessage: 'Yiqi dockerfiles pull',
+//     lastCommitDate: '2 years ago'
+//   },
+//   {
+//     id: 'alg2',
+//     name: 'GRNBoost2',
+//     version: '1.0',
+//     description: 'Gradient Boosting inference with GRNBoost2',
+//     category: 'Gradient Boosting',
+//     lastCommitMessage: 'Added BoolTraineR.',
+//     lastCommitDate: '7 years ago'
+//   },
+//   {
+//     id: 'alg3',
+//     name: 'Pearson',
+//     version: '1.0',
+//     description: 'Gene regulatory inference using Correlation',
+//     category: 'Correlation',
+//     lastCommitMessage: 'Add README markdown files for algorithms integration',
+//     lastCommitDate: '3 years ago'
+//   },
+//   {
+//     id: 'alg4',
+//     name: 'Spearman',
+//     version: '1.0',
+//     description: 'Beeline Processed Dataset based on Spearman correlation and network inference',
+//     category: 'Correlation',
+//     lastCommitMessage: 'Add README markdown files for algorithms integration',
+//     lastCommitDate: '3 years ago'
+//   },
+//   {
+//     id: 'alg5',
+//     name: 'ARACNE',
+//     version: '1.0',
+//     description: 'Information Theory for network inference',
+//     category: 'Information Theory',
+//     lastCommitMessage: 'tried to run the time command',
+//     lastCommitDate: '2 years ago'
+//   },
+//   {
+//     id: 'alg6',
+//     name: 'SINGE',
+//     version: '1.2',
+//     description: 'SINGE is a Tree-based algorithm for running and benchmarking datasets',
+//     category: 'Tree-based',
+//     lastCommitMessage: 'Add README markdown files for algorithms integration',
+//     lastCommitDate: '3 years ago'
+//   },
+//   {
+//     id: 'alg7',
+//     name: 'Probabilistic',
+//     version: '2.1',
+//     description: 'Partial Information Decomposition and Context based on probability',
+//     category: 'Information Theory',
+//     lastCommitMessage: 'Yiqi dockerfiles pull',
+//     lastCommitDate: '2 years ago'
+//   },
+//   {
+//     id: 'alg8',
+//     name: 'GRISLI',
+//     version: '1.0',
+//     description: 'Pseudo-time network inference based on Dynamical Systems',
+//     category: 'Dynamical Systems',
+//     lastCommitMessage: 'Added time module to each of the dockers.',
+//     lastCommitDate: '2 years ago'
+//   },
+//   {
+//     id: 'alg9',
+//     name: 'SCODE',
+//     version: '1.0',
+//     description: 'Linear Models based network inference',
+//     category: 'Linear Models',
+//     lastCommitMessage: 'Add README markdown files for algorithms integration',
+//     lastCommitDate: '3 years ago'
+//   },
+//   {
+//     id: 'alg10',
+//     name: 'SCNS',
+//     version: '1.0',
+//     description: 'Single-cell network inference with Linear Models',
+//     category: 'Linear Models',
+//     lastCommitMessage: 'Set user to avoid permission issues',
+//     lastCommitDate: '5 years ago'
+//   },
+//   {
+//     id: 'alg11',
+//     name: 'LEAP',
+//     version: '1.0',
+//     description: 'Single-cell network inference based on Regression Analysis',
+//     category: 'Regression',
+//     lastCommitMessage: 'leap dockerfile fix',
+//     lastCommitDate: '2 years ago'
+//   },
+//   {
+//     id: 'alg12',
+//     name: 'Arboreto',
+//     version: '1.0',
+//     description: 'A Tree-based Network inference from single-cell expression data',
+//     category: 'Tree-based',
+//     lastCommitMessage: 'Add README markdown files for algorithms integration',
+//     lastCommitDate: '3 years ago'
+//   }
+// ];
 
 export const mockPerformanceMetrics: PerformanceMetrics[] = [
   {
@@ -1163,20 +1498,20 @@ export const mockJobs: Job[] = [
 
 // Helper functions for generating mock data
 
-export const mockNetworkData: NetworkData = {
-  nodes: mockInferenceData.genes.map(g => ({
-    id: g.id,
-    label: g.label,
-    score: Number((0.6 + Math.random() * 0.4).toFixed(3))
-  })),
+// export const mockNetworkData: NetworkData = {
+//   nodes: mockInferenceData.genes.map(g => ({
+//     id: g.id,
+//     label: g.label,
+//     score: Number((0.6 + Math.random() * 0.4).toFixed(3))
+//   })),
 
-  edges: mockInferenceData.edges.map(e => ({
-    source: e.source,
-    target: e.target,
-    weight: Math.max(...Object.values(e.scores)),
-    type: e.type
-  }))
-};
+//   edges: mockInferenceData.edges.map(e => ({
+//     source: e.source,
+//     target: e.target,
+//     weight: Math.max(...Object.values(e.scores)),
+//     type: e.type
+//   }))
+// };
 
 export function getAUPRCDistributionData() {
   return mockPerformanceMetrics.map(m => ({
