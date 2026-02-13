@@ -49,6 +49,7 @@
     "cytoscape-graphml": "^1.0.6",
     "date-fns": "3.6.0",
     "embla-carousel-react": "8.6.0",
+    "fast-xml-parser": "^5.3.5",
     "file-saver": "^2.0.5",
     "graphology": "^0.26.0",
     "graphology-communities-louvain": "^2.0.2",
@@ -78,6 +79,7 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.1.12",
+    "@types/react-cytoscapejs": "^1.2.6",
     "@vitejs/plugin-react": "4.7.0",
     "tailwindcss": "4.1.12",
     "vite": "6.3.5"

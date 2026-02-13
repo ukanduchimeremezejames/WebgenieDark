@@ -1,5 +1,144 @@
 import { Dataset, Algorithm, PerformanceMetrics, Job, NetworkData } from './types';
 
+// export const mockInferenceData = {
+//   genes: [
+//     { id: "SOX2", label: "SOX2" },
+//     { id: "OCT4", label: "OCT4" },
+//     { id: "NANOG", label: "NANOG" },
+//     { id: "MYC", label: "MYC" },
+//     { id: "KLF4", label: "KLF4" }
+//   ],
+
+//   algorithms: ["GENIE3", "GRNBoost2", "PIDC", "SCENIC"],
+
+//   edges: [
+//     {
+//       id: "SOX2_OCT4",
+//       source: "SOX2",
+//       target: "OCT4",
+//       type: "activation",
+//       scores: {
+//         GENIE3: 0.89,
+//         GRNBoost2: 0.83,
+//         PIDC: 0.72
+//       }
+//     },
+//     {
+//       id: "OCT4_NANOG",
+//       source: "OCT4",
+//       target: "NANOG",
+//       type: "activation",
+//       scores: {
+//         GENIE3: 0.91,
+//         SCENIC: 0.77
+//       }
+//     },
+//     {
+//       id: "MYC_KLF4",
+//       source: "MYC",
+//       target: "KLF4",
+//       type: "repression",
+//       scores: {
+//         GRNBoost2: 0.68
+//       }
+//     }
+//   ]
+// };
+
+export const mockInferenceData = {
+  genes: [
+    "SOX2","OCT4","NANOG","MYC","KLF4",
+    "ESRRB","TBX3","ZFP42","STAT3","PRDM14",
+    "GATA6","FOXA2","SMAD2","SMAD3","CTNNB1",
+    "LEFTY1","LEFTY2","FGF4","DPPA4","LIN28A",
+    "SALL4","TET1","TET2","DNMT3B","POU5F1"
+  ].map(g => ({ id: g, label: g })),
+
+  algorithms: ["GENIE3", "GRNBoost2", "PIDC", "SCENIC"],
+
+  edges: [
+    // Core pluripotency loop
+    { id:"SOX2_OCT4", source:"SOX2", target:"OCT4", type:"activation",
+      scores:{ GENIE3:0.89, GRNBoost2:0.83, PIDC:0.72 } },
+
+    { id:"OCT4_NANOG", source:"OCT4", target:"NANOG", type:"activation",
+      scores:{ GENIE3:0.91, SCENIC:0.77 } },
+
+    { id:"NANOG_SOX2", source:"NANOG", target:"SOX2", type:"activation",
+      scores:{ GENIE3:0.88, PIDC:0.74 } },
+
+    // Secondary regulators
+    { id:"MYC_KLF4", source:"MYC", target:"KLF4", type:"repression",
+      scores:{ GRNBoost2:0.68, PIDC:0.60 } },
+
+    { id:"KLF4_ESRRB", source:"KLF4", target:"ESRRB", type:"activation",
+      scores:{ GENIE3:0.79, SCENIC:0.71 } },
+
+    { id:"ESRRB_TBX3", source:"ESRRB", target:"TBX3", type:"activation",
+      scores:{ GENIE3:0.75 } },
+
+    { id:"TBX3_STAT3", source:"TBX3", target:"STAT3", type:"activation",
+      scores:{ PIDC:0.66 } },
+
+    { id:"STAT3_PRDM14", source:"STAT3", target:"PRDM14", type:"activation",
+      scores:{ GRNBoost2:0.73 } },
+
+    { id:"PRDM14_ZFP42", source:"PRDM14", target:"ZFP42", type:"activation",
+      scores:{ SCENIC:0.70 } },
+
+    // Differentiation branch
+    { id:"SMAD2_GATA6", source:"SMAD2", target:"GATA6", type:"activation",
+      scores:{ GENIE3:0.81 } },
+
+    { id:"SMAD3_FOXA2", source:"SMAD3", target:"FOXA2", type:"activation",
+      scores:{ PIDC:0.76 } },
+
+    { id:"CTNNB1_TCF", source:"CTNNB1", target:"LEFTY1", type:"activation",
+      scores:{ GENIE3:0.78 } },
+
+    { id:"LEFTY1_LEFTY2", source:"LEFTY1", target:"LEFTY2", type:"activation",
+      scores:{ SCENIC:0.69 } },
+
+    { id:"FGF4_NANOG", source:"FGF4", target:"NANOG", type:"activation",
+      scores:{ GENIE3:0.84 } },
+
+    { id:"DPPA4_OCT4", source:"DPPA4", target:"OCT4", type:"activation",
+      scores:{ PIDC:0.72 } },
+
+    { id:"LIN28A_MYC", source:"LIN28A", target:"MYC", type:"activation",
+      scores:{ GENIE3:0.80 } },
+
+    { id:"SALL4_NANOG", source:"SALL4", target:"NANOG", type:"activation",
+      scores:{ GRNBoost2:0.77 } },
+
+    { id:"TET1_DNMT3B", source:"TET1", target:"DNMT3B", type:"repression",
+      scores:{ PIDC:0.67 } },
+
+    { id:"TET2_DNMT3B", source:"TET2", target:"DNMT3B", type:"repression",
+      scores:{ SCENIC:0.64 } },
+
+    { id:"POU5F1_SOX2", source:"POU5F1", target:"SOX2", type:"activation",
+      scores:{ GENIE3:0.88 } },
+
+    // extra edges to exceed 20
+    { id:"OCT4_KLF4", source:"OCT4", target:"KLF4", type:"activation",
+      scores:{ GENIE3:0.74 } },
+
+    { id:"NANOG_ESRRB", source:"NANOG", target:"ESRRB", type:"activation",
+      scores:{ SCENIC:0.73 } },
+
+    { id:"MYC_STAT3", source:"MYC", target:"STAT3", type:"activation",
+      scores:{ PIDC:0.71 } },
+
+    { id:"GATA6_FOXA2", source:"GATA6", target:"FOXA2", type:"activation",
+      scores:{ GENIE3:0.69 } },
+
+    { id:"SMAD2_SMAD3", source:"SMAD2", target:"SMAD3", type:"activation",
+      scores:{ GENIE3:0.82 } }
+  ]
+};
+
+
 export const mockDatasets: Dataset[] = [
   {
     id: 'hESC',
@@ -159,232 +298,6 @@ export const mockDatasets: Dataset[] = [
   }
 ];
 
-// [
-//   {
-//     id: 'ds1',
-//     name: 'hESC',
-//     organism: 'Human',
-//     type: 'scRNA-seq',
-//     genes: 1500,
-//     cells: 758,
-//     edges: 1250,
-//     lastUpdated: '2025-12-15',
-//     description: 'Human embryonic stem cells single-cell RNA-seq dataset'
-//   },
-//   {
-//     id: 'ds2',
-//     name: 'mDC',
-//     organism: 'Mouse',
-//     type: 'scRNA-seq',
-//     genes: 1833,
-//     cells: 383,
-//     edges: 1543,
-//     lastUpdated: '2025-12-10',
-//     description: 'Mouse dendritic cells differentiation time series'
-//   },
-//   {
-//     id: 'ds3',
-//     name: 'HSC',
-//     organism: 'Mouse',
-//     type: 'scRNA-seq',
-//     genes: 2126,
-//     cells: 1095,
-//     edges: 1802,
-//     lastUpdated: '2025-12-08',
-//     description: 'Hematopoietic stem cell differentiation'
-//   },
-//   {
-//     id: 'ds4',
-//     name: 'DREAM',
-//     organism: 'Yeast',
-//     type: 'bulk RNA-seq',
-//     genes: 2500,
-//     cells: 0,
-//     edges: 3200,
-//     lastUpdated: '2025-11-28',
-//     description: 'DREAM challenge yeast dataset'
-//   },
-//   {
-//     id: 'ds5',
-//     name: 'GeneNetWeaver',
-//     organism: 'Synthetic',
-//     type: 'synthetic',
-//     genes: 1000,
-//     cells: 500,
-//     edges: 800,
-//     lastUpdated: '2025-12-01',
-//     description: 'Synthetic network generated by GeneNetWeaver'
-//   },
-//   {
-//     id: 'ds6',
-//     name: 'mESC',
-//     organism: 'Mouse',
-//     type: 'scRNA-seq',
-//     genes: 1987,
-//     cells: 933,
-//     edges: 1667,
-//     lastUpdated: '2025-12-05',
-//     description: 'Mouse embryonic stem cell differentiation'
-//   }
-// ];
-
-// export interface Algorithm {
-//   id: string;
-//   name: string;
-//   version: string;
-//   description: string;
-//   category: string;
-//   lastCommitMessage: string;
-//   lastCommitDate: string;
-// }
-
-// export const mockAlgorithms: Algorithm[] = [
-//   {
-//     id: 'alg1',
-//     name: 'ARBORETO',
-//     version: '1.0',
-//     description: 'Tree-based network inference using random forests',
-//     category: 'Ensemble',
-//     lastCommitMessage: 'Yiqi dockerfiles pull',
-//     lastCommitDate: '2 years ago'
-//   },
-//   {
-//     id: 'alg2',
-//     name: 'BTR',
-//     version: '1.0',
-//     description: 'Boolean network inference with BTR',
-//     category: 'Boolean',
-//     lastCommitMessage: 'Added BoolTraineR.',
-//     lastCommitDate: '7 years ago'
-//   },
-//   {
-//     id: 'alg3',
-//     name: 'GRISLI',
-//     version: '1.0',
-//     description: 'Gene regulatory inference using single-cell time series',
-//     category: 'Time Series',
-//     lastCommitMessage: 'Add README markdown files for algorithms integration',
-//     lastCommitDate: '3 years ago'
-//   },
-//   {
-//     id: 'alg4',
-//     name: 'GRNVBEM',
-//     version: '1.0',
-//     description: 'Variational Bayesian EM for network inference',
-//     category: 'Bayesian',
-//     lastCommitMessage: 'Add README markdown files for algorithms integration',
-//     lastCommitDate: '3 years ago'
-//   },
-//   {
-//     id: 'alg5',
-//     name: 'JUMP3',
-//     version: '1.0',
-//     description: 'Time-series network inference',
-//     category: 'Time Series',
-//     lastCommitMessage: 'tried to run the time command',
-//     lastCommitDate: '7 years ago'
-//   },
-//   {
-//     id: 'alg6',
-//     name: 'LEAP',
-//     version: '1.2',
-//     description: 'Lag-based expression association for pseudotime',
-//     category: 'Time Series',
-//     lastCommitMessage: 'Add README markdown files for algorithms integration',
-//     lastCommitDate: '3 years ago'
-//   },
-//   {
-//     id: 'alg7',
-//     name: 'PIDC',
-//     version: '2.1',
-//     description: 'Partial Information Decomposition and Context',
-//     category: 'Information Theory',
-//     lastCommitMessage: 'Yiqi dockerfiles pull',
-//     lastCommitDate: '2 years ago'
-//   },
-//   {
-//     id: 'alg8',
-//     name: 'PNI',
-//     version: '1.0',
-//     description: 'Pseudo-time network inference',
-//     category: 'Time Series',
-//     lastCommitMessage: 'Added time module to each of the dockers.',
-//     lastCommitDate: '7 years ago'
-//   },
-//   {
-//     id: 'alg9',
-//     name: 'PPCOR',
-//     version: '1.0',
-//     description: 'Partial correlation based network inference',
-//     category: 'Correlation',
-//     lastCommitMessage: 'Add README markdown files for algorithms integration',
-//     lastCommitDate: '3 years ago'
-//   },
-//   {
-//     id: 'alg10',
-//     name: 'SCINGE',
-//     version: '1.0',
-//     description: 'Single-cell network inference with time series',
-//     category: 'Single Cell',
-//     lastCommitMessage: 'Set user to avoid permission issues',
-//     lastCommitDate: '5 years ago'
-//   },
-//   {
-//     id: 'alg11',
-//     name: 'SCNS',
-//     version: '1.0',
-//     description: 'Single-cell network inference',
-//     category: 'Single Cell',
-//     lastCommitMessage: 'scns dockerfile fix',
-//     lastCommitDate: '2 years ago'
-//   },
-//   {
-//     id: 'alg12',
-//     name: 'SCODE',
-//     version: '1.0',
-//     description: 'Network inference from single-cell expression data',
-//     category: 'Single Cell',
-//     lastCommitMessage: 'Add README markdown files for algorithms integration',
-//     lastCommitDate: '3 years ago'
-//   },
-//   {
-//     id: 'alg13',
-//     name: 'SCRIBE',
-//     version: '1.0',
-//     description: 'Single-cell trajectory network inference',
-//     category: 'Single Cell',
-//     lastCommitMessage: 'bioclite is depreceated - moved monocle to biocmanager',
-//     lastCommitDate: '2 years ago'
-//   },
-//   {
-//     id: 'alg14',
-//     name: 'SCSGL',
-//     version: '1.0',
-//     description: 'Single-cell sparse gene network learning',
-//     category: 'Single Cell',
-//     lastCommitMessage: 'Merge pull request #106 from Murali-group/dockerfileupdates',
-//     lastCommitDate: '2 years ago'
-//   },
-//   {
-//     id: 'alg15',
-//     name: 'SINCERITIES',
-//     version: '1.5',
-//     description: 'Temporally informed network inference',
-//     category: 'Time Series',
-//     lastCommitMessage: 'scribe - added new mirror to sources',
-//     lastCommitDate: '2 years ago'
-//   },
-//   {
-//     id: 'alg16',
-//     name: 'SINGE',
-//     version: '1.0',
-//     description: 'Single-cell network inference',
-//     category: 'Single Cell',
-//     lastCommitMessage: 'fixed singe support - patch fix by allowing all certificates',
-//     lastCommitDate: '2 years ago'
-//   }
-// ];
-
 export const mockAlgorithms: Algorithm[] = [
   {
     id: 'alg1',
@@ -495,106 +408,6 @@ export const mockAlgorithms: Algorithm[] = [
     lastCommitDate: '3 years ago'
   }
 ];
-
-
-// export const mockPerformanceMetrics: PerformanceMetrics[] = [
-//   {
-//     algorithmId: 'alg1',
-//     algorithmName: 'GENIE3',
-//     precision: 0.68,
-//     recall: 0.72,
-//     f1Score: 0.70,
-//     auroc: 0.82,
-//     auprc: 0.75,
-//     earlyPrecision: 0.65,
-//     runtime: 125.4,
-//     memoryUsage: 2048
-//   },
-//   {
-//     algorithmId: 'alg2',
-//     algorithmName: 'PIDC',
-//     precision: 0.71,
-//     recall: 0.68,
-//     f1Score: 0.69,
-//     auroc: 0.80,
-//     auprc: 0.73,
-//     earlyPrecision: 0.70,
-//     runtime: 98.2,
-//     memoryUsage: 1536
-//   },
-//   {
-//     algorithmId: 'alg3',
-//     algorithmName: 'GRNBoost2',
-//     precision: 0.74,
-//     recall: 0.76,
-//     f1Score: 0.75,
-//     auroc: 0.85,
-//     auprc: 0.78,
-//     earlyPrecision: 0.72,
-//     runtime: 87.6,
-//     memoryUsage: 1792
-//   },
-//   {
-//     algorithmId: 'alg4',
-//     algorithmName: 'PPCOR',
-//     precision: 0.62,
-//     recall: 0.65,
-//     f1Score: 0.63,
-//     auroc: 0.74,
-//     auprc: 0.68,
-//     earlyPrecision: 0.58,
-//     runtime: 156.8,
-//     memoryUsage: 2560
-//   },
-//   {
-//     algorithmId: 'alg5',
-//     algorithmName: 'SINCERITIES',
-//     precision: 0.66,
-//     recall: 0.70,
-//     f1Score: 0.68,
-//     auroc: 0.78,
-//     auprc: 0.71,
-//     earlyPrecision: 0.63,
-//     runtime: 198.5,
-//     memoryUsage: 3072
-//   },
-//   {
-//     algorithmId: 'alg6',
-//     algorithmName: 'LEAP',
-//     precision: 0.69,
-//     recall: 0.73,
-//     f1Score: 0.71,
-//     auroc: 0.81,
-//     auprc: 0.74,
-//     earlyPrecision: 0.67,
-//     runtime: 143.2,
-//     memoryUsage: 2304
-//   },
-//   {
-//     algorithmId: 'alg7',
-//     algorithmName: 'SCENIC',
-//     precision: 0.70,
-//     recall: 0.69,
-//     f1Score: 0.69,
-//     auroc: 0.79,
-//     auprc: 0.72,
-//     earlyPrecision: 0.68,
-//     runtime: 215.7,
-//     memoryUsage: 3328
-//   },
-//   {
-//     algorithmId: 'alg8',
-//     algorithmName: 'GRNVBEM',
-//     precision: 0.65,
-//     recall: 0.67,
-//     f1Score: 0.66,
-//     auroc: 0.76,
-//     auprc: 0.69,
-//     earlyPrecision: 0.61,
-//     runtime: 178.3,
-//     memoryUsage: 2816
-//   }
-// ];
 
 export const mockPerformanceMetrics: PerformanceMetrics[] = [
   {
@@ -743,7 +556,6 @@ export const mockPerformanceMetrics: PerformanceMetrics[] = [
   }
 ];
 
-
 export const mockJobs: Job[] = [
   {
     id: 'job1',
@@ -790,36 +602,52 @@ export const mockJobs: Job[] = [
   }
 ];
 
-export const mockNetworkData: NetworkData = {
-  nodes: [
-    { id: 'GENE1', label: 'NANOG', score: 0.95 },
-    { id: 'GENE2', label: 'OCT4', score: 0.92 },
-    { id: 'GENE3', label: 'SOX2', score: 0.89 },
-    { id: 'GENE4', label: 'KLF4', score: 0.85 },
-    { id: 'GENE5', label: 'MYC', score: 0.82 },
-    { id: 'GENE6', label: 'ESRRB', score: 0.78 },
-    { id: 'GENE7', label: 'TBX3', score: 0.75 },
-    { id: 'GENE8', label: 'ZFP42', score: 0.72 },
-    { id: 'GENE9', label: 'STAT3', score: 0.70 },
-    { id: 'GENE10', label: 'PRDM14', score: 0.68 }
-  ],
-  edges: [
-    { source: 'GENE1', target: 'GENE2', weight: 0.9, type: 'activation' },
-    { source: 'GENE1', target: 'GENE3', weight: 0.85, type: 'activation' },
-    { source: 'GENE2', target: 'GENE3', weight: 0.82, type: 'activation' },
-    { source: 'GENE3', target: 'GENE4', weight: 0.78, type: 'activation' },
-    { source: 'GENE2', target: 'GENE5', weight: 0.75, type: 'repression' },
-    { source: 'GENE4', target: 'GENE6', weight: 0.72, type: 'activation' },
-    { source: 'GENE5', target: 'GENE7', weight: 0.68, type: 'unknown' },
-    { source: 'GENE6', target: 'GENE8', weight: 0.65, type: 'activation' },
-    { source: 'GENE7', target: 'GENE9', weight: 0.62, type: 'repression' },
-    { source: 'GENE8', target: 'GENE10', weight: 0.58, type: 'activation' },
-    { source: 'GENE9', target: 'GENE1', weight: 0.70, type: 'activation' },
-    { source: 'GENE10', target: 'GENE4', weight: 0.55, type: 'unknown' }
-  ]
-};
+// export const mockNetworkData: NetworkData = {
+//   nodes: [
+//     { id: 'GENE1', label: 'NANOG', score: 0.95 },
+//     { id: 'GENE2', label: 'OCT4', score: 0.92 },
+//     { id: 'GENE3', label: 'SOX2', score: 0.89 },
+//     { id: 'GENE4', label: 'KLF4', score: 0.85 },
+//     { id: 'GENE5', label: 'MYC', score: 0.82 },
+//     { id: 'GENE6', label: 'ESRRB', score: 0.78 },
+//     { id: 'GENE7', label: 'TBX3', score: 0.75 },
+//     { id: 'GENE8', label: 'ZFP42', score: 0.72 },
+//     { id: 'GENE9', label: 'STAT3', score: 0.70 },
+//     { id: 'GENE10', label: 'PRDM14', score: 0.68 }
+//   ],
+//   edges: [
+//     { source: 'GENE1', target: 'GENE2', weight: 0.9, type: 'activation' },
+//     { source: 'GENE1', target: 'GENE3', weight: 0.85, type: 'activation' },
+//     { source: 'GENE2', target: 'GENE3', weight: 0.82, type: 'activation' },
+//     { source: 'GENE3', target: 'GENE4', weight: 0.78, type: 'activation' },
+//     { source: 'GENE2', target: 'GENE5', weight: 0.75, type: 'repression' },
+//     { source: 'GENE4', target: 'GENE6', weight: 0.72, type: 'activation' },
+//     { source: 'GENE5', target: 'GENE7', weight: 0.68, type: 'unknown' },
+//     { source: 'GENE6', target: 'GENE8', weight: 0.65, type: 'activation' },
+//     { source: 'GENE7', target: 'GENE9', weight: 0.62, type: 'repression' },
+//     { source: 'GENE8', target: 'GENE10', weight: 0.58, type: 'activation' },
+//     { source: 'GENE9', target: 'GENE1', weight: 0.70, type: 'activation' },
+//     { source: 'GENE10', target: 'GENE4', weight: 0.55, type: 'unknown' }
+//   ]
+// };
 
 // Helper functions for generating mock data
+
+export const mockNetworkData: NetworkData = {
+  nodes: mockInferenceData.genes.map(g => ({
+    id: g.id,
+    label: g.label,
+    score: Number((0.6 + Math.random() * 0.4).toFixed(3))
+  })),
+
+  edges: mockInferenceData.edges.map(e => ({
+    source: e.source,
+    target: e.target,
+    weight: Math.max(...Object.values(e.scores)),
+    type: e.type
+  }))
+};
+
 export function getAUPRCDistributionData() {
   return mockPerformanceMetrics.map(m => ({
     name: m.algorithmName,

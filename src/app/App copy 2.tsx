@@ -8,7 +8,8 @@ import { DatasetPage } from './pages/DatasetPage';
 import { Compare } from './pages/Compare';
 import { Explorer } from './pages/Explorer';
 import { Upload } from './pages/Upload';
-import { RunDetails } from './pages/RunDetails';
+import RunDetails from './pages/RunDetails';
+import mockEdges from "../data/mockEdges";
 
 export default function App() {
   return (
@@ -27,7 +28,11 @@ export default function App() {
             <Route path="/compare" element={<Compare />} />
             <Route path="/compare/*" element={<Compare />} />
             <Route path="/explorer" element={<Explorer />} />
-            <Route path="/explorer/*" element={<Explorer />} />
+            {/* <Route path="/explorer/*" element={<Explorer />} /> */}
+            <Route
+              path="/explorer"
+              element={<Explorer mockEdges={mockEdges} />}
+            />
             <Route path="/upload" element={<Upload />} />
             <Route path="/upload/*" element={<Upload />} />
             <Route path="*" element={<Navigate to="/" replace />} />

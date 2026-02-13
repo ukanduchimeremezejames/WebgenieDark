@@ -179,23 +179,57 @@ export function computeInfluence(degrees) {
 //   return result;
 // }
 
-export function computeModules(cy) {
-  if (!cy || typeof cy.elements !== "function") {
-    console.error("computeModules: invalid cytoscape instance", cy);
-    return {};
-  }
+// export function computeModules(cy) {
+//   if (!cy || typeof cy.elements !== "function") {
+//     console.error("computeModules: invalid cytoscape instance", cy);
+//     return {};
+//   }
 
-  const result = {};
-  const comps = cy.elements().components();
+//   const result = {};
+//   const comps = cy.elements().components();
 
-  comps.forEach((comp, idx) => {
-    comp.nodes().forEach((n) => {
-      result[n.id()] = idx;
-    });
+//   comps.forEach((comp, idx) => {
+//     comp.nodes().forEach((n) => {
+//       result[n.id()] = idx;
+//     });
+//   });
+
+//   return result;
+// }
+
+export function computeModules(nodeIds: string[], edges: any[]) {
+  const adj: Record<string, string[]> = {};
+
+  nodeIds.forEach(id => adj[id] = []);
+
+  edges.forEach(e => {
+    adj[e.source].push(e.target);
+    adj[e.target].push(e.source);
   });
 
-  return result;
+  const visited = new Set<string>();
+  const modules: Record<string, number> = {};
+  let clusterId = 0;
+
+  function dfs(node: string) {
+    visited.add(node);
+    modules[node] = clusterId;
+
+    adj[node].forEach(nbr => {
+      if (!visited.has(nbr)) dfs(nbr);
+    });
+  }
+
+  nodeIds.forEach(n => {
+    if (!visited.has(n)) {
+      dfs(n);
+      clusterId++;
+    }
+  });
+
+  return modules;
 }
+
 
 
 // ----------------------

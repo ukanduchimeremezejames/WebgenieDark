@@ -1,8 +1,42 @@
-// Type definitions for BEELINE GRN Benchmarking Platform
+// ============================================================
+// BEELINE GRN Benchmarking Platform - Core Type Definitions
+// ============================================================
 
-export type DatasetType = 'scRNA-seq' | 'bulk RNA-seq' | 'synthetic' | 'time-series';
-export type Organism = 'Human' | 'Mouse' | 'Yeast' | 'E. coli' | 'Synthetic';
-export type JobStatus = 'pending' | 'running' | 'completed' | 'failed';
+/* ------------------------------------------------------------
+   Core Enums
+------------------------------------------------------------ */
+
+export type DatasetType =
+  | 'scRNA-seq'
+  | 'bulk RNA-seq'
+  | 'synthetic'
+  | 'time-series';
+
+export type Organism =
+  | 'Human'
+  | 'Mouse'
+  | 'Yeast'
+  | 'E. coli'
+  | 'Synthetic';
+
+export type JobStatus =
+  | 'pending'
+  | 'running'
+  | 'completed'
+  | 'failed';
+
+/* ------------------------------------------------------------
+   Shared Biological Edge Type
+------------------------------------------------------------ */
+
+export type EdgeType =
+  | 'activation'
+  | 'repression'
+  | 'unknown';
+
+/* ------------------------------------------------------------
+   Dataset Models
+------------------------------------------------------------ */
 
 export interface Dataset {
   id: string;
@@ -16,6 +50,10 @@ export interface Dataset {
   description: string;
 }
 
+/* ------------------------------------------------------------
+   Algorithm Models
+------------------------------------------------------------ */
+
 export interface Algorithm {
   id: string;
   name: string;
@@ -23,6 +61,10 @@ export interface Algorithm {
   description: string;
   category: string;
 }
+
+/* ------------------------------------------------------------
+   Performance Metrics
+------------------------------------------------------------ */
 
 export interface PerformanceMetrics {
   algorithmId: string;
@@ -33,9 +75,13 @@ export interface PerformanceMetrics {
   auroc: number;
   auprc: number;
   earlyPrecision: number;
-  runtime: number; // seconds
-  memoryUsage: number; // MB
+  runtime: number;       // seconds
+  memoryUsage: number;   // MB
 }
+
+/* ------------------------------------------------------------
+   Job Tracking
+------------------------------------------------------------ */
 
 export interface Job {
   id: string;
@@ -50,18 +96,44 @@ export interface Job {
   error?: string;
 }
 
+/* ------------------------------------------------------------
+   Network Models (Visualization Layer)
+------------------------------------------------------------ */
+
 export interface NetworkNode {
-  id: string;
+  id: string;        // must match edge endpoints
   label: string;
-  score?: number;
+  score?: number;    // importance / centrality
 }
 
 export interface NetworkEdge {
   source: string;
   target: string;
-  weight: number;
-  type: 'activation' | 'repression' | 'unknown';
+  weight: number;    // confidence score
+  type: EdgeType;
 }
+
+/* ------------------------------------------------------------
+   Inference Models (Raw Algorithm Output)
+------------------------------------------------------------ */
+
+export interface InferenceEdge {
+  id: string;
+  source: string;
+  target: string;
+  type: EdgeType;
+  scores: Record<string, number>;  // algorithm → score
+}
+
+export interface InferenceData {
+  genes: { id: string; label: string }[];
+  algorithms: string[];
+  edges: InferenceEdge[];
+}
+
+/* ------------------------------------------------------------
+   Complete Network Container
+------------------------------------------------------------ */
 
 export interface NetworkData {
   nodes: NetworkNode[];

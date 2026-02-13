@@ -107,6 +107,26 @@ export function applyNodeStyles(cy, degrees, influence, modules) {
 // ----------------------
 export const cytoscapeStylesheet = [
   {
+  selector: "edge",
+  style: {
+    width: "mapData(support_count, 1, 5, 1, 6)",
+    "line-color": "#ccc",
+    "target-arrow-shape": "triangle"
+  }
+},
+{
+  selector: "edge[support_count >= 3]",
+  style: {
+    "line-color": "#10B981"
+  }
+},
+{
+  selector: "edge[support_count = 2]",
+  style: {
+    "line-color": "#F59E0B"
+  }
+},
+{
     selector: "node",
     style: {
       label: "data(id)",
