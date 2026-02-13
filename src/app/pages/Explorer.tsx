@@ -92,6 +92,7 @@ filteredEdges.forEach(edge => {
   degreeMap[edge.target] = (degreeMap[edge.target] || 0) + 1;
 });
 
+
   const cytoscapeElements = [
     ...filteredNodes.map(node => ({
       data: {
