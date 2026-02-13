@@ -7,6 +7,7 @@ import { Datasets } from './pages/Datasets';
 import { DatasetPage } from './pages/DatasetPage';
 import { Compare } from './pages/Compare';
 import { Explorer } from './pages/Explorer';
+import { ExplorerOld } from './pages/Explorer-old';
 import { Upload } from './pages/Upload';
 import { RunDetails } from './pages/RunDetails';
 
@@ -28,6 +29,7 @@ export default function App() {
             <Route path="/compare/*" element={<Compare />} />
             <Route path="/explorer" element={<Explorer />} />
             <Route path="/explorer/*" element={<Explorer />} />
+            <Route path="/explorer-old" element={<ExplorerOld />} />
             <Route path="/upload" element={<Upload />} />
             <Route path="/upload/*" element={<Upload />} />
             <Route path="*" element={<Navigate to="/" replace />} />

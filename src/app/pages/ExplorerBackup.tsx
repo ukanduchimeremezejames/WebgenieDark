@@ -31,13 +31,9 @@ const [selectedNodeInfo, setSelectedNodeInfo] = useState<NodeInfo | null>(null);
 
 const [selectedDatasetId, setSelectedDatasetId] = useState("hESC");
 
-const selectedDataset = useMemo(() => {
-  return mockDatasets.find(d => d.id === selectedDatasetId);
-}, [selectedDatasetId]);
-
-// const selectedDataset = mockDatasets.find(
-//   d => d.id === selectedDatasetId
-// )!;
+const selectedDataset = mockDatasets.find(
+  d => d.id === selectedDatasetId
+)!;
 // const inferenceData = useMemo(() => generateMockInferenceData(), []);
 
 // const predictedBestAlgorithm = useMemo(() => {
@@ -95,34 +91,28 @@ const selectedDataset = useMemo(() => {
 //   return bestAlgo;
 // }, [inferenceData]);
 
-// const inferenceData = useMemo(() => {
-//   return generateMockInferenceData(selectedDataset);
-// }, [selectedDataset]);
-
 const inferenceData = useMemo(() => {
-  if (!selectedDataset) return null; // or [] depending on return type
   return generateMockInferenceData(selectedDataset);
 }, [selectedDataset]);
 
-
 const predictedBestAlgorithm = useMemo(() => {
-  if (!inferenceData) return ""; // safeguard if inferenceData is null
-
   const algoScores: Record<string, number[]> = {};
 
-  inferenceData.edges?.forEach(edge => {
-    Object.entries(edge.scores ?? {}).forEach(([algo, score]) => {
-      const numScore = score as number; // safe cast
-      if (!algoScores[algo]) algoScores[algo] = [];
-      algoScores[algo].push(numScore);
-    });
+  inferenceData.edges.forEach(edge => {
+    Object.entries(edge.scores).forEach(
+      ([algo, score]: [string, number]) => {
+        if (!algoScores[algo]) algoScores[algo] = [];
+        algoScores[algo].push(score);
+      }
+    );
   });
 
   let bestAlgo = "";
   let bestMean = 0;
 
   Object.entries(algoScores).forEach(([algo, scores]) => {
-    const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
+    const mean =
+      scores.reduce((a, b) => a + b, 0) / scores.length;
 
     if (mean > bestMean) {
       bestMean = mean;
@@ -134,46 +124,7 @@ const predictedBestAlgorithm = useMemo(() => {
 }, [inferenceData]);
 
 
-
-// function getNodeBestAlgorithm(nodeId: string) {
-//   const relatedEdges = inferenceData.edges.filter(
-//     e => e.source === nodeId || e.target === nodeId
-//   );
-
-//   const algoScores: Record<string, number[]> = {};
-
-//   relatedEdges.forEach(edge => {
-//     Object.entries(edge.scores).forEach(
-//       ([algo, score]: [string, number]) => {
-//         if (!algoScores[algo]) algoScores[algo] = [];
-//         algoScores[algo].push(score);
-//       }
-//     );
-//   });
-
-//   let bestAlgo = "";
-//   let bestMean = 0;
-
-//   Object.entries(algoScores).forEach(([algo, scores]) => {
-//     const mean =
-//       scores.reduce((a, b) => a + b, 0) / scores.length;
-
-//     if (mean > bestMean) {
-//       bestMean = mean;
-//       bestAlgo = algo;
-//     }
-//   });
-
-//   return { bestAlgo, bestMean };
-// }
-
 function getNodeBestAlgorithm(nodeId: string) {
-  if (!inferenceData?.edges) {
-    // inferenceData is null or edges undefined
-    return { bestAlgo: "", bestMean: 0 };
-  }
-
-  // filter edges related to this node
   const relatedEdges = inferenceData.edges.filter(
     e => e.source === nodeId || e.target === nodeId
   );
@@ -181,19 +132,20 @@ function getNodeBestAlgorithm(nodeId: string) {
   const algoScores: Record<string, number[]> = {};
 
   relatedEdges.forEach(edge => {
-    // safe: fallback to empty object if scores missing
-    Object.entries(edge.scores ?? {}).forEach(([algo, score]) => {
-      const numScore = score as number; // cast to number
-      if (!algoScores[algo]) algoScores[algo] = [];
-      algoScores[algo].push(numScore);
-    });
+    Object.entries(edge.scores).forEach(
+      ([algo, score]: [string, number]) => {
+        if (!algoScores[algo]) algoScores[algo] = [];
+        algoScores[algo].push(score);
+      }
+    );
   });
 
   let bestAlgo = "";
   let bestMean = 0;
 
   Object.entries(algoScores).forEach(([algo, scores]) => {
-    const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
+    const mean =
+      scores.reduce((a, b) => a + b, 0) / scores.length;
 
     if (mean > bestMean) {
       bestMean = mean;
@@ -248,191 +200,47 @@ const [minConsensus, setMinConsensus] = useState([1]); // default 2-3
 
   // });
 
-  // const filteredEdges = useMemo(() => {
-  //   return mockInferenceData.edges.filter(edge => {
-  //     const supportingAlgos = Object.keys(edge.scores);
+  const filteredEdges = useMemo(() => {
+    return mockInferenceData.edges.filter(edge => {
+      const supportingAlgos = Object.keys(edge.scores);
 
-  //     // 1️⃣ Algorithm filtering (ALL selected must support edge)
-  //     const matchesAlgorithmSelection =
-  //       selectedAlgorithms.length === 0 ||
-  //       selectedAlgorithms.every(algo => supportingAlgos.includes(algo));
+      // 1️⃣ Algorithm filtering (ALL selected must support edge)
+      const matchesAlgorithmSelection =
+        selectedAlgorithms.length === 0 ||
+        selectedAlgorithms.every(algo => supportingAlgos.includes(algo));
 
-  //     // 2️⃣ Consensus threshold
-  //     const matchesConsensus =
-  //       supportingAlgos.length >= minConsensus[0];
+      // 2️⃣ Consensus threshold
+      const matchesConsensus =
+        supportingAlgos.length >= minConsensus[0];
 
-  //     // 3️⃣ Score threshold
-  //     const maxScore = Math.max(...Object.values(edge.scores));
-  //     const matchesScore =
-  //       maxScore >= scoreThreshold[0];
+      // 3️⃣ Score threshold
+      const maxScore = Math.max(...Object.values(edge.scores));
+      const matchesScore =
+        maxScore >= scoreThreshold[0];
 
-  //     // 4️⃣ Edge type filtering
-  //     const matchesType =
-  //       edgeFilter === 'all' || edge.type === edgeFilter;
+      // 4️⃣ Edge type filtering
+      const matchesType =
+        edgeFilter === 'all' || edge.type === edgeFilter;
 
-  //     return (
-  //       matchesAlgorithmSelection &&
-  //       matchesConsensus &&
-  //       matchesScore &&
-  //       matchesType
-  //     );
-  //   });
-  // }, [
-  //   selectedAlgorithms,
-  //   minConsensus,
-  //   scoreThreshold,
-  //   edgeFilter
-  // ]);
+      return (
+        matchesAlgorithmSelection &&
+        matchesConsensus &&
+        matchesScore &&
+        matchesType
+      );
+    });
+  }, [
+    selectedAlgorithms,
+    minConsensus,
+    scoreThreshold,
+    edgeFilter
+  ]);
 
-//   const filteredEdges = useMemo(() => {
-//   if (!selectedDataset) return [];
-
-//   return selectedDataset.edges
-//     .filter(edge => {
-//       const passesType =
-//         edgeFilter === "all" || edge.type === edgeFilter;
-
-//       const passesScore =
-//         edge.score >= scoreThreshold[0];
-
-//       return passesType && passesScore;
-//     })
-//     .sort((a, b) => b.score - a.score)
-//     .slice(0, topK[0])
-//     .filter(edge =>
-//       filteredNodes.some(n => n.id === edge.source) &&
-//       filteredNodes.some(n => n.id === edge.target)
-//     );
-// }, [
-//   selectedDataset,
-//   edgeFilter,
-//   scoreThreshold,
-//   topK,
-//   filteredNodes
-// ]);
-
-// 1️⃣ Selected dataset
-// const selectedDataset = useMemo(() => {
-//   return mockDatasets.find(d => d.id === selectedDatasetId);
-// }, [selectedDatasetId]);
-
-// 2️⃣ Filtered Nodes (FIRST)
-// const filteredNodes = useMemo(() => {
-//   if (!selectedDataset) return [];
-
-//   return selectedDataset.nodes.filter(node => {
-//     const matchesSearch =
-//       searchTerm === "" ||
-//       node.label?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//       node.id.toLowerCase().includes(searchTerm.toLowerCase());
-
-//     return matchesSearch;
-//   });
-// }, [selectedDataset, searchTerm]);
-
-const filteredNodes = useMemo(() => {
-  const nodes = selectedDataset?.nodes ?? [];
-
-  if (!searchTerm) return nodes;
-
-  const lowerSearch = searchTerm.toLowerCase();
-
-  return nodes.filter(node => {
-    return (
-      node.label?.toLowerCase().includes(lowerSearch) ||
-      node.id?.toLowerCase().includes(lowerSearch)
-    );
-  });
-}, [selectedDataset, searchTerm]);
-
-
-// 3️⃣ Filtered Edges (AFTER filteredNodes)
-// const filteredEdges = useMemo(() => {
-//   if (!selectedDataset) return [];
-
-//   return selectedDataset.edges
-//     .filter(edge => {
-//       const passesType =
-//         edgeFilter === "all" || edge.type === edgeFilter;
-
-//       const passesScore =
-//         edge.score >= scoreThreshold[0];
-
-//       return passesType && passesScore;
-//     })
-//     .sort((a, b) => b.score - a.score)
-//     .slice(0, topK[0])
-//     .filter(edge =>
-//       filteredNodes.some(n => n.id === edge.source) &&
-//       filteredNodes.some(n => n.id === edge.target)
-//     );
-// }, [
-//   selectedDataset,
-//   edgeFilter,
-//   scoreThreshold,
-//   topK,
-//   filteredNodes // safe now
-// ]);
-
-const filteredEdges = useMemo(() => {
-  const edges = selectedDataset?.edgesData ?? [];  // safe fallback to empty array
-
-  if (!searchTerm) return edges;
-
-  const lowerSearch = searchTerm.toLowerCase();
-
-  return edges.filter(
-    edge =>
-      edge.source.toLowerCase().includes(lowerSearch) ||
-      edge.target.toLowerCase().includes(lowerSearch)
-  );
-}, [selectedDataset, searchTerm]);
-
-
-// 4️⃣ Cytoscape elements (LAST)
-const cytoscapeElements = useMemo(() => {
-  const nodeElements = filteredNodes.map(node => ({
-    data: {
-      id: node.id,
-      label: node.label,
-      score: node.score
-    }
-  }));
-
-  const edgeElements = filteredEdges.map(edge => ({
-    data: {
-      id: `${edge.source}-${edge.target}`,
-      source: edge.source,
-      target: edge.target,
-      type: edge.type,
-      score: edge.score
-    }
-  }));
-
-  return [...nodeElements, ...edgeElements];
-}, [filteredNodes, filteredEdges]);
-
-
-
-//   const limitedEdges = useMemo(() => {
-//   return filteredEdges
-//     .sort((a, b) => {
-//       const aScore = Math.max(...Object.values(a.scores));
-//       const bScore = Math.max(...Object.values(b.scores));
-//       return bScore - aScore;
-//     })
-//     .slice(0, topK[0]);
-// }, [filteredEdges, topK]);
-
-const limitedEdges = useMemo(() => {
+  const limitedEdges = useMemo(() => {
   return filteredEdges
     .sort((a, b) => {
-      const aScores: Record<string, number> = a.scores ?? {};
-      const bScores: Record<string, number> = b.scores ?? {};
-
-      const aScore = Math.max(0, ...Object.values(aScores));
-      const bScore = Math.max(0, ...Object.values(bScores));
-
+      const aScore = Math.max(...Object.values(a.scores));
+      const bScore = Math.max(...Object.values(b.scores));
       return bScore - aScore;
     })
     .slice(0, topK[0]);
@@ -476,32 +284,18 @@ const globalDegreeMap = useMemo(() => {
   //   (searchTerm === '' || node.label.toLowerCase().includes(searchTerm.toLowerCase()))
   // );
 
-//   const filteredNodes = useMemo(() => {
-//   if (!selectedDataset) return [];
+  const filteredNodes = Array.from(nodeIds).map(id => {
+  const existing = mockNetworkData.nodes.find(n => n.id === id);
 
-//   return selectedDataset.nodes.filter(node => {
-//     const matchesSearch =
-//       searchTerm === "" ||
-//       node.label?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//       node.id.toLowerCase().includes(searchTerm.toLowerCase());
-
-//     return matchesSearch;
-//   });
-// }, [selectedDataset, searchTerm]);
-
-
-//   const filteredNodes = Array.from(nodeIds).map(id => {
-//   const existing = mockNetworkData.nodes.find(n => n.id === id);
-
-//   return existing ?? {
-//     id,
-//     label: id,
-//     score: 0
-//   };
-// }).filter(node =>
-//   searchTerm === '' ||
-//   node.label.toLowerCase().includes(searchTerm.toLowerCase())
-// );
+  return existing ?? {
+    id,
+    label: id,
+    score: 0
+  };
+}).filter(node =>
+  searchTerm === '' ||
+  node.label.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
 
 // const degreeMap: Record<string, number> = {};
@@ -514,60 +308,39 @@ const globalDegreeMap = useMemo(() => {
 
 
 
-  // const cytoscapeElements = [
-  //   ...filteredNodes.map(node => ({
-  //     data: {
-  //       id: node.id,
-  //       label: node.label,
-  //       score: node.score,
-  //       degree: degreeMap[node.id] || 1
-  //     }
-  //   })),
-  //   // ...filteredEdges.map((edge, idx) => ({
-  //   //   data: {
-  //   //     id: `edge-${idx}`,
-  //   //     source: edge.source,
-  //   //     target: edge.target,
-  //   //     weight: edge.weight,
-  //   //     type: edge.type
-  //   //   }
-  //   // }))
+  const cytoscapeElements = [
+    ...filteredNodes.map(node => ({
+      data: {
+        id: node.id,
+        label: node.label,
+        score: node.score,
+        degree: degreeMap[node.id] || 1
+      }
+    })),
+    // ...filteredEdges.map((edge, idx) => ({
+    //   data: {
+    //     id: `edge-${idx}`,
+    //     source: edge.source,
+    //     target: edge.target,
+    //     weight: edge.weight,
+    //     type: edge.type
+    //   }
+    // }))
 
-  //   ...filteredEdges.map(edge => ({
-  //     data: {
-  //       id: edge.id,
-  //       source: edge.source,
-  //       target: edge.target,
-  //       type: edge.type,
-  //       consensus: Object.keys(edge.scores).length,
-  //       scores: edge.scores
-  //     }
+    ...filteredEdges.map(edge => ({
+      data: {
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+        type: edge.type,
+        consensus: Object.keys(edge.scores).length,
+        scores: edge.scores
+      }
 
-  //   }))
+    }))
 
-  // ];
+  ];
 
-// const cytoscapeElements = useMemo(() => {
-//   const nodeElements = filteredNodes.map(node => ({
-//     data: {
-//       id: node.id,
-//       label: node.label,
-//       score: node.score
-//     }
-//   }));
-
-  const edgeElements = filteredEdges.map(edge => ({
-    data: {
-      id: `${edge.source}-${edge.target}`,
-      source: edge.source,
-      target: edge.target,
-      type: edge.type,
-      score: edge.score
-    }
-  }));
-
-//   return [...nodeElements, ...edgeElements];
-// }, [filteredNodes, filteredEdges]);
 
 
 
@@ -744,13 +517,6 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
   const [selectedEdge, setSelectedEdge] = useState<any>(null);
   const [showHelpPanel, setShowHelpPanel] = useState(true);
 
-  useEffect(() => {
-  if (cyRef.current) {
-    cyRef.current.layout({ name: layout }).run();
-  }
-}, [layout, selectedDatasetId]);
-
-
   return (
     <div id="explorer" className="min-h-screen py-20 pb-0">
       <div className="container px-4 mx-auto">
@@ -770,18 +536,10 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
         {/* <Badge variant="default">
           Dataset: hESC v2.1.0
         </Badge> */}
-        {/* <Select
-          value={selectedDatasetId}
-          onValueChange={setSelectedDatasetId}
-        > */}
         <Select
-          value={selectedDatasetId}
-          onValueChange={(value) => {
-            setSelectedDatasetId(value);
-            setSelectedNodeInfo(null);
-          }}
-        >
-
+  value={selectedDatasetId}
+  onValueChange={setSelectedDatasetId}
+>
   <SelectTrigger className="w-[220px]">
     <SelectValue placeholder="Select dataset" />
   </SelectTrigger>
@@ -995,30 +753,12 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
 
             {/* Apply Filters */}
             <div className="pt-4 border-t border-border space-y-2">
-              <Button
-                className="w-full bg-primary hover:bg-primary/90"
-                onClick={() => {
-                  // nothing needed — filtering is reactive via useMemo
-                }}
-              >
+              <Button className="w-full bg-primary hover:bg-primary/90">
                 Apply Filters
               </Button>
-
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => {
-                  setSearchTerm("");
-                  setEdgeFilter("all");
-                  setTopK([50]);
-                  setScoreThreshold([0]);
-                  setSelectedAlgorithms([]);
-                  setMinConsensus([1]);
-                }}
-              >
+              <Button variant="outline" className="w-full">
                 Reset
               </Button>
-
             </div>
 
             {/* Stats */}
