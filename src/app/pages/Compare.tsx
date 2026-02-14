@@ -547,7 +547,7 @@ const motifEnrichmentData = [
 ];
 
 export function Compare() {
-  const [selectedAlgorithms, setSelectedAlgorithms] = useState<string[]>(['alg1', 'alg3', 'alg6', 'alg12', 'alg13']);
+  const [selectedAlgorithms, setSelectedAlgorithms] = useState<string[]>(['alg1', 'alg3', 'alg6', 'alg9', 'alg12', 'alg13']);
 
   const toggleAlgorithm = (algId: string) => {
     setSelectedAlgorithms(prev =>

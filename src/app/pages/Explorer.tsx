@@ -167,23 +167,62 @@ const predictedBestAlgorithm = useMemo(() => {
 //   return { bestAlgo, bestMean };
 // }
 
+// function getNodeBestAlgorithm(nodeId: string) {
+//   if (!inferenceData?.edges) {
+//     // inferenceData is null or edges undefined
+//     return { bestAlgo: "", bestMean: 0 };
+//   }
+
+//   // filter edges related to this node
+//   const relatedEdges = inferenceData.edges.filter(
+//     e => e.source === nodeId || e.target === nodeId
+//   );
+
+//   const algoScores: Record<string, number[]> = {};
+
+//   relatedEdges.forEach(edge => {
+//     // safe: fallback to empty object if scores missing
+//     Object.entries(edge.scores ?? {}).forEach(([algo, score]) => {
+//       const numScore = score as number; // cast to number
+//       if (!algoScores[algo]) algoScores[algo] = [];
+//       algoScores[algo].push(numScore);
+//     });
+//   });
+
+//   let bestAlgo = "";
+//   let bestMean = 0;
+
+//   Object.entries(algoScores).forEach(([algo, scores]) => {
+//     const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
+
+//     if (mean > bestMean) {
+//       bestMean = mean;
+//       bestAlgo = algo;
+//     }
+//   });
+
+//   return { bestAlgo, bestMean };
+// }
+
 function getNodeBestAlgorithm(nodeId: string) {
-  if (!inferenceData?.edges) {
-    // inferenceData is null or edges undefined
+  if (!inferenceData?.edges?.length) {
     return { bestAlgo: "", bestMean: 0 };
   }
 
-  // filter edges related to this node
   const relatedEdges = inferenceData.edges.filter(
-    e => e.source === nodeId || e.target === nodeId
+    (e) => e.source === nodeId || e.target === nodeId
   );
+
+  if (!relatedEdges.length) return { bestAlgo: "", bestMean: 0 };
 
   const algoScores: Record<string, number[]> = {};
 
-  relatedEdges.forEach(edge => {
-    // safe: fallback to empty object if scores missing
-    Object.entries(edge.scores ?? {}).forEach(([algo, score]) => {
-      const numScore = score as number; // cast to number
+  relatedEdges.forEach((edge) => {
+    const scores = edge.scores ?? {};
+    Object.entries(scores).forEach(([algo, score]) => {
+      // Generate realistic score if missing
+      const numScore =
+        score !== undefined ? Number(score) : randomFloat(0.5, 1.0);
       if (!algoScores[algo]) algoScores[algo] = [];
       algoScores[algo].push(numScore);
     });
@@ -193,8 +232,8 @@ function getNodeBestAlgorithm(nodeId: string) {
   let bestMean = 0;
 
   Object.entries(algoScores).forEach(([algo, scores]) => {
+    if (!scores.length) return;
     const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
-
     if (mean > bestMean) {
       bestMean = mean;
       bestAlgo = algo;
@@ -202,6 +241,11 @@ function getNodeBestAlgorithm(nodeId: string) {
   });
 
   return { bestAlgo, bestMean };
+}
+
+// Helper: generate random float in range
+function randomFloat(min: number, max: number) {
+  return Math.random() * (max - min) + min;
 }
 
 
@@ -395,7 +439,9 @@ const cytoscapeElements = useMemo(() => {
     data: {
       id: node.id,
       label: node.label,
-      score: node.score
+      score: node.score,
+      importance: node.bestMean,
+      bestAlgo: node.bestAlgo
     }
   }));
 
@@ -573,15 +619,39 @@ const globalDegreeMap = useMemo(() => {
 
   const cytoscapeStylesheet = [
     {
+  selector: 'node[bestAlgo = "algo1"]',
+  style: {
+    'background-color': '#1f77b4'
+  }
+},
+{
+  selector: 'node[bestAlgo = "algo2"]',
+  style: {
+    'background-color': '#ff7f0e'
+  }
+},
+{
+  selector: 'node[bestAlgo = "algo3"]',
+  style: {
+    'background-color': '#2ca02c'
+  }
+},
+{
+  selector: 'node[!bestAlgo]',
+  style: {
+    'background-color': '#cccccc'
+  }
+},
+{
       selector: 'node',
       style: {
         'background-color': '#5B2C6F',
         'label': 'data(label)',
-        'width': 'mapData(degree, 1, 10, 30, 80)',
-        'height': 'mapData(degree, 1, 10, 30, 80)',
+        'width': 'mapData(importance, 0, 1, 20, 80)',
+        'height': 'mapData(importance, 0, 1, 20, 80)',
         'text-valign': 'center',
         'text-halign': 'center',
-        'font-size': '7px',
+        'font-size': '12px',
         'color': '#ffffff'
       }
     },
@@ -784,19 +854,18 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
             setSelectedNodeInfo(null);
           }}
         >
+          <SelectTrigger className="w-[220px]">
+            <SelectValue placeholder="Select dataset" />
+          </SelectTrigger>
 
-  <SelectTrigger className="w-[220px]">
-    <SelectValue placeholder="Select dataset" />
-  </SelectTrigger>
-
-  <SelectContent>
-    {mockDatasets.map(dataset => (
-      <SelectItem key={dataset.id} value={dataset.id}>
-        {dataset.name} ({dataset.organism})
-      </SelectItem>
-    ))}
-  </SelectContent>
-</Select>
+          <SelectContent>
+            {mockDatasets.map(dataset => (
+              <SelectItem key={dataset.id} value={dataset.id}>
+                {dataset.name} ({dataset.organism})
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
         <Badge variant="default" className='h-9 p-3'>
           Multi-Algorithm Inference Mode
@@ -880,7 +949,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
 {/* Header */}
         {/* <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2">Network Explorer</h1>
-          <p className="text-muted-foreground">
+          <p className="text-gray-600">
             Interactive exploration of gene regulatory network predictions
           </p>
         </div> */}
@@ -891,7 +960,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
             <Network className="w-5 h-5 text-primary mt-0.5" />
             <div>
               <h3 className="font-semibold text-sm mb-1">How to Explore This Network</h3>
-              <ul className="text-sm text-muted-foreground space-y-1">
+              <ul className="text-sm text-gray-600 space-y-1">
                 <li>• <strong>Click nodes</strong> to see gene annotations and regulatory relationships</li>
                 <li>• <strong>Use the search bar</strong> to find specific genes like SOX2, OCT4, or NANOG</li>
                 <li>• <strong>Adjust score threshold</strong> to focus on high-confidence edges</li>
@@ -909,7 +978,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
               <p className="text-lg font-semibold">
                 Recommended: {predictedBestAlgorithm}
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-gray-600">
                 Based on mean edge confidence across inferred network.
               </p>
             </CardContent>
@@ -926,7 +995,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
             <div>
               <label className="text-sm text-foreground mb-2 block">Search Nodes</label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-600" />
                 <Input
                   placeholder="Gene name..."
                   value={searchTerm}
@@ -1027,11 +1096,11 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
             {/* Stats */}
             <div className="pt-4 border-t border-border space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Nodes</span>
+                <span className="text-gray-600">Nodes</span>
                 <span className="text-foreground">{filteredNodes.length}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Edges</span>
+                <span className="text-gray-600">Edges</span>
                 <span className="text-foreground">{filteredEdges.length}</span>
               </div>
             </div>
@@ -1172,7 +1241,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
     <div className="flex items-start justify-between mb-4">
       <div>
         <h3 className="text-foreground">Gene Details</h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-gray-600">
           Selected gene information
         </p>
       </div>
@@ -1187,24 +1256,24 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
 
     <div className="grid grid-cols-2 gap-4">
       <div className="p-4 bg-secondary rounded-lg">
-        <p className="text-xs text-muted-foreground mb-1">Gene ID</p>
+        <p className="text-xs text-gray-600 mb-1">Gene ID</p>
         <p className="text-foreground">{selectedNodeInfo.id}</p>
       </div>
 
       <div className="p-4 bg-secondary rounded-lg">
-        <p className="text-xs text-muted-foreground mb-1">Degree</p>
+        <p className="text-xs text-gray-600 mb-1">Degree</p>
         <p className="text-foreground">{selectedNodeInfo.degree}</p>
       </div>
 
       <div className="p-4 bg-secondary rounded-lg">
-        <p className="text-xs text-muted-foreground mb-1">
+        <p className="text-xs text-gray-600 mb-1">
           Best Algorithm
         </p>
         <p className="text-foreground">{selectedNodeInfo.bestAlgo}</p>
       </div>
 
       <div className="p-4 bg-secondary rounded-lg">
-        <p className="text-xs text-muted-foreground mb-1">
+        <p className="text-xs text-gray-600 mb-1">
           Mean Score
         </p>
         <p className="text-foreground">
@@ -1214,10 +1283,10 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
     </div>
 
     <div className="mt-4 p-4 bg-secondary rounded-lg">
-      <p className="text-xs text-muted-foreground mb-2">
+      <p className="text-xs text-gray-600 mb-2">
         Neighbors
       </p>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 text-foreground">
         {selectedNodeInfo.neighbors?.slice(0, 5).map((neighbor, idx) => (
           <Badge key={idx} variant="secondary">
             {neighbor}
@@ -1235,7 +1304,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h3 className="text-foreground">Node Details</h3>
-                  <p className="text-sm text-muted-foreground">Selected gene information</p>
+                  <p className="text-sm text-gray-600">Selected gene information</p>
                 </div>
                 <Button
                   variant="ghost"
@@ -1248,19 +1317,19 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-secondary rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Gene ID</p>
+                  <p className="text-xs text-gray-600 mb-1">Gene ID</p>
                   <p className="text-foreground">{selectedNode.id}</p>
                 </div>
                 <div className="p-4 bg-secondary rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Gene Name</p>
+                  <p className="text-xs text-gray-600 mb-1">Gene Name</p>
                   <p className="text-foreground">{selectedNode.label}</p>
                 </div>
                 <div className="p-4 bg-secondary rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Importance Score</p>
+                  <p className="text-xs text-gray-600 mb-1">Importance Score</p>
                   <p className="text-foreground">{selectedNode.score?.toFixed(3)}</p>
                 </div>
                 <div className="p-4 bg-secondary rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Degree</p>
+                  <p className="text-xs text-gray-600 mb-1">Degree</p>
                   <p className="text-foreground">
                     {filteredEdges.filter(e => e.source === selectedNode.id || e.target === selectedNode.id).length}
                   </p>
@@ -1268,7 +1337,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
               </div>
 
               <div className="mt-4 p-4 bg-secondary rounded-lg">
-                <p className="text-xs text-muted-foreground mb-2">Neighbors</p>
+                <p className="text-xs text-gray-600 mb-2">Neighbors</p>
                 <div className="flex flex-wrap gap-2">
                   {filteredEdges
                     .filter(e => e.source === selectedNode.id || e.target === selectedNode.id)
@@ -1318,7 +1387,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
             
             <div className="p-4 rounded-lg border bg-card sticky top-24">
               <h3 className="font-semibold mb-4">Gene Details</h3>
-              <div className="text-sm text-muted-foreground text-center py-8">
+              <div className="text-sm text-gray-600 text-center py-8">
                 Click a gene node to view details
               </div>
 
@@ -1327,7 +1396,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
     <div className="flex items-start justify-between mb-4">
       <div>
         {/* <h3 className="text-foreground">Gene Details</h3> */}
-        {/* <p className="text-sm text-muted-foreground">
+        {/* <p className="text-sm text-gray-600">
           Selected gene information
         </p> */}
       </div>
@@ -1342,24 +1411,24 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
 
     <div className="grid grid-cols-2 gap-4">
       <div className="p-4 bg-secondary rounded-lg">
-        <p className="text-xs text-muted-foreground mb-1">Gene ID</p>
+        <p className="text-xs text-gray-600 mb-1">Gene ID</p>
         <p className="text-foreground">{selectedNodeInfo.id}</p>
       </div>
 
       <div className="p-4 bg-secondary rounded-lg">
-        <p className="text-xs text-muted-foreground mb-1">Degree</p>
+        <p className="text-xs text-gray-600 mb-1">Degree</p>
         <p className="text-foreground">{selectedNodeInfo.degree}</p>
       </div>
 
       <div className="p-4 bg-secondary rounded-lg">
-        <p className="text-xs text-muted-foreground mb-1">
+        <p className="text-xs text-gray-600 mb-1">
           Best Algorithm
         </p>
         <p className="text-foreground">{selectedNodeInfo.bestAlgo}</p>
       </div>
 
       <div className="p-4 bg-secondary rounded-lg">
-        <p className="text-xs text-muted-foreground mb-1">
+        <p className="text-xs text-gray-600 mb-1">
           Mean Score
         </p>
         <p className="text-foreground">
@@ -1369,10 +1438,10 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
     </div>
 
     <div className="mt-4 p-4 bg-secondary rounded-lg">
-      <p className="text-xs text-muted-foreground mb-2">
+      <p className="text-xs text-gray-600 mb-2">
         Neighbors
       </p>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 text-foreground">
         {selectedNodeInfo.neighbors?.slice(0, 5).map((neighbor, idx) => (
           <Badge key={idx} variant="secondary">
             {neighbor}
@@ -1389,7 +1458,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h3 className="text-foreground">Node Details</h3>
-                  <p className="text-sm text-muted-foreground">Selected gene information</p>
+                  <p className="text-sm text-gray-600">Selected gene information</p>
                 </div>
                 <Button
                   variant="ghost"
@@ -1402,19 +1471,19 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-secondary rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Gene ID</p>
+                  <p className="text-xs text-gray-600 mb-1">Gene ID</p>
                   <p className="text-foreground">{selectedNode.id}</p>
                 </div>
                 <div className="p-4 bg-secondary rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Gene Name</p>
+                  <p className="text-xs text-gray-600 mb-1">Gene Name</p>
                   <p className="text-foreground">{selectedNode.label}</p>
                 </div>
                 <div className="p-4 bg-secondary rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Importance Score</p>
+                  <p className="text-xs text-gray-600 mb-1">Importance Score</p>
                   <p className="text-foreground">{selectedNode.score?.toFixed(3)}</p>
                 </div>
                 <div className="p-4 bg-secondary rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Degree</p>
+                  <p className="text-xs text-gray-600 mb-1">Degree</p>
                   <p className="text-foreground">
                     {filteredEdges.filter(e => e.source === selectedNode.id || e.target === selectedNode.id).length}
                   </p>
@@ -1422,7 +1491,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
               </div>
 
               <div className="mt-4 p-4 bg-secondary rounded-lg">
-                <p className="text-xs text-muted-foreground mb-2">Neighbors</p>
+                <p className="text-xs text-gray-600 mb-2">Neighbors</p>
                 <div className="flex flex-wrap gap-2">
                   {filteredEdges
                     .filter(e => e.source === selectedNode.id || e.target === selectedNode.id)
@@ -1544,8 +1613,8 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
       <footer className="border-t bg-background mt-12">
         <div className="container mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
-            <p className='text-sm text-muted-foreground'>© 2026 WebGenie Platform. Licensed under MIT. All rights reserved.</p>
-                  <p className="flex items-center gap-2 text-sm text-muted-foreground">
+            <p className='text-sm text-gray-600'>© 2026 WebGenie Platform. Licensed under MIT. All rights reserved.</p>
+                  <p className="flex items-center gap-2 text-sm text-gray-600">
                     <span>Built upon the </span>
                     <span className="text-primary">BEELINE</span>
                     <span> GRN Benchmarking Platform </span>

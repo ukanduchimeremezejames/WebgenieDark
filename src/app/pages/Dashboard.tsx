@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { DatasetDetailModal } from '../components/DatasetDetailModal';
 import { Search, ArrowUpDown, Download, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
-import { mockDatasets, mockAlgorithms, mockJobs, getAUPRCDistributionData } from '../components/mockData';
+import { mockDatasets2, mockAlgorithms, mockJobs, getAUPRCDistributionData } from '../components/mockData';
 import { Dataset } from '../types';
 
 
@@ -91,9 +91,9 @@ export function Dashboard() {
   const [selectedOrganism, setSelectedOrganism] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [recentResults, setRecentResults] = useState<RecentResult[]>([]);
-  const totalGenes = mockDatasets.reduce((sum, ds) => sum + ds.genes, 0);
-  const totalCells = mockDatasets.reduce((sum, ds) => sum + ds.cells, 0);
-  const totalEdges = mockDatasets.reduce((sum, ds) => sum + ds.edges, 0);
+  const totalGenes = mockDatasets2.reduce((sum, ds) => sum + ds.genes, 0);
+  const totalCells = mockDatasets2.reduce((sum, ds) => sum + ds.cells, 0);
+  const totalEdges = mockDatasets2.reduce((sum, ds) => sum + ds.edges, 0);
 
   const handleViewDetails = (dataset: Dataset) => {
     setSelectedDataset(dataset);
@@ -104,7 +104,7 @@ export function Dashboard() {
   const generateRecentResults = () => {
     const results: RecentResult[] = [];
     for (let i = 0; i < 6; i++) {
-      const dataset = mockDatasets[Math.floor(Math.random() * mockDatasets.length)].name;
+      const dataset = mockDatasets2[Math.floor(Math.random() * mockDatasets2.length)].name;
       const algorithm = mockAlgorithms[Math.floor(Math.random() * mockAlgorithms.length)].name;
       const auroc = (Math.random() * 0.2 + 0.6).toFixed(3); // AUROC between 0.6-0.8
       const auprc = (Math.random() * 0.2 + 0.55).toFixed(3); // AUPRC between 0.55-0.75
@@ -174,7 +174,7 @@ export function Dashboard() {
   const chartData = getAUPRCDistributionData();
 
   // Filter datasets
-  const filteredDatasets = mockDatasets.filter(ds => {
+  const filteredDatasets = mockDatasets2.filter(ds => {
     const matchesOrganism = selectedOrganism === 'all' || ds.organism === selectedOrganism;
     const matchesType = selectedType === 'all' || ds.type === selectedType;
     const matchesSize = ds.genes >= sizeRange[0] && ds.genes <= sizeRange[1];
@@ -198,7 +198,7 @@ export function Dashboard() {
         <KPICard
           icon={Database}
           title="Total Datasets"
-          value={mockDatasets.length}
+          value={mockDatasets2.length}
           description="BEELINE benchmark datasets"
           gradient="from-purple-50 to-purple-100"
         />

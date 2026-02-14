@@ -45,6 +45,7 @@ const recentJobs = [
 
 
 export function Upload() {
+  
 
   const handleFileUpload = (event) => {
   const file = event.target.files[0];
@@ -127,6 +128,19 @@ RUNX1,MYB,0.87
   });
 
   const [runsHistory, setRunsHistory] = useState([]);
+
+  const isJobValid =
+  jobConfig.dataset &&
+  jobConfig.dataset.trim() !== "" &&
+  jobConfig.algorithm &&
+  jobConfig.algorithm.trim() !== "";
+
+  const handleValidateAndContinue = () => {
+    setPipelineStep("analysis");
+    alert("Dataset validated. Proceeding to Job Configuration step.");
+    return;  
+};
+
 
   return (
     <div id='upload' className="min-h-screen py-20 pb-0">
@@ -249,12 +263,20 @@ RUNX1,MYB,0.87
     <p className="text-sm font-medium">Uploaded File:</p>
     <p className="text-sm text-primary">{uploadedFile.name}</p>
 
-    <button
+    {/* <button
       onClick={() => setPipelineStep("analysis")}
       className="mt-3 px-4 py-2 bg-secondary text-white rounded-lg"
     >
       Validate & Continue →
+    </button> */}
+
+    <button
+      onClick={handleValidateAndContinue}
+      className="mt-3 px-4 py-2 bg-secondary text-white rounded-lg"
+    >
+      Validate & Continue →
     </button>
+
   </div>
 )}
 
@@ -271,7 +293,7 @@ RUNX1,MYB,0.87
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Dataset</label>
-                  <select className="w-full px-3 py-2 bg-input-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  {/* <select className="w-full px-3 py-2 bg-input-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
                   value={jobConfig.dataset}
                   onChange={(e) =>
                     setJobConfig({ ...jobConfig, dataset: e.target.value })}
@@ -279,7 +301,22 @@ RUNX1,MYB,0.87
                      {datasetList.map((ds) => (
                         <option key={ds}>{ds}</option>
                       ))}
+                  </select> */}
+                  <select
+                    value={jobConfig.dataset || ""}
+                    onChange={(e) =>
+                      setJobConfig({ ...jobConfig, dataset: e.target.value })
+                    }
+                    className="w-full px-3 py-2 bg-input-background border border-border rounded-md"
+                  >
+                    <option value="default">-- Select Dataset (By Clicking on "Choose File") --</option>
+                    {datasetList.map((ds) => (
+                      <option key={ds} value={ds}>
+                        {ds}
+                      </option>
+                    ))}
                   </select>
+
                 </div>
 
                 <div>
@@ -290,6 +327,7 @@ RUNX1,MYB,0.87
                     setJobConfig({ ...jobConfig, algorithm: e.target.value })
                   }
                   >
+                    <option value="default">-- Select Algorithm --</option>
                     <option>GENIE3</option>
                     <option>GRNBoost2</option>
                     <option>Pearson</option>
@@ -332,7 +370,7 @@ RUNX1,MYB,0.87
                     }
                   />
                 </div>
-                <button
+                {/* <button
                   onClick={() => {
                     const runId = "RUN-" + (runsHistory.length + 1).toString().padStart(3, "0");
 
@@ -351,7 +389,42 @@ RUNX1,MYB,0.87
                   className="mt-4 px-4 py-2 bg-primary text-white rounded-lg"
                 >
                   Run Job →
+                </button> */}
+
+                <button
+                  disabled={!isJobValid}
+                  onClick={() => {
+                    if (!jobConfig.dataset) {
+                      alert("Please select a dataset before running the job.");
+                      return;
+                    }
+                    if (!isJobValid) return; // safety guard
+
+                    const runId =
+                      "RUN-" + (runsHistory.length + 1).toString().padStart(3, "0");
+
+                    const newRun = {
+                      id: runId,
+                      name: jobConfig.runName || "Untitled_Run",
+                      dataset: jobConfig.dataset,
+                      algorithm: jobConfig.algorithm,
+                      status: "completed",
+                      timestamp: "now",
+                    };
+
+                    setRunsHistory([newRun, ...runsHistory]);
+                    setPipelineStep("comparison");
+                  }}
+                  className={`mt-4 px-4 py-2 rounded-lg text-white
+                    ${
+                      isJobValid
+                        ? "bg-primary hover:opacity-90"
+                        : "bg-gray-400 cursor-not-allowed"
+                    }`}
+                >
+                  Run Job →
                 </button>
+
 
 
                 <div>
