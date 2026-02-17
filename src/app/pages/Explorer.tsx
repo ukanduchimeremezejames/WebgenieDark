@@ -7,6 +7,11 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Slider } from '../components/ui/slider'
 import dynBFC from "../../data/beeline/synthetic/dyn-BFC.json";
+import dynBF from "../../data/beeline/synthetic/dyn-BF.json";
+import dynCY from "../../data/beeline/synthetic/dyn-CY.json";
+import dynLI from "../../data/beeline/synthetic/dyn-LI.json";
+import dynLL from "../../data/beeline/synthetic/dyn-LL.json";
+import dynTF from "../../data/beeline/synthetic/dyn-TF.json";
 import { buildBeelineDataset } from "../../utils/buildBeelineDataset";
 // import { Badge } from './Badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
@@ -20,6 +25,13 @@ import { saveAs } from "file-saver";
 
 
 const dynBFCDataset = buildBeelineDataset(dynBFC);
+const dynBFDataset = buildBeelineDataset(dynBF);
+const dynCYDataset = buildBeelineDataset(dynCY);
+const dynLIDataset = buildBeelineDataset(dynLI);
+const dynLLDataset = buildBeelineDataset(dynLL);
+const dynTFDataset = buildBeelineDataset(dynTF);
+
+
 
 // const datasets = [
 //   {
@@ -32,12 +44,48 @@ const dynBFCDataset = buildBeelineDataset(dynBFC);
 // ];
 
 const datasetsArray = [
-  {
+{
+  id: "dyn-bf",
+  name: "dyn-BF Synthetic Network",
+  organism: "Synthetic",
+  description: "Bifurcating synthetic GRN",
+  ...dynBFDataset
+},
+{
     id: "dyn-bfc",
     name: "dyn-BFC Synthetic Network",
     nodes: dynBFCDataset.nodes,
     edges: dynBFCDataset.edges
-  },
+},
+{
+  id: "dyn-cy",
+  name: "dyn-CY",
+  organism: "Synthetic",
+  description: "Cyclic synthetic GRN",
+  ...dynCYDataset
+},
+{
+  id: "dyn-li",
+  name: "dyn-LI",
+  organism: "Synthetic",
+  description: "Linear synthetic GRN",
+  ...dynLIDataset
+},
+{
+  id: "dyn-ll",
+  name: "dyn-LL",
+  organism: "Synthetic",
+  description: "Long linear synthetic GRN with terminal feedback repression",
+  ...dynLLDataset
+},
+{
+  id: "dyn-tf",
+  name: "dyn-TF",
+  organism: "Synthetic",
+  description: "Synthetic transcription factor hub network",
+  ...dynTFDataset
+}
+
   // other datasets if needed
 ];
 
@@ -65,7 +113,7 @@ interface NodeInfo {
 
 const [selectedNodeInfo, setSelectedNodeInfo] = useState<NodeInfo | null>(null);
 
-const [selectedDatasetId, setSelectedDatasetId] = useState("dyn-bfc");
+const [selectedDatasetId, setSelectedDatasetId] = useState("dyn-bf");
 
 // const selectedDataset = useMemo(() => {
 //   return mockDatasets.find(d => d.id === selectedDatasetId);
@@ -1102,8 +1150,8 @@ const globalDegreeMap = useMemo(() => {
       style: {
         'background-color': '#5B2C6F',
         'label': 'data(label)',
-        'width': 'mapData(importance, 0, 2, 40, 160)',
-        'height': 'mapData(importance, 0, 2, 40, 160)',
+        'width': 'mapData(importance, 1, 6, 30, 80)',
+        'height': 'mapData(importance, 1, 6, 30, 80)',
         'text-valign': 'center',
         'text-halign': 'center',
         'font-size': '11px',
@@ -1341,7 +1389,7 @@ useEffect(() => {
           value={selectedDatasetId}
           onValueChange={setSelectedDatasetId}
         > */}
-        <Select
+        {/* <Select
           value={selectedDatasetId}
           onValueChange={(value) => {
             setSelectedDatasetId(value);
@@ -1353,9 +1401,9 @@ useEffect(() => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={selectedDatasetId}>
-              dynBFC v1.2.0
+              dynBFC (Synthetic) v1.2.0
             </SelectItem>
-          </SelectContent>
+          </SelectContent> */}
 
           {/* <SelectContent>
             {mockDatasets.map(dataset => (
@@ -1364,6 +1412,26 @@ useEffect(() => {
               </SelectItem>
             ))}
           </SelectContent> */}
+        {/* </Select> */}
+
+        <Select
+          value={selectedDatasetId}
+          onValueChange={(value) => {
+            setSelectedDatasetId(value);
+            setSelectedNodeInfo(null);
+          }}
+        >
+          <SelectTrigger className="w-[220px]">
+            <SelectValue placeholder="Select dataset" />
+          </SelectTrigger>
+
+          <SelectContent>
+            {datasetsArray.map((dataset) => (
+              <SelectItem key={dataset.id} value={dataset.id}>
+                {dataset.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
         </Select>
 
         <Badge variant="default" className='h-9 p-3'>
