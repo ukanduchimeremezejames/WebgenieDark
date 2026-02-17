@@ -1,25 +1,44 @@
-import { Network, ZoomIn, ZoomOut, Layers, Grid3x3, Circle, Filter, Eye, EyeOff, 
-  Download, Share2, Maximize2, Search,Target, HelpCircle, Play, Info, Sparkles, Maximize,  Activity } from 'lucide-react';
-// import { Slider } from '../components/ui/slider';
+import { Network, ZoomIn, ZoomOut, Download, Share2, Maximize2, Search,HelpCircle, Sparkles} from 'lucide-react';
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Card, CardHeader, CardContent } from '../components/ui/card';
+import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Slider } from '../components/ui/slider'
 import dynBFC from "../../data/beeline/synthetic/dyn-BFC.json";
 import { buildBeelineDataset } from "../../utils/buildBeelineDataset";
-// import { Badge } from './Badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Badge } from '../components/ui/badge';
-// import { Search, Download, Maximize2, Share2, ZoomIn, ZoomOut } from 'lucide-react';
 import { mockNetworkData, mockDatasets, mockInferenceData, generateMockInferenceData } from '.././components/mockData';
 import CytoscapeComponent from 'react-cytoscapejs';
 import cytoscape from 'cytoscape';
 import graphML from 'cytoscape-graphml';
 import { saveAs } from "file-saver";
 
-
 const dynBFCDataset = buildBeelineDataset(dynBFC);
+
+const datasets = {
+  refNetwork: {
+    nodes: [
+      { id: "n1", label: "Node 1" },
+      { id: "n2", label: "Node 2" },
+    ],
+    edges: [{ id: "e1", source: "n1", target: "n2", type: "activation" }],
+  },
+  hsaNetwork: {
+    nodes: [
+      { id: "n3", label: "Node 3" },
+      { id: "n4", label: "Node 4" },
+    ],
+    edges: [{ id: "e2", source: "n3", target: "n4", type: "repression" }],
+  },
+};
+
+// const datasetsArray = [
+//   { id: "refNetwork", name: "Reference Network", nodes: [], edges: [] },
+//   { id: "hsaNetwork", name: "HSA Network", nodes: [], edges: [] }
+// ];
+
+
 
 // const datasets = [
 //   {
@@ -31,6 +50,65 @@ const dynBFCDataset = buildBeelineDataset(dynBFC);
 //   }
 // ];
 
+// Outside your App function, so it’s not recreated on every render
+// const datasets = {
+//   refNetwork: {
+//     nodes: [
+//       { id: "n1", label: "Node 1" },
+//       { id: "n2", label: "Node 2" }
+//     ],
+//     edges: [
+//       { id: "e1", source: "n1", target: "n2", type: "activates" }
+//     ]
+//   },
+//   hsaNetwork: {
+//     nodes: [
+//       { id: "n3", label: "Node 3" },
+//       { id: "n4", label: "Node 4" }
+//     ],
+//     edges: [
+//       { id: "e2", source: "n3", target: "n4", type: "inhibits" }
+//     ]
+//   }
+// };
+
+// export default function App() {
+//   const [selectedDatasetId, setSelectedDatasetId] = useState("refNetwork");
+
+//   // const activeDataset = datasets[selectedDatasetId];
+
+//   // filteredData logic here...
+// }
+
+
+// const activeDataset = datasets[selectedDatasetId];
+
+// const filteredData = useMemo(() => {
+//   if (!activeDataset) return { nodes: [], edges: [] };
+
+//   let edges = activeDataset.edges;
+//   if (selectedEdgeType !== "all") {
+//     edges = edges.filter(edge => edge.type === selectedEdgeType);
+//   }
+
+//   // Keep only nodes that are connected
+//   const connectedNodeIds = new Set<string>();
+//   edges.forEach(e => {
+//     connectedNodeIds.add(e.source);
+//     connectedNodeIds.add(e.target);
+//   });
+
+//   const nodes = activeDataset.nodes.filter(node =>
+//     connectedNodeIds.has(node.id)
+//   );
+
+//   return { nodes, edges };
+// }, [activeDataset, selectedEdgeType]);
+
+// console.log("Active dataset:", activeDataset);
+// console.log("Filtered nodes:", filteredData.nodes.length);
+// console.log("Filtered edges:", filteredData.edges.length);
+
 const datasetsArray = [
   {
     id: "dyn-bfc",
@@ -38,12 +116,147 @@ const datasetsArray = [
     nodes: dynBFCDataset.nodes,
     edges: dynBFCDataset.edges
   },
-  // other datasets if needed
+  {
+    id: "refNetwork",
+    name: "Reference Network",
+    nodes: [], // you can keep mock data or real data here
+    edges: []
+  },
+  {
+    id: "hsaNetwork",
+    name: "HSA Network",
+    nodes: [],
+    edges: []
+  }
 ];
 
 
+
 export function Explorer() {
+
+  // --- Dataset Selection ---
+  // const [selectedDatasetId, setSelectedDatasetId] = useState("refNetwork");
+
+  const [selectedDatasetId, setSelectedDatasetId] = useState("dyn-bfc");
+
+const selectedDataset = useMemo(() => {
+  return datasetsArray.find(d => d.id === selectedDatasetId);
+}, [selectedDatasetId]);
+
+
+  const activeDataset = datasets[selectedDatasetId];
+
+  // --- Filtering ---
+  const [selectedEdgeType, setSelectedEdgeType] = useState<"all" | "activation" | "repression">("all");
+
+  // const filteredData = useMemo(() => {
+  //   if (!activeDataset) return { nodes: [], edges: [] };
+
+  //   let edges = activeDataset.edges;
+  //   if (selectedEdgeType !== "all") {
+  //     edges = edges.filter((e) => e.type === selectedEdgeType);
+  //   }
+
+  //   // Keep only nodes connected to filtered edges
+  //   const connectedNodeIds = new Set<string>();
+  //   edges.forEach((e) => {
+  //     connectedNodeIds.add(e.source);
+  //     connectedNodeIds.add(e.target);
+  //   });
+
+  //   const nodes = activeDataset.nodes.filter((n) => connectedNodeIds.has(n.id));
+
+  //   return { nodes, edges };
+  // }, [activeDataset, selectedEdgeType]);
+
+  // --- Cytoscape Elements ---
   
+  const filteredData = useMemo(() => {
+  if (!activeDataset) return { nodes: [], edges: [] };
+
+  let edges = activeDataset.edges;
+  if (selectedEdgeType !== "all") {
+    edges = edges.filter((e) => e.type === selectedEdgeType);
+  }
+
+  const connectedNodeIds = new Set<string>();
+  edges.forEach((e) => {
+    connectedNodeIds.add(e.source);
+    connectedNodeIds.add(e.target);
+  });
+
+  const nodes = activeDataset.nodes.filter((n) =>
+    connectedNodeIds.has(n.id)
+  );
+
+  return { nodes, edges };
+}, [activeDataset, selectedEdgeType]);
+
+  
+  const cytoscapeElements = useMemo(() => {
+    if (!filteredData.nodes.length) return [];
+
+    const degreeMap: Record<string, number> = {};
+    filteredData.edges.forEach((edge) => {
+      degreeMap[edge.source] = (degreeMap[edge.source] || 0) + 1;
+      degreeMap[edge.target] = (degreeMap[edge.target] || 0) + 1;
+    });
+
+    const nodes = filteredData.nodes.map((n) => ({
+      data: { id: n.id, label: n.label, importance: degreeMap[n.id] ?? 1 },
+    }));
+
+    const edges = filteredData.edges.map((e) => ({
+      data: { id: e.id, source: e.source, target: e.target, type: e.type },
+    }));
+
+    return [...nodes, ...edges];
+  }, [filteredData]);
+
+  // --- Cytoscape Reference and Layout ---
+  const cyRef = useRef<cytoscape.Core | null>(null);
+  const [layout, setLayout] = useState<"cose" | "grid" | "circle">("cose");
+
+  useEffect(() => {
+    if (cyRef.current) {
+      cyRef.current.layout({ name: layout }).run();
+    }
+  }, [layout, filteredData]);
+
+  // --- Styles ---
+  const cytoscapeStylesheet: cytoscape.StylesheetStyle[] = [
+    {
+      selector: "node",
+      style: {
+        label: "data(label)",
+        width: "mapData(importance, 1, 3, 30, 60)",
+        height: "mapData(importance, 1, 3, 30, 60)",
+        "background-color": "#5B2C6F",
+        "text-valign": "center",
+        "text-halign": "center",
+        "color": "#fff",
+        "font-size": "12px",
+      },
+    },
+    {
+      selector: 'edge[type="activation"]',
+      style: { "line-color": "#22c55e", "target-arrow-color": "#22c55e", "target-arrow-shape": "triangle" },
+    },
+    {
+      selector: 'edge[type="repression"]',
+      style: { "line-color": "#ef4444", "target-arrow-color": "#ef4444", "target-arrow-shape": "tee" },
+    },
+  ];
+
+  // const [selectedDataset, setSelectedDataset] = useState("refNetwork");
+  // const [selectedEdgeType, setSelectedEdgeType] = useState("all");
+  // const [selectedEdgeType, setSelectedEdgeType] = useState<
+//   "all" | "activation" | "repression"
+// >("all");
+
+const currentDataset = activeDataset;
+
+if (!currentDataset) return <div>No dataset selected</div>;
 
   const DEFAULT_FILTERS = {
   searchTerm: "",
@@ -65,15 +278,11 @@ interface NodeInfo {
 
 const [selectedNodeInfo, setSelectedNodeInfo] = useState<NodeInfo | null>(null);
 
-const [selectedDatasetId, setSelectedDatasetId] = useState("dyn-bfc");
+// const [selectedDatasetId, setSelectedDatasetId] = useState("hESC");
 
 // const selectedDataset = useMemo(() => {
 //   return mockDatasets.find(d => d.id === selectedDatasetId);
 // }, [selectedDatasetId]);
-
-const selectedDataset = useMemo(() => {
-  return datasetsArray.find(d => d.id === selectedDatasetId);
-}, [selectedDatasetId]);
 
 // const selectedDataset = mockDatasets.find(
 //   d => d.id === selectedDatasetId
@@ -173,77 +382,6 @@ const predictedBestAlgorithm = useMemo(() => {
   return bestAlgo;
 }, [inferenceData]);
 
-
-
-// function getNodeBestAlgorithm(nodeId: string) {
-//   const relatedEdges = inferenceData.edges.filter(
-//     e => e.source === nodeId || e.target === nodeId
-//   );
-
-//   const algoScores: Record<string, number[]> = {};
-
-//   relatedEdges.forEach(edge => {
-//     Object.entries(edge.scores).forEach(
-//       ([algo, score]: [string, number]) => {
-//         if (!algoScores[algo]) algoScores[algo] = [];
-//         algoScores[algo].push(score);
-//       }
-//     );
-//   });
-
-//   let bestAlgo = "";
-//   let bestMean = 0;
-
-//   Object.entries(algoScores).forEach(([algo, scores]) => {
-//     const mean =
-//       scores.reduce((a, b) => a + b, 0) / scores.length;
-
-//     if (mean > bestMean) {
-//       bestMean = mean;
-//       bestAlgo = algo;
-//     }
-//   });
-
-//   return { bestAlgo, bestMean };
-// }
-
-// function getNodeBestAlgorithm(nodeId: string) {
-//   if (!inferenceData?.edges) {
-//     // inferenceData is null or edges undefined
-//     return { bestAlgo: "", bestMean: 0 };
-//   }
-
-//   // filter edges related to this node
-//   const relatedEdges = inferenceData.edges.filter(
-//     e => e.source === nodeId || e.target === nodeId
-//   );
-
-//   const algoScores: Record<string, number[]> = {};
-
-//   relatedEdges.forEach(edge => {
-//     // safe: fallback to empty object if scores missing
-//     Object.entries(edge.scores ?? {}).forEach(([algo, score]) => {
-//       const numScore = score as number; // cast to number
-//       if (!algoScores[algo]) algoScores[algo] = [];
-//       algoScores[algo].push(numScore);
-//     });
-//   });
-
-//   let bestAlgo = "";
-//   let bestMean = 0;
-
-//   Object.entries(algoScores).forEach(([algo, scores]) => {
-//     const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
-
-//     if (mean > bestMean) {
-//       bestMean = mean;
-//       bestAlgo = algo;
-//     }
-//   });
-
-//   return { bestAlgo, bestMean };
-// }
-
 function getNodeBestAlgorithm(nodeId: string) {
   if (!inferenceData?.edges?.length) {
     return { bestAlgo: "", bestMean: 0 };
@@ -295,275 +433,9 @@ const [scoreThreshold, setScoreThreshold] = useState(DEFAULT_FILTERS.scoreThresh
 const [selectedAlgorithms, setSelectedAlgorithms] = useState(DEFAULT_FILTERS.selectedAlgorithms);
 const [minConsensus, setMinConsensus] = useState(DEFAULT_FILTERS.minConsensus);
 
-  const [layout, setLayout] = useState('cose');
+  // const [layout, setLayout] = useState('cose');
   const [selectedNode, setSelectedNode] = useState<any>(null);
-  const cyRef = useRef<cytoscape.Core | null>(null);
-
-  // const filteredEdges = mockNetworkData.edges.filter(edge => {
-  //   const matchesType = edgeFilter === 'all' || edge.type === edgeFilter;
-  //   const matchesScore = edge.weight >= scoreThreshold[0];
-  //   return matchesType && matchesScore;
-  // }).slice(0, topK[0]);
-
-  
-  // const filteredEdges = mockInferenceData.edges.filter(edge => {
-
-  //   const supportingAlgos = Object.keys(edge.scores);
-
-  //   // Reverse filtering:
-  //   // Show edges supported by ALL selected algorithms
-  //   const matchesAlgorithmSelection =
-  //     selectedAlgorithms.length === 0 ||
-  //     selectedAlgorithms.every(algo => supportingAlgos.includes(algo));
-
-  //   const matchesConsensus =
-  //     supportingAlgos.length >= minConsensus[0];
-
-  //   const matchesScore =
-  //     Math.max(...Object.values(edge.scores)) >= scoreThreshold[0];
-    
-  //   const matchesType =
-  //   edgeFilter === 'all' || edge.type === edgeFilter;
-
-
-  //   return matchesAlgorithmSelection && matchesConsensus && matchesScore &&
-  //   matchesType;
-
-  // });
-
-  // const filteredEdges = useMemo(() => {
-  //   return mockInferenceData.edges.filter(edge => {
-  //     const supportingAlgos = Object.keys(edge.scores);
-
-  //     // 1️⃣ Algorithm filtering (ALL selected must support edge)
-  //     const matchesAlgorithmSelection =
-  //       selectedAlgorithms.length === 0 ||
-  //       selectedAlgorithms.every(algo => supportingAlgos.includes(algo));
-
-  //     // 2️⃣ Consensus threshold
-  //     const matchesConsensus =
-  //       supportingAlgos.length >= minConsensus[0];
-
-  //     // 3️⃣ Score threshold
-  //     const maxScore = Math.max(...Object.values(edge.scores));
-  //     const matchesScore =
-  //       maxScore >= scoreThreshold[0];
-
-  //     // 4️⃣ Edge type filtering
-  //     const matchesType =
-  //       edgeFilter === 'all' || edge.type === edgeFilter;
-
-  //     return (
-  //       matchesAlgorithmSelection &&
-  //       matchesConsensus &&
-  //       matchesScore &&
-  //       matchesType
-  //     );
-  //   });
-  // }, [
-  //   selectedAlgorithms,
-  //   minConsensus,
-  //   scoreThreshold,
-  //   edgeFilter
-  // ]);
-
-//   const filteredEdges = useMemo(() => {
-//   if (!selectedDataset) return [];
-
-//   return selectedDataset.edges
-//     .filter(edge => {
-//       const passesType =
-//         edgeFilter === "all" || edge.type === edgeFilter;
-
-//       const passesScore =
-//         edge.score >= scoreThreshold[0];
-
-//       return passesType && passesScore;
-//     })
-//     .sort((a, b) => b.score - a.score)
-//     .slice(0, topK[0])
-//     .filter(edge =>
-//       filteredNodes.some(n => n.id === edge.source) &&
-//       filteredNodes.some(n => n.id === edge.target)
-//     );
-// }, [
-//   selectedDataset,
-//   edgeFilter,
-//   scoreThreshold,
-//   topK,
-//   filteredNodes
-// ]);
-
-// 1️⃣ Selected dataset
-// const selectedDataset = useMemo(() => {
-//   return mockDatasets.find(d => d.id === selectedDatasetId);
-// }, [selectedDatasetId]);
-
-// 2️⃣ Filtered Nodes (FIRST)
-// const filteredNodes = useMemo(() => {
-//   if (!selectedDataset) return [];
-
-//   return selectedDataset.nodes.filter(node => {
-//     const matchesSearch =
-//       searchTerm === "" ||
-//       node.label?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//       node.id.toLowerCase().includes(searchTerm.toLowerCase());
-
-//     return matchesSearch;
-//   });
-// }, [selectedDataset, searchTerm]);
-
-// const filteredNodes = useMemo(() => {
-//   const nodes = selectedDataset?.nodes ?? [];
-
-//   if (!searchTerm) return nodes;
-
-//   const lowerSearch = searchTerm.toLowerCase();
-
-//   return nodes.filter(node => {
-//     return (
-//       node.label?.toLowerCase().includes(lowerSearch) ||
-//       node.id?.toLowerCase().includes(lowerSearch)
-//     );
-//   });
-// }, [selectedDataset, searchTerm]);
-
-const filteredEdges = useMemo(() => {
-  if (!selectedDataset) return [];
-
-  let edges = [...(selectedDataset.edgesData ?? [])];
-
-  // 1. Algorithm filter
-  if (selectedAlgorithms.length > 0) {
-    edges = edges.filter(edge =>
-      selectedAlgorithms.every(algo =>
-        Object.keys(edge.scores ?? {}).includes(algo)
-      )
-    );
-  }
-
-  // 2. Consensus filter
-  // edges = edges.filter(edge =>
-  //   Object.keys(edge.scores ?? {}).length >= minConsensus[0]
-  // );
-  if (minConsensus[0] > 1) {
-    edges = edges.filter(edge =>
-      Object.keys(edge.scores ?? {}).length >= minConsensus[0]
-    );
-  }
-
-
-  // 3. Edge type filter
-  if (edgeFilter !== "all") {
-    edges = edges.filter(edge => edge.type === edgeFilter);
-  }
-
-  // 4. Score threshold (use MAX algorithm score)
-  // edges = edges.filter(edge => {
-  //   const maxScore = Math.max(0, ...Object.values(edge.scores ?? {}));
-  //   return maxScore >= scoreThreshold[0];
-  // });
-
-  if (scoreThreshold[0] > 0) {
-  edges = edges.filter(edge => {
-    const maxScore = Math.max(0, ...Object.values(edge.scores ?? {}));
-    return maxScore >= scoreThreshold[0];
-  });
-}
-
-
-  // 5. Sort by max score descending
-  edges.sort((a, b) => {
-    const aScore = Math.max(0, ...Object.values(a.scores ?? {}));
-    const bScore = Math.max(0, ...Object.values(b.scores ?? {}));
-    return bScore - aScore;
-  });
-
-  // 6. Top-K
-  return edges.slice(0, topK[0]);
-
-}, [
-  selectedDataset,
-  selectedAlgorithms,
-  minConsensus,
-  edgeFilter,
-  scoreThreshold,
-  topK
-]);
-
-const filteredNodes = useMemo(() => {
-  if (!selectedDataset) return [];
-
-  const nodeIds = new Set<string>();
-
-  filteredEdges.forEach(edge => {
-    nodeIds.add(edge.source);
-    nodeIds.add(edge.target);
-  });
-
-  let nodes = (selectedDataset.nodes ?? []).filter(node =>
-    nodeIds.has(node.id)
-  );
-
-  // Search filter
-  if (searchTerm.trim() !== "") {
-    const term = searchTerm.toLowerCase();
-    nodes = nodes.filter(node =>
-      node.label.toLowerCase().includes(term) ||
-      node.id.toLowerCase().includes(term)
-    );
-  }
-
-  return nodes;
-
-}, [selectedDataset, filteredEdges, searchTerm]);
-
-
-// 3️⃣ Filtered Edges (AFTER filteredNodes)
-// const filteredEdges = useMemo(() => {
-//   if (!selectedDataset) return [];
-
-//   return selectedDataset.edges
-//     .filter(edge => {
-//       const passesType =
-//         edgeFilter === "all" || edge.type === edgeFilter;
-
-//       const passesScore =
-//         edge.score >= scoreThreshold[0];
-
-//       return passesType && passesScore;
-//     })
-//     .sort((a, b) => b.score - a.score)
-//     .slice(0, topK[0])
-//     .filter(edge =>
-//       filteredNodes.some(n => n.id === edge.source) &&
-//       filteredNodes.some(n => n.id === edge.target)
-//     );
-// }, [
-//   selectedDataset,
-//   edgeFilter,
-//   scoreThreshold,
-//   topK,
-//   filteredNodes // safe now
-// ]);
-
-// const filteredEdges = useMemo(() => {
-//   const edges = selectedDataset?.edgesData ?? [];  // safe fallback to empty array
-
-//   if (!searchTerm) return edges;
-
-//   const lowerSearch = searchTerm.toLowerCase();
-
-//   return edges.filter(
-//     edge =>
-//       edges.source.toLowerCase().includes(lowerSearch) ||
-//       edge.source.toLowerCase().includes(lowerSearch),
-//       edges.target.toLowerCase().includes(lowerSearch) ||
-//       edge.target.toLowerCase().includes(lowerSearch)
-//   );
-// }, [selectedDataset, searchTerm]);
-
-
+  // const cyRef = useRef<cytoscape.Core | null>(null);
 
 // const filteredData = useMemo(() => {
 //   if (!selectedDataset) {
@@ -596,11 +468,12 @@ const filteredNodes = useMemo(() => {
 //   // ---------------------------
 //   // 3️⃣ Edge type filter
 //   // ---------------------------
-//  if (edgeFilter !== "all") {
-//   edges = edges.filter(edge => {
-//     return (edge.type ?? "unknown") === edgeFilter;
-//   });
+// if (selectedEdgeType !== "all") {
+//   edges = edges.filter(edge =>
+//     (edge.type ?? "unknown") === selectedEdgeType
+//   );
 // }
+
 
 //   // ---------------------------
 //   // 4️⃣ Score threshold filter
@@ -668,492 +541,164 @@ const filteredNodes = useMemo(() => {
 //   minConsensus
 // ]);
 
-const [selectedEdgeType, setSelectedEdgeType] = useState<"all">("all");
-
-
-const filteredData = useMemo(() => {
-  if (!selectedDataset) return { nodes: [], edges: [] };
-
-  let edges = selectedDataset.edges;
-  if (selectedEdgeType !== "all") {
-    edges = edges.filter(e => e.type === selectedEdgeType);
-  }
-
-  const connectedNodeIds = new Set<string>();
-  edges.forEach(e => {
-    connectedNodeIds.add(e.source);
-    connectedNodeIds.add(e.target);
-  });
-
-  const nodes = selectedDataset.nodes.filter(n => connectedNodeIds.has(n.id));
-
-  return { nodes, edges };
-}, [selectedDataset, selectedEdgeType]);
-
-
 console.log("Filtered nodes:", filteredData.nodes.length);
 console.log("Filtered edges:", filteredData.edges.length);
-
-
-
-// 4️⃣ Cytoscape elements (LAST)
-// const cytoscapeElements = useMemo(() => {
-//   const nodeElements = filteredNodes.map(node => ({
-//     data: {
-//       id: node.id,
-//       label: node.label,
-//       score: node.score,
-//       importance: node.bestMean,
-//       bestAlgo: node.bestAlgo
-//     }
-//   }));
-
-//   const edgeElements = filteredEdges.map(edge => ({
-//     data: {
-//       id: `${edge.source}-${edge.target}`,
-//       source: edge.source,
-//       target: edge.target,
-//       type: edge.type,
-//       score: edge.score
-//     }
-//   }));
-
-//   return [...nodeElements, ...edgeElements];
-// }, [filteredNodes, filteredEdges]);
-
-// const cytoscapeElements = useMemo(() => {
-
-//   const nodes = filteredData.nodes.map(node => ({
-//     data: {
-//       id: node.id,
-//       label: node.label,
-//       importance: node.bestMean,
-//       bestAlgo: node.bestAlgo
-//     }
-//   }));
-
-//   const edges = filteredData.edges.map(edge => ({
-//     data: {
-//       id: edge.id,
-//       source: edge.source,
-//       target: edge.target,
-//       score: edge.score,
-//       type: edge.type
-//     }
-//   }));
-
-//   return [...nodes, ...edges];
-
-// }, [filteredData]);
-
-// const cytoscapeElements = useMemo(() => {
-
-//   if (!selectedDataset) return [];
-
-//   // compute node importance dynamically from filteredEdges
-//   const nodeStats: Record<string, { degree: number; bestAlgo: string; bestMean: number }> = {};
-
-//   filteredNodes.forEach(node => {
-//     const relatedEdges = filteredEdges.filter(
-//       e => e.source === node.id || e.target === node.id
-//     );
-
-//     const algoScores: Record<string, number[]> = {};
-
-//     relatedEdges.forEach(edge => {
-//       Object.entries(edge.scores ?? {}).forEach(([algo, score]) => {
-//         if (!algoScores[algo]) algoScores[algo] = [];
-//         algoScores[algo].push(score as number);
-//       });
-//     });
-
-//     let bestAlgo = "";
-//     let bestMean = 0;
-
-//     Object.entries(algoScores).forEach(([algo, scores]) => {
-//       const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
-//       if (mean > bestMean) {
-//         bestMean = mean;
-//         bestAlgo = algo;
-//       }
-//     });
-
-//     nodeStats[node.id] = {
-//       degree: relatedEdges.length,
-//       bestAlgo,
-//       bestMean
-//     };
-//   });
-
-//   const nodes = filteredNodes.map(node => ({
-//     data: {
-//       id: node.id,
-//       label: node.label,
-//       importance: nodeStats[node.id]?.bestMean ?? 0.1,
-//       bestAlgo: nodeStats[node.id]?.bestAlgo ?? ""
-//     }
-//   }));
-
-//   const edges = filteredEdges.map(edge => ({
-//     data: {
-//       id: `${edge.source}-${edge.target}`,
-//       source: edge.source,
-//       target: edge.target,
-//       type: edge.type,
-//       score: Math.max(0, ...Object.values(edge.scores ?? {}))
-//     }
-//   }));
-
-//   return [...nodes, ...edges];
-
-// }, [filteredNodes, filteredEdges, selectedDataset]);
 
 // const cytoscapeElements = useMemo(() => {
 //   if (!filteredData.nodes.length) return [];
 
-//   // Map nodes
-//   const nodes = filteredData.nodes.map(n => ({
-//     data: { id: n.id, label: n.label }
-//   }));
+//   // Build degree map from filtered edges
+//   const degreeMap: Record<string, number> = {};
 
-//   // Map edges
-//   const edges = filteredData.edges.map(e => ({
-//     data: { id: e.id ?? `${e.source}-${e.target}`, source: e.source, target: e.target, type: e.type }
-//   }));
-
-//   return [...nodes, ...edges];
-// }, [filteredData]);
-
-const cytoscapeElements = useMemo(() => {
-  if (!selectedDataset) return [];
-
-  // Node stats will store degree, best algorithm, and mean score
-  const nodeStats: Record<string, { degree: number; bestAlgo: string; bestMean: number }> = {};
-
-  selectedDataset.nodes.forEach((node) => {
-    // Get all edges connected to this node
-    const relatedEdges = selectedDataset.edges.filter(
-      (e) => e.source === node.id || e.target === node.id
-    );
-
-    // Compute scores per algorithm
-    const algoScores: Record<string, number[]> = {};
-    relatedEdges.forEach((edge) => {
-      Object.entries(edge.scores ?? {}).forEach(([algo, score]) => {
-        if (!algoScores[algo]) algoScores[algo] = [];
-        algoScores[algo].push(Number(score));
-      });
-    });
-
-    // Determine best algorithm and its mean score
-    let bestAlgo = "";
-    let bestMean = 0;
-
-    Object.entries(algoScores).forEach(([algo, scores]) => {
-      const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
-      if (mean > bestMean) {
-        bestMean = mean;
-        bestAlgo = algo;
-      }
-    });
-
-    nodeStats[node.id] = {
-      degree: relatedEdges.length,
-      bestAlgo,
-      bestMean
-    };
-  });
-
-  // Map nodes for Cytoscape
-  const nodes = selectedDataset.nodes.map((node) => ({
-    data: {
-      id: node.id,
-      label: node.label,
-      importance: nodeStats[node.id]?.bestMean ?? 0.1,
-      bestAlgo: nodeStats[node.id]?.bestAlgo ?? "",
-      bestMean: nodeStats[node.id]?.bestMean ?? 0
-    }
-  }));
-
-  // Map edges
-  const edges = selectedDataset.edges.map((edge) => ({
-    data: {
-      id: `${edge.source}-${edge.target}`,
-      source: edge.source,
-      target: edge.target,
-      type: edge.type,
-      score: Math.max(0, ...Object.values(edge.scores ?? {}))
-    }
-  }));
-
-  return [...nodes, ...edges];
-}, [selectedDataset]);
-
-
-
-//   const limitedEdges = useMemo(() => {
-//   return filteredEdges
-//     .sort((a, b) => {
-//       const aScore = Math.max(...Object.values(a.scores));
-//       const bScore = Math.max(...Object.values(b.scores));
-//       return bScore - aScore;
-//     })
-//     .slice(0, topK[0]);
-// }, [filteredEdges, topK]);
-
-const limitedEdges = useMemo(() => {
-  return filteredEdges
-    .sort((a, b) => {
-      const aScores: Record<string, number> = a.scores ?? {};
-      const bScores: Record<string, number> = b.scores ?? {};
-
-      const aScore = Math.max(0, ...Object.values(aScores));
-      const bScore = Math.max(0, ...Object.values(bScores));
-
-      return bScore - aScore;
-    })
-    .slice(0, topK[0]);
-}, [filteredEdges, topK]);
-
-const degreeMap = useMemo(() => {
-  return limitedEdges.reduce<Record<string, number>>((acc, edge) => {
-    acc[edge.source] = (acc[edge.source] || 0) + 1;
-    acc[edge.target] = (acc[edge.target] || 0) + 1;
-    return acc;
-  }, {});
-}, [limitedEdges]);
-
-
-const globalDegreeMap = useMemo(() => {
-  return filteredEdges.reduce<Record<string, number>>((acc, edge) => {
-    acc[edge.source] = (acc[edge.source] || 0) + 1;
-    acc[edge.target] = (acc[edge.target] || 0) + 1;
-    return acc;
-  }, {});
-}, [filteredEdges]);
-
-
-//   const degreeMap = useMemo(() => {
-//   return limitedEdges.reduce<Record<string, number>>((acc, edge) => {
-//     acc[edge.source] = (acc[edge.source] || 0) + 1;
-//     acc[edge.target] = (acc[edge.target] || 0) + 1;
-//     return acc;
-//   }, {});
-// }, [limitedEdges]);
-
-
-  const nodeIds = new Set<string>();
-  filteredEdges.forEach(edge => {
-    nodeIds.add(edge.source);
-    nodeIds.add(edge.target);
-  });
-
-  // const filteredNodes = mockNetworkData.nodes.filter(node =>
-  //   nodeIds.has(node.id) &&
-  //   (searchTerm === '' || node.label.toLowerCase().includes(searchTerm.toLowerCase()))
-  // );
-
-//   const filteredNodes = useMemo(() => {
-//   if (!selectedDataset) return [];
-
-//   return selectedDataset.nodes.filter(node => {
-//     const matchesSearch =
-//       searchTerm === "" ||
-//       node.label?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//       node.id.toLowerCase().includes(searchTerm.toLowerCase());
-
-//     return matchesSearch;
+//   filteredData.edges.forEach(edge => {
+//     degreeMap[edge.source] = (degreeMap[edge.source] || 0) + 1;
+//     degreeMap[edge.target] = (degreeMap[edge.target] || 0) + 1;
 //   });
-// }, [selectedDataset, searchTerm]);
 
-
-//   const filteredNodes = Array.from(nodeIds).map(id => {
-//   const existing = mockNetworkData.nodes.find(n => n.id === id);
-
-//   return existing ?? {
-//     id,
-//     label: id,
-//     score: 0
-//   };
-// }).filter(node =>
-//   searchTerm === '' ||
-//   node.label.toLowerCase().includes(searchTerm.toLowerCase())
-// );
-
-
-// const degreeMap: Record<string, number> = {};
-
-// filteredEdges.forEach(edge => {
-//   degreeMap[edge.source] = (degreeMap[edge.source] || 0) + 1;
-//   degreeMap[edge.target] = (degreeMap[edge.target] || 0) + 1;
-// });
-
-
-
-
-  // const cytoscapeElements = [
-  //   ...filteredNodes.map(node => ({
-  //     data: {
-  //       id: node.id,
-  //       label: node.label,
-  //       score: node.score,
-  //       degree: degreeMap[node.id] || 1
-  //     }
-  //   })),
-  //   // ...filteredEdges.map((edge, idx) => ({
-  //   //   data: {
-  //   //     id: `edge-${idx}`,
-  //   //     source: edge.source,
-  //   //     target: edge.target,
-  //   //     weight: edge.weight,
-  //   //     type: edge.type
-  //   //   }
-  //   // }))
-
-  //   ...filteredEdges.map(edge => ({
-  //     data: {
-  //       id: edge.id,
-  //       source: edge.source,
-  //       target: edge.target,
-  //       type: edge.type,
-  //       consensus: Object.keys(edge.scores).length,
-  //       scores: edge.scores
-  //     }
-
-  //   }))
-
-  // ];
-
-// const cytoscapeElements = useMemo(() => {
-//   const nodeElements = filteredNodes.map(node => ({
+//   const nodeElements = filteredData.nodes.map(node => ({
 //     data: {
 //       id: node.id,
-//       label: node.label,
-//       score: node.score
+//       label: node.label ?? node.id,
+//       importance: degreeMap[node.id] ?? 1
 //     }
 //   }));
 
-  const edgeElements = filteredEdges.map(edge => ({
-    data: {
-      id: `${edge.source}-${edge.target}`,
-      source: edge.source,
-      target: edge.target,
-      type: edge.type,
-      score: edge.score
-    }
-  }));
+//   const edgeElements = filteredData.edges.map(edge => ({
+//     data: {
+//       id: `${edge.source}-${edge.target}`,
+//       source: edge.source,
+//       target: edge.target,
+//       type: edge.type ?? "unknown",
+//       score: edge.score ?? 0
+//     }
+//   }));
 
 //   return [...nodeElements, ...edgeElements];
-// }, [filteredNodes, filteredEdges]);
+
+// }, [filteredData]);
 
 
 
-  const cytoscapeStylesheet = [
-  {
-  selector: 'edge[type="activation"]',
-  style: {
-    'line-color': '#22c55e',   // green
-    'target-arrow-color': '#22c55e',
-    'target-arrow-shape': 'triangle'
-  }
-},
-{
-  selector: 'edge[type="repression"]',
-  style: {
-    'line-color': '#ef4444',   // red
-    'target-arrow-color': '#ef4444',
-    'target-arrow-shape': 'tee'
-  }
-},
-{
-  selector: 'edge[type="unknown"]',
-  style: {
-    'line-color': '#9ca3af',
-    'target-arrow-color': '#9ca3af',
-    'target-arrow-shape': 'triangle'
-  }
-},  
-{
-  selector: 'node[bestAlgo = "algo1"]',
-  style: {
-    'background-color': '#1f77b4'
-  }
-},
-{
-  selector: 'node[bestAlgo = "algo2"]',
-  style: {
-    'background-color': '#ff7f0e'
-  }
-},
-{
-  selector: 'node[bestAlgo = "algo3"]',
-  style: {
-    'background-color': '#2ca02c'
-  }
-},
-{
-  selector: 'node[!bestAlgo]',
-  style: {
-    'background-color': '#cccccc'
-  }
-},
-{
-      selector: 'node',
-      style: {
-        'background-color': '#5B2C6F',
-        'label': 'data(label)',
-        'width': 'mapData(importance, 0, 2, 40, 160)',
-        'height': 'mapData(importance, 0, 2, 40, 160)',
-        'text-valign': 'center',
-        'text-halign': 'center',
-        'font-size': '11px',
-        'color': '#ffffff'
-      }
-    },
-    // {
-    //   selector: 'edge',
-    //   style: {
-    //     'width': 2,
-    //     'line-color': '#E4E6EB',
-    //     'target-arrow-color': '#E4E6EB',
-    //     'target-arrow-shape': 'triangle',
-    //     'curve-style': 'bezier'
-    //   }
-    // },
-    {
-  selector: 'edge',
-  style: {
-    'width': 2,
-    'line-color': 'green',
-    'target-arrow-color': 'green',
-    'target-arrow-shape': 'triangle',
-    'curve-style': 'bezier'
-  }
-},
+//   const cytoscapeStylesheet = [
+//   {
+//   selector: "node",
+//   style: {
+//     label: "data(label)",
+//     width: "mapData(importance, 1, 6, 30, 80)",
+//     height: "mapData(importance, 1, 6, 30, 80)"
+//   }
+// },
+// {
+//   selector: 'edge[type="activation"]',
+//   style: {
+//     lineColor: "#22c55e",
+//     targetArrowColor: "#22c55e",
+//     targetArrowShape: "triangle"
+//   }
+// },
+// {
+//   selector: 'edge[type="repression"]',
+//   style: {
+//     lineColor: "#ef4444",
+//     targetArrowColor: "#ef4444",
+//     targetArrowShape: "tee"
+//   }
+// },
+// {
+//   selector: 'edge[type="activation"]',
+//   style: {
+//     'line-color': '#22c55e',   // green
+//     'target-arrow-color': '#22c55e',
+//     'target-arrow-shape': 'triangle'
+//   }
+// },
+// {
+//   selector: 'edge[type="repression"]',
+//   style: {
+//     'line-color': '#ef4444',   // red
+//     'target-arrow-color': '#ef4444',
+//     'target-arrow-shape': 'tee'
+//   }
+// },
+// {
+//   selector: 'edge[type="unknown"]',
+//   style: {
+//     'line-color': '#9ca3af',
+//     'target-arrow-color': '#9ca3af',
+//     'target-arrow-shape': 'triangle'
+//   }
+// },  
+// {
+//   selector: 'node[bestAlgo = "algo1"]',
+//   style: {
+//     'background-color': '#1f77b4'
+//   }
+// },
+// {
+//   selector: 'node[bestAlgo = "algo2"]',
+//   style: {
+//     'background-color': '#ff7f0e'
+//   }
+// },
+// {
+//   selector: 'node[bestAlgo = "algo3"]',
+//   style: {
+//     'background-color': '#2ca02c'
+//   }
+// },
+// {
+//   selector: 'node[!bestAlgo]',
+//   style: {
+//     'background-color': '#cccccc'
+//   }
+// },
+// {
+//       selector: 'node',
+//       style: {
+//         'background-color': '#5B2C6F',
+//         'label': 'data(label)',
+//         'width': 'mapData(importance, 0, 1, 20, 80)',
+//         'height': 'mapData(importance, 0, 1, 20, 80)',
+//         'text-valign': 'center',
+//         'text-halign': 'center',
+//         'font-size': '12px',
+//         'color': '#ffffff'
+//       }
+//     },
+//     {
+//   selector: 'edge',
+//   style: {
+//     'width': 2,
+//     'line-color': 'green',
+//     'target-arrow-color': 'green',
+//     'target-arrow-shape': 'triangle',
+//     'curve-style': 'bezier'
+//   }
+// },
 
-    {
-      selector: 'edge[type="activation"]',
-      style: {
-        'line-color': '#28A745',
-        'target-arrow-color': '#28A745'
-      }
-    },
-    {
-      selector: 'edge[type="repression"]',
-      style: {
-        'line-color': '#EF4444',
-        'target-arrow-color': '#EF4444'
-      }
-    },
-    {
-      selector: 'node:selected',
-      style: {
-        'background-color': '#28A745',
-        'border-width': '2px',
-        'border-color': '#1E1E1E'
-      }
-    }
-  ] as cytoscape.StylesheetStyle[];
+//     {
+//       selector: 'edge[type="activation"]',
+//       style: {
+//         'line-color': '#28A745',
+//         'target-arrow-color': '#28A745'
+//       }
+//     },
+//     {
+//       selector: 'edge[type="repression"]',
+//       style: {
+//         'line-color': '#EF4444',
+//         'target-arrow-color': '#EF4444'
+//       }
+//     },
+//     {
+//       selector: 'node:selected',
+//       style: {
+//         'background-color': '#28A745',
+//         'border-width': '3px',
+//         'border-color': '#1E1E1E'
+//       }
+//     }
+//   ] as cytoscape.StylesheetStyle[];
 
   const handleZoomIn = () => {
     if (cyRef.current) {
@@ -1183,15 +728,6 @@ const handleExportPNG = () => {
     link.click();
   }
 };
-
-// const handleExportJSON = () => {
-//     if (!cy.current) return;
-//     const json = cy.current.json();
-//     const blob = new Blob([JSON.stringify(json, null, 2)], {
-//       type: "application/json",
-//     });
-//     saveAs(blob, "network.json");
-//   };
 
 // -------------------- New Export Handlers --------------------
 
@@ -1267,7 +803,7 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
   const [tfOnlyView, setTfOnlyView] = useState(false);
   const [showModules, setShowModules] = useState(true);
   // const [scoreThreshold, setScoreThreshold] = useState(0.5);
-  const [edgeType, setEdgeType] = useState<'all' | 'activation' | 'inhibition'>('all');
+  // const [edgeType, setEdgeType] = useState<'all' | 'activation' | 'inhibition'>('all');
   const [selectedGene, setSelectedGene] = useState('');
   const [selectedEdge, setSelectedEdge] = useState<any>(null);
   const [showHelpPanel, setShowHelpPanel] = useState(true);
@@ -1278,44 +814,15 @@ const [layoutType, setLayoutType] = useState<'force' | 'circular' | 'grid' | 'hi
   }
 }, [layout, selectedDatasetId]);
 
-// --- Add this inside your Explorer component ---
-useEffect(() => {
-  if (!cyRef.current) return;
+console.log("Active dataset:", activeDataset);
+console.log("Nodes:", activeDataset?.nodes?.length);
+console.log("Edges:", activeDataset?.edges?.length);
+console.log("Filtered nodes:", filteredData.nodes.length);
+console.log("Filtered edges:", filteredData.edges.length);
 
-  const cy = cyRef.current;
+console.log("dynBFCDataset:", dynBFCDataset);
 
-  // Remove any previous listeners to avoid duplicates
-  cy.removeListener('tap', 'node');
-
-  // Listen for node clicks
-  cy.on('tap', 'node', (event) => {
-    const node = event.target.data(); // gets {id, label, importance, bestAlgo, bestMean, ...}
-    
-    // Optional: compute neighbors dynamically from filteredData
-    const neighbors = filteredData.edges
-      .filter(e => e.source === node.id || e.target === node.id)
-      .map(e => (e.source === node.id ? e.target : e.source));
-
-    setSelectedNode({
-      ...node,
-      neighbors
-    });
-
-    // Optional: build selectedNodeInfo for the panel
-    setSelectedNodeInfo({
-      id: node.id,
-      degree: neighbors.length,
-      bestAlgo: node.bestAlgo ?? "",
-      bestMean: node.bestMean ?? 0,
-      neighbors
-    });
-  });
-
-  // Cleanup on unmount
-  return () => {
-    cy.removeListener('tap', 'node');
-  };
-}, [cyRef, filteredData]);
+console.log("Selected dataset:", activeDataset);
 
 
   return (
@@ -1334,13 +841,6 @@ useEffect(() => {
           <Network className="w-3 h-3 mr-1" />
           CytoscapeJS Interactive Canvas
         </Badge>
-        {/* <Badge variant="default">
-          Dataset: hESC v2.1.0
-        </Badge> */}
-        {/* <Select
-          value={selectedDatasetId}
-          onValueChange={setSelectedDatasetId}
-        > */}
         <Select
           value={selectedDatasetId}
           onValueChange={(value) => {
@@ -1351,19 +851,13 @@ useEffect(() => {
           <SelectTrigger className="w-[220px]">
             <SelectValue placeholder="Select dataset" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={selectedDatasetId}>
-              dynBFC v1.2.0
-            </SelectItem>
-          </SelectContent>
 
-          {/* <SelectContent>
-            {mockDatasets.map(dataset => (
-              <SelectItem key={dataset.id} value={dataset.id}>
-                {dataset.name} ({dataset.organism})
-              </SelectItem>
-            ))}
-          </SelectContent> */}
+          <SelectContent>
+            {datasetsArray.map(d => (
+              <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+            ))
+            }
+                      </SelectContent>
         </Select>
 
         <Badge variant="default" className='h-9 p-3'>
@@ -1445,44 +939,7 @@ useEffect(() => {
 </div>
 
 
-{/* Header */}
-        {/* <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">Network Explorer</h1>
-          <p className="text-gray-600">
-            Interactive exploration of gene regulatory network predictions
-          </p>
-        </div> */}
-
-        {/* Info Banner */}
-        {/* <div className="mb-6 p-4 rounded-lg bg-primary/10 border border-primary/20">
-          <div className="flex items-start gap-3">
-            <Network className="w-5 h-5 text-primary mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-sm mb-1">How to Explore This Network</h3>
-              <ul className="text-sm text-gray-600 space-y-1">
-                <li>• <strong>Click nodes</strong> to see gene annotations and regulatory relationships</li>
-                <li>• <strong>Use the search bar</strong> to find specific genes like SOX2, OCT4, or NANOG</li>
-                <li>• <strong>Adjust score threshold</strong> to focus on high-confidence edges</li>
-                <li>• <strong>Toggle 'TF-only View'</strong> to see the transcription factor network</li>
-              </ul>
-            </div>
-          </div>
-        </div> */}
-
         <div id="search" className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-
-          {/* <Card>
-            <CardHeader>Algorithm Recommendation</CardHeader>
-            <CardContent>
-              <p className="text-lg font-semibold">
-                Recommended: {predictedBestAlgorithm}
-              </p>
-              <p className="text-sm text-gray-600">
-                Based on mean edge confidence across inferred network.
-              </p>
-            </CardContent>
-          </Card> */}
-
           {/* Left Sidebar - Controls */}
           <Card className="p-6 lg:col-span-1">
           <div className="space-y-6">
@@ -1507,17 +964,18 @@ useEffect(() => {
             {/* Edge Type Filter */}
             <div>
               <label className="text-sm text-foreground mb-2 block">Edge Type</label>
-              <Select value={edgeFilter} onValueChange={setEdgeFilter}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="activation">Activation</SelectItem>
-                  <SelectItem value="repression">Repression</SelectItem>
-                  <SelectItem value="unknown">Unknown</SelectItem>
-                </SelectContent>
-              </Select>
+              <select
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 font-medium text-gray-700"
+                value={selectedEdgeType}
+                onChange={(e) =>
+                  setSelectedEdgeType(e.target.value as "all" | "activation" | "repression")
+                }
+              >
+                <option value="all">All Types</option>
+                <option value="activation">Activation</option>
+                <option value="repression">Repression</option>
+              </select>
+
             </div>
 
             {/* Top-K Slider */}
@@ -1580,12 +1038,13 @@ useEffect(() => {
                 className="w-full"
                 onClick={() => {
                   setSearchTerm(DEFAULT_FILTERS.searchTerm);
-                  setEdgeFilter(DEFAULT_FILTERS.edgeFilter);
+                  setSelectedEdgeType("all");   // FIX
                   setTopK([...DEFAULT_FILTERS.topK]);
                   setScoreThreshold([...DEFAULT_FILTERS.scoreThreshold]);
-                  setSelectedAlgorithms([...DEFAULT_FILTERS.selectedAlgorithms]);
-                  setMinConsensus([...DEFAULT_FILTERS.minConsensus]);
+                  setSelectedAlgorithms([]);
+                  setMinConsensus([1]);
                 }}
+
 
               >
                 Reset
@@ -1604,44 +1063,6 @@ useEffect(() => {
                 <span className="text-foreground">{filteredData.edges.length}</span>
               </div>
             </div>
-
-            {/* <div>
-              <label className="text-sm mb-2 block">Select Inference Algorithms</label>
-              <div className="space-y-2">
-                {mockInferenceData.algorithms.map(algo => (
-                  <label key={algo} className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={selectedAlgorithms.includes(algo)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedAlgorithms([...selectedAlgorithms, algo]);
-                        } else {
-                          setSelectedAlgorithms(
-                            selectedAlgorithms.filter(a => a !== algo)
-                          );
-                        }
-                      }}
-                    />
-                    {algo}
-                  </label>
-                ))}
-              </div>
-
-              <div>
-                <label className="text-sm mb-2 block">
-                  Minimum Algorithm Consensus: {minConsensus[0]}
-                </label>
-                <Slider
-                  value={minConsensus}
-                  onValueChange={setMinConsensus}
-                  min={1}
-                  max={mockInferenceData.algorithms.length}
-                  step={1}
-                />
-              </div>
-
-            </div> */}
 
           </div>
         </Card>
@@ -1675,7 +1096,7 @@ useEffect(() => {
             </div>
 
             <div className="border border-border rounded-lg overflow-hidden bg-white">
-              {/* <CytoscapeComponent
+              <CytoscapeComponent
                
                 elements={cytoscapeElements}
                 style={{ width: '100%', height: '600px' }}
@@ -1683,11 +1104,6 @@ useEffect(() => {
                 layout={{ name: layout }}
                 cy={(cy) => {
                   cyRef.current = cy;
-                  // cy.on('tap', 'node', (evt) => {
-                  //   const node = evt.target;
-                  //   setSelectedNode(node.data());
-                  // });
-
                   cy.on("tap", "node", evt => {
                     const node = evt.target;
                     const nodeId = node.id();
@@ -1709,43 +1125,12 @@ useEffect(() => {
                   });
 
                 }}
-              /> */}
-
-              <CytoscapeComponent
-                elements={cytoscapeElements}
-                style={{ width: "100%", height: "600px" }}
-                stylesheet={cytoscapeStylesheet}
-                cy={(cy) => (cyRef.current = cy)}
-                layout={{ name: layout }}
               />
-
               
             </div>
           </Card>
 
-          {/* {selectedNodeInfo && (
-  <Card className="p-4 mt-4">
-    <h3 className="font-semibold text-lg">
-      Gene: {selectedNodeInfo.id}
-    </h3>
-
-    <p>Degree: {selectedNodeInfo.degree}</p>
-
-    <p>
-      Best Algorithm: {selectedNodeInfo.bestAlgo}
-    </p>
-
-    <p>
-      Mean Score: {selectedNodeInfo.bestMean.toFixed(3)}
-    </p>
-
-    <p className="mt-2 text-sm">
-      Neighbors: {selectedNodeInfo.neighbors.join(", ")}
-    </p>
-  </Card>
-)} */}
-
-{/* {selectedNodeInfo && (
+{selectedNodeInfo && (
   <Card className="p-6">
     <div className="flex items-start justify-between mb-4">
       <div>
@@ -1804,83 +1189,11 @@ useEffect(() => {
       </div>
     </div>
   </Card>
-)} */}
-
-{selectedNode && selectedDataset && (
-  <Card className="p-6">
-    <div className="flex items-start justify-between mb-4">
-      <div>
-        <h3 className="text-foreground">Node Details</h3>
-        <p className="text-sm text-gray-600">Selected gene information</p>
-      </div>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setSelectedNode(null)}
-      >
-        ×
-      </Button>
-    </div>
-
-    {/* --- Node Attributes --- */}
-    <div className="grid grid-cols-2 gap-4">
-      <div className="p-4 bg-secondary rounded-lg">
-        <p className="text-xs text-gray-600 mb-1">Gene ID</p>
-        <p className="text-foreground">{selectedNode.id}</p>
-      </div>
-      <div className="p-4 bg-secondary rounded-lg">
-        <p className="text-xs text-gray-600 mb-1">Gene Name</p>
-        <p className="text-foreground">{selectedNode.label}</p>
-      </div>
-      <div className="p-4 bg-secondary rounded-lg">
-        <p className="text-xs text-gray-600 mb-1">Importance Score</p>
-        <p className="text-foreground">{selectedNode.importance?.toFixed(3)}</p>
-      </div>
-      <div className="p-4 bg-secondary rounded-lg">
-        <p className="text-xs text-gray-600 mb-1">Degree</p>
-        <p className="text-foreground">
-          {filteredData.edges.filter(
-            e => e.source === selectedNode.id || e.target === selectedNode.id
-          ).length}
-        </p>
-      </div>
-    </div>
-
-    {/* --- Neighbors --- */}
-    <div className="mt-4 p-4 bg-secondary rounded-lg">
-      <p className="text-xs text-gray-600 mb-2">Neighbors</p>
-      <div className="flex flex-wrap gap-2">
-        {filteredData.edges
-          .filter(e => e.source === selectedNode.id || e.target === selectedNode.id)
-          .map((edge, idx) => {
-            const neighborId = edge.source === selectedNode.id ? edge.target : edge.source;
-            const neighbor = selectedDataset.nodes.find(n => n.id === neighborId);
-            return (
-              <Badge key={idx} variant="secondary" className='text-foreground'>
-                {neighbor?.label || neighborId}
-              </Badge>
-            );
-          })}
-      </div>
-    </div>
-
-    {/* --- Optional: Best Algorithm + Mean Score --- */}
-    <div className="mt-4 p-4 bg-secondary rounded-lg">
-      <p className="text-xs text-gray-600 mb-2">Inference Info</p>
-      {selectedNode.bestAlgo && (
-        <p className="text-foreground">
-          Best Algorithm: {selectedNode.bestAlgo}, Mean Score: {selectedNode.bestMean?.toFixed(3)}
-        </p>
-        
-      )}
-    </div>
-  </Card>
 )}
 
 
-
           {/* Node Details Panel */}
-          {/* {selectedNode && (
+          {selectedNode && (
             <Card className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div>
@@ -1912,7 +1225,7 @@ useEffect(() => {
                 <div className="p-4 bg-secondary rounded-lg">
                   <p className="text-xs text-gray-600 mb-1">Degree</p>
                   <p className="text-foreground">
-                    {filteredEdges.filter(e => e.source === selectedNode.id || e.target === selectedNode.id).length}
+                    {filteredData.filter(e => e.source === selectedNode.id || e.target === selectedNode.id).length}
                   </p>
                 </div>
               </div>
@@ -1920,7 +1233,7 @@ useEffect(() => {
               <div className="mt-4 p-4 bg-secondary rounded-lg">
                 <p className="text-xs text-gray-600 mb-2">Neighbors</p>
                 <div className="flex flex-wrap gap-2">
-                  {filteredEdges
+                  {filteredData
                     .filter(e => e.source === selectedNode.id || e.target === selectedNode.id)
                     .slice(0, 5)
                     .map((edge, idx) => {
@@ -1935,7 +1248,7 @@ useEffect(() => {
                 </div>
               </div>
             </Card>
-          )} */}
+          )}
 
           {selectedEdge && (
             <Card className="p-6">
@@ -2024,7 +1337,7 @@ useEffect(() => {
       </p>
       <div className="flex flex-wrap gap-2 text-foreground">
         {selectedNodeInfo.neighbors?.slice(0, 5).map((neighbor, idx) => (
-          <Badge key={idx} variant="secondary" className='text-foreground'>
+          <Badge key={idx} variant="secondary">
             {neighbor}
           </Badge>
         ))}
@@ -2034,7 +1347,7 @@ useEffect(() => {
 )}
               
           {/* Node Details Panel */}
-          {/* {selectedNode && (
+          {selectedNode && (
             <Card className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div>
@@ -2089,7 +1402,7 @@ useEffect(() => {
                 </div>
               </div>
             </Card>
-          )} */}
+          )}
 
               <div className="mt-6 p-3 rounded-lg bg-accent/50 border">
                 <h4 className="font-semibold text-sm mb-2">Focus Options</h4>
@@ -2134,61 +1447,6 @@ useEffect(() => {
           </div>
         </div>
       </div>
-
-      {/* -------------------- LANDINGPAGE FOOTER -------------------- */}
-            {/* <footer className="bg-gray-900 text-gray-300 py-12 mt-10">
-              <div className="max-w-[1400px] mx-auto px-8">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                  <div>
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="w-8 h-8 rounded-lg bg-purple-600 flex items-center justify-center">
-                        <Activity className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <div className="text-white">WebGenie</div>
-                        <div className="text-xs text-gray-400">Benchmarking Platform</div>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-400 leading-relaxed">
-                      Research-grade GRN inference benchmarking and visualization for evaluating
-                    gene regulatory network inference algorithms on single-cell data.
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h5 className="text-white mb-4">Platform</h5>
-                    <ul className="space-y-2 text-sm">
-                      <li><a href="/dashboard" className="hover:text-white transition-colors">Dashboard</a></li>
-                      <li><a href="/datasets" className="hover:text-white transition-colors">Datasets</a></li>
-                      <li><a href="/compare" className="hover:text-white transition-colors">Algorithms</a></li>
-                      <li><a href="/upload" className="hover:text-white transition-colors">Upload</a></li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h5 className="text-white mb-4">Resources</h5>
-                    <ul className="space-y-2 text-sm">
-                      <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
-                      <li><a href="https://github.com/Murali-group/Beeline" className="hover:text-white transition-colors">GitHub</a></li>
-                      <li><a href="https://github.com/ukanduchimeremezejames/WebgenieDark" className="hover:text-white transition-colors">Contact</a></li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h5 className="text-white mb-4">Subscribe</h5>
-                    <p className="text-sm text-gray-400 mb-2">Get updates about new datasets and algorithms</p>
-                    <form className="flex gap-2">
-                      <input type="email" placeholder="Email" className="flex-1 p-2 rounded-lg border border-gray-700 bg-gray-800 text-white text-sm" />
-                      <button type="submit" className="px-4 py-2 bg-purple-600 rounded-lg text-white text-sm hover:bg-purple-700 transition-colors">Subscribe</button>
-                    </form>
-                  </div>
-                </div>
-                
-                <div className="border-t border-gray-700 pt-6 text-center text-sm">
-                  © 2026 WebGenie | Built on the BEELINE Platform. All rights reserved.
-                </div>
-              </div>
-            </footer> */}
 
                   {/* Footer */}
       <footer className="border-t bg-background mt-12">

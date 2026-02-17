@@ -40,10 +40,11 @@ export function generateMockInferenceData(dataset: Dataset) {
     });
 
     edges.push({
-      id: `${source}_${target}_${i}`,
+      id: `${source}-${target}`,
       source,
       target,
-      type: seededRandom(i + 5) > 0.2 ? "activation" : "repression",
+      type: randomEdgeType(),
+      // type: seededRandom(i + 5) > 0.2 ? "activation" : "repression",
       scores
     });
   }
@@ -94,6 +95,16 @@ function randomInt1(min: number, max: number) {
 
 // Helper to generate mock edges with algorithm scores
 function generateEdges1(nodes: Node[], algorithms: string[]) {
+  const edgeTypes = ["activation", "repression", "unknown"] as const;
+
+function randomEdgeType() {
+  const rand = Math.random();
+
+  if (rand < 0.45) return "activation";
+  if (rand < 0.9) return "repression";
+  return "unknown";
+}
+
   const edges: Edge[] = [];
   const n = nodes.length;
 
