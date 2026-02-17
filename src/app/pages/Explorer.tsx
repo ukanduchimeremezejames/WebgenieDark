@@ -6,8 +6,13 @@ import { Card, CardHeader, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Slider } from '../components/ui/slider'
-import dynBFC from "../../data/beeline/synthetic/dyn-BFC.json";
+
+import GSD from "../../data/beeline/biological/GSD.json";
+import HSC from "../../data/beeline/biological/HSC.json";
+import mCAD from "../../data/beeline/biological/mCAD.json";
+import VSC from "../../data/beeline/biological/VSC.json";
 import dynBF from "../../data/beeline/synthetic/dyn-BF.json";
+import dynBFC from "../../data/beeline/synthetic/dyn-BFC.json";
 import dynCY from "../../data/beeline/synthetic/dyn-CY.json";
 import dynLI from "../../data/beeline/synthetic/dyn-LI.json";
 import dynLL from "../../data/beeline/synthetic/dyn-LL.json";
@@ -24,6 +29,10 @@ import graphML from 'cytoscape-graphml';
 import { saveAs } from "file-saver";
 
 
+const GSDDataset = buildBeelineDataset(GSD);
+const HSCDataset = buildBeelineDataset(HSC);
+const mCADDataset = buildBeelineDataset(mCAD);
+const VSCDataset = buildBeelineDataset(VSC);
 const dynBFCDataset = buildBeelineDataset(dynBFC);
 const dynBFDataset = buildBeelineDataset(dynBF);
 const dynCYDataset = buildBeelineDataset(dynCY);
@@ -45,17 +54,46 @@ const dynTFDataset = buildBeelineDataset(dynTF);
 
 const datasetsArray = [
 {
+  id: "gsd",
+  name: "GSD",
+  organism: "Human",
+  description: "Gonadal sex determination gene regulatory network",
+  ...GSDDataset
+},
+{
+  id: "hsc",
+  name: "HSC",
+  organism: "Mouse",
+  description: "Hematopoietic stem cell gene regulatory network",
+  ...HSCDataset
+},
+{
+  id: "mcad",
+  name: "mCAD",
+  organism: "Mouse",
+  description: "Mouse cortical arealization gene regulatory network",
+  ...mCADDataset
+},
+{
+  id: "vsc",
+  name: "VSC",
+  organism: "Mouse",
+  description: "Ventral spinal cord gene regulatory network",
+  ...VSCDataset
+},
+{
   id: "dyn-bf",
-  name: "dyn-BF Synthetic Network",
+  name: "dyn-BF",
   organism: "Synthetic",
   description: "Bifurcating synthetic GRN",
   ...dynBFDataset
 },
 {
     id: "dyn-bfc",
-    name: "dyn-BFC Synthetic Network",
-    nodes: dynBFCDataset.nodes,
-    edges: dynBFCDataset.edges
+    name: "dyn-BFC",
+    organism: "Synthetic",
+    description: "Bifurcating-Converging synthetic GRN",
+    ...dynBFCDataset
 },
 {
   id: "dyn-cy",
@@ -1154,7 +1192,7 @@ const globalDegreeMap = useMemo(() => {
         'height': 'mapData(importance, 1, 6, 30, 80)',
         'text-valign': 'center',
         'text-halign': 'center',
-        'font-size': '11px',
+        'font-size': '9px',
         'color': '#ffffff'
       }
     },
@@ -1428,7 +1466,7 @@ useEffect(() => {
           <SelectContent>
             {datasetsArray.map((dataset) => (
               <SelectItem key={dataset.id} value={dataset.id}>
-                {dataset.name}
+                <strong>{dataset.name}</strong>| <em>{dataset.organism}</em>
               </SelectItem>
             ))}
           </SelectContent>
@@ -1898,7 +1936,7 @@ useEffect(() => {
       </div>
       <div className="p-4 bg-secondary rounded-lg">
         <p className="text-xs text-gray-600 mb-1">Gene Name</p>
-        <p className="text-foreground">{selectedNode.label}</p>
+        <p className="text-foreground"><strong>{selectedNode.label}</strong></p>
       </div>
       <div className="p-4 bg-secondary rounded-lg">
         <p className="text-xs text-gray-600 mb-1">Importance Score</p>
