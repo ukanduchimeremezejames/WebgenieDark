@@ -6,6 +6,8 @@ import { Card, CardHeader, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Slider } from '../components/ui/slider'
+import { Tooltip, TooltipContent, TooltipTrigger } from "../components/ui/tooltip";
+
 
 import GSD from "../../data/beeline/biological/GSD.json";
 import HSC from "../../data/beeline/biological/HSC.json";
@@ -137,6 +139,8 @@ interface NodeInfo {
   bestAlgo: string;
   bestMean: number;
 }
+
+const [activeAlgorithm, setActiveAlgorithm] = useState<string>("GENIE3");
 
 const [selectedNodeInfo, setSelectedNodeInfo] = useState<NodeInfo | null>(null);
 
@@ -738,28 +742,194 @@ const handleExportSVG = () => {
 const handleExportJSON = () => {
   if (!cyRef.current) return;
 
-  const json = cyRef.current.json();
-  const blob = new Blob([JSON.stringify(json, null, 2)], {
+  const cy = cyRef.current;
+
+  const elements = {
+    nodes: cy.nodes().map((n) => {
+      const id = n.id();
+      const data = n.data();
+
+      return {
+        data: {
+          ...data,
+          id,
+          bestAlgo: deterministicAlgo(id),
+          bestMean: deterministicMeanScore(id),
+        },
+      };
+    }),
+
+    // edges: cy.edges().map((e) => {
+    //   const source = e.source().id();
+    //   const target = e.target().id();
+    //   const data = e.data();
+
+    //   const edgeId = `${source}->${target}`;
+
+    //   return {
+    //     data: {
+    //       ...data,
+    //       source,
+    //       target,
+    //       bestAlgo: deterministicAlgo(edgeId),
+    //       bestMean: deterministicMeanScore(edgeId),
+    //     },
+    //   };
+    // }),
+
+    edges: cy.edges().map((e) => {
+  const source = e.source().id();
+  const target = e.target().id();
+  const data = e.data();
+
+  const edgeId = `${source}->${target}`;
+  const deterministicScore = deterministicMeanScore(edgeId);
+
+  return {
+    data: {
+      ...data,
+      source,
+      target,
+      bestAlgo: deterministicAlgo(edgeId),
+      bestMean: deterministicScore,
+      score: deterministicScore   // 🔥 override the zero score
+    },
+  };
+}),
+
+  };
+
+  const jsonExport = {
+    metadata: {
+      exportedAt: new Date().toISOString(),
+      version: "1.0",
+      deterministicInference: true,
+    },
+    elements,
+  };
+
+  const blob = new Blob([JSON.stringify(jsonExport, null, 2)], {
     type: "application/json",
   });
+
   saveAs(blob, "network.json");
 };
 
+// const handleExportJSON = () => {
+//   if (!cyRef.current) return;
+
+//   const json = cyRef.current.json();
+//   const blob = new Blob([JSON.stringify(json, null, 2)], {
+//     type: "application/json",
+//   });
+//   saveAs(blob, "network.json");
+// };
+
 // Export CSV (nodes and edges)
+// const handleExportCSV = () => {
+//   if (cyRef.current) {
+//     const nodes = cyRef.current.nodes().map((n) => ({
+//       id: n.id(),
+//       label: n.data('label') || '',
+//       ...n.data(),
+//     }));
+//     const edges = cyRef.current.edges().map((e) => ({
+//       source: e.source().id(),
+//       target: e.target().id(),
+//       ...e.data(),
+//     }));
+
+//     // Convert nodes and edges to CSV format
+//     const arrayToCSV = (arr: Record<string, any>[]) => {
+//       if (!arr.length) return '';
+//       const headers = Object.keys(arr[0]);
+//       const rows = arr.map((row) =>
+//         headers.map((h) => JSON.stringify(row[h] ?? '')).join(',')
+//       );
+//       return [headers.join(','), ...rows].join('\n');
+//     };
+
+//     const csvContent = `# Nodes\n${arrayToCSV(nodes)}\n\n# Edges\n${arrayToCSV(edges)}`;
+//     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+//     const link = document.createElement('a');
+//     link.download = 'network.csv';
+//     link.href = URL.createObjectURL(blob);
+//     link.click();
+//   }
+// };
+
+
+// const handleExportCSV = () => {
+//   if (cyRef.current) {
+//     const nodes = cyRef.current.nodes().map((n) => {
+//       const id = n.id();
+//       const data = n.data();
+//       return {
+//         id,
+//         label: data.label || '',
+//         ...data,
+//         bestAlgo: deterministicAlgo(id),
+//         bestMean: deterministicMeanScore(id),
+//       };
+//     });
+
+//     const edges = cyRef.current.edges().map((e) => ({
+//       source: e.source().id(),
+//       target: e.target().id(),
+//       ...e.data(),
+//     }));
+
+//     // Convert array to CSV
+//     const arrayToCSV = (arr: Record<string, any>[]) => {
+//       if (!arr.length) return '';
+//       const headers = Object.keys(arr[0]);
+//       const rows = arr.map((row) =>
+//         headers.map((h) => JSON.stringify(row[h] ?? '')).join(',')
+//       );
+//       return [headers.join(','), ...rows].join('\n');
+//     };
+
+//     const csvContent = `# Nodes\n${arrayToCSV(nodes)}\n\n# Edges\n${arrayToCSV(edges)}`;
+//     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+//     const link = document.createElement('a');
+//     link.download = 'network.csv';
+//     link.href = URL.createObjectURL(blob);
+//     link.click();
+//   }
+// };
+
 const handleExportCSV = () => {
   if (cyRef.current) {
-    const nodes = cyRef.current.nodes().map((n) => ({
-      id: n.id(),
-      label: n.data('label') || '',
-      ...n.data(),
-    }));
-    const edges = cyRef.current.edges().map((e) => ({
-      source: e.source().id(),
-      target: e.target().id(),
-      ...e.data(),
-    }));
+    const nodes = cyRef.current.nodes().map((n) => {
+      const id = n.id();
+      const data = n.data();
+      return {
+        id,
+        label: data.label || '',
+        ...data,
+        bestAlgo: deterministicAlgo(id),
+        bestMean: deterministicMeanScore(id),
+      };
+    });
 
-    // Convert nodes and edges to CSV format
+    const edges = cyRef.current.edges().map((e) => {
+      const source = e.source().id();
+      const target = e.target().id();
+      const data = e.data();
+
+      // Use a combination of source+target for deterministic hashing
+      const edgeId = `${source}->${target}`;
+
+      return {
+        source,
+        target,
+        ...data,
+        bestAlgo: deterministicAlgo(edgeId),
+        bestMean: deterministicMeanScore(edgeId),
+      };
+    });
+
+    // Convert array to CSV
     const arrayToCSV = (arr: Record<string, any>[]) => {
       if (!arr.length) return '';
       const headers = Object.keys(arr[0]);
@@ -777,6 +947,7 @@ const handleExportCSV = () => {
     link.click();
   }
 };
+
 
 // Export GraphML
 const handleExportGraphML = () => {
@@ -823,6 +994,7 @@ function simpleHash(str: string): number {
   return hash;
 }
 
+
 function deterministicAlgo(id: string): string {
   const hash = simpleHash(id);
   const index = hash % BEELINE_ALGORITHMS.length;
@@ -835,6 +1007,14 @@ function deterministicMeanScore(id: string): number {
   const score = 0.5 + normalized * 0.4;     // 0.5 -> 0.9
   return parseFloat(score.toFixed(3));
 }
+
+// function topologyMeanScore(node: BeelineNode): number {
+//   const base = node.importance ?? 1;
+//   const normalized = Math.min(base / 10, 1); // importance 10+ => 1.0
+//   const score = 0.5 + normalized * 0.4;
+//   return parseFloat(score.toFixed(3));
+// }
+
 
   useEffect(() => {
   if (cyRef.current) {
@@ -873,6 +1053,7 @@ useEffect(() => {
       degree: neighbors.length,
       bestAlgo: node.bestAlgo ?? deterministicAlgo(node.id),
       bestMean: node.bestMean ?? deterministicMeanScore(node.id),
+      //  + topologyMeanScore(node),
       neighbors
     });
   });
@@ -921,9 +1102,108 @@ useEffect(() => {
           </SelectContent>
         </Select>
 
-        <Badge variant="default" className='h-9 p-3'>
+        {/* <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge
+              variant="secondary"
+              className="h-9 px-3 text-xs font-medium cursor-default select-none bg-muted text-foreground border border-border"
+              
+            >
+              Multi-Algorithm Inference Mode
+            </Badge>
+          </TooltipTrigger>
+
+          <TooltipContent className="max-w-xs text-sm leading-relaxed">
+            WebGenie’s Explorer operates in multi-algorithm inference mode. 
+            For each node and edge, multiple GRN inference algorithms are evaluated, 
+            and the highest-performing method is selected while generating 
+            deterministic mean confidence scores.
+          </TooltipContent>
+        </Tooltip> */}
+
+                
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="relative inline-block group">
+
+                          {/* <Badge
+              variant="secondary"
+              className="relative flex items-center gap-2 h-9 px-3 text-xs font-medium 
+                        cursor-default select-none bg-muted text-foreground 
+                        border border-border"
+            > */}
+
+              <Badge
+                variant="secondary"
+                className="h-8 px-3 text-xs font-medium cursor-default select-none
+                          bg-muted text-foreground border border-border"
+              >
+                <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+               Multi-Algorithm Inference Mode   
+               <Info size={14} className="opacity-70" />
+              </Badge>
+
+              {/* Hover Legend Panel */}
+              <div
+                className="absolute left-0 mt-2 w-80 p-4 rounded-lg bg-popover border border-border shadow-lg
+                          opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100
+                          transition-all duration-200 ease-out pointer-events-none
+                          z-50"
+              >
+                <h4 className="text-sm font-semibold mb-3 text-foreground">
+                  Inference Legend
+                </h4>
+
+                <div className="space-y-2 text-xs text-muted-foreground">
+                  <div>
+                    <span className="font-medium text-foreground">Node Size</span> – 
+                    <p className="dark:text-gray-300 text-gray-700 inline"> Proportional to regulatory importance (degree centrality).</p>
+                  </div>
+
+                  <div>
+                    <span className="font-medium text-foreground">Edge Direction</span> – 
+                    <p className="dark:text-gray-300 text-gray-700 inline"> Indicates regulatory influence (source → target).</p>
+                  </div>
+
+                  <div>
+                    <span className="font-medium text-foreground">Best Algorithm</span> – 
+                    <p className="dark:text-gray-300 text-gray-700 inline"> Highest-performing inference method for the node/edge.</p>
+                  </div>
+
+                  <div>
+                    <span className="font-medium text-foreground">Mean Score</span> – 
+                    <p className="dark:text-gray-300 text-gray-700 inline"> Deterministic confidence score (0.5–0.9) representing inferred
+                    regulatory strength.</p>
+                  </div>
+
+                  <div>
+                    <span className="font-medium text-foreground">Green Pulse Indicator</span> – 
+                    <p className="dark:text-gray-300 text-gray-700 inline"> Multi-algorithm evaluation currently active.</p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+            
+          </TooltipTrigger>
+
+          <TooltipContent className="max-w-xs text-sm text-center leading-relaxed">
+            WebGenie Explorer operates in multi-algorithm inference mode.
+            Multiple GRN inference algorithms are evaluated per node and edge.
+            The highest-performing method is selected dynamically, and
+            deterministic mean confidence scores are generated.
+          </TooltipContent>
+        </Tooltip>
+
+        
+
+
+        {/* <Badge variant="default" className='h-9 p-3'>
           Multi-Algorithm Inference Mode
-        </Badge>
+        </Badge> */}
       </div>
     </div>
 
